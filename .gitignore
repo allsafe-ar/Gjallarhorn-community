@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+*.env
+.env.local
+.env.*.local
+CLAUDE.md
+.claude/
+*.log
+*.pid
+.DS_Store
+Thumbs.db
+coverage/
+*.tsbuildinfo
+uploads/

@@ -1,0 +1,44 @@
+# Gjallarhorn Community — Docker Compose
+# Copyright (c) 2026 Eduardo Emiliano Alaniz - AllSafe Security Solutions
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: gjallar
+      MYSQL_USER: gjallar
+      MYSQL_PASSWORD: ${DB_PASSWORD:-changeme}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootchangeme}
+    volumes:
+      - gjallarhorn_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3003}:3003"
+    environment:
+      PORT: 3003
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: gjallar
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      DB_NAME: gjallar
+      JWT_SECRET: ${JWT_SECRET:-change_this_to_a_random_64char_string}
+      NODE_ENV: production
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3003}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - gjallarhorn_uploads:/app/uploads
+
+volumes:
+  gjallarhorn_db:
+  gjallarhorn_uploads:
