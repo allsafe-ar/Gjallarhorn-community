@@ -3,7 +3,7 @@
 <div align="center">
   <img src="logo.png" alt="Gjallarhorn Logo" width="500"/>
 
-  # Gjallarhorn Community — Blue Team Platform
+  # Gjallarhorn Community - Blue Team Platform
 
   **Plataforma SOC open-source para operaciones Blue Team**
 
@@ -18,9 +18,9 @@
 
 ---
 
-Gjallarhorn Community es una plataforma SOC gratuita y open-source para operaciones Blue Team — integra investigación de amenazas, análisis de malware, forense de email, gestión de casos e integraciones con herramientas SOC en una única interfaz.
+Gjallarhorn Community es una plataforma SOC gratuita y open-source para operaciones Blue Team - integra investigación de amenazas, análisis de malware, forense de email, gestión de casos e integraciones con herramientas SOC en una única interfaz.
 
-> El nombre proviene del Gjallarhorn — el cuerno de Heimdall en la mitología nórdica. Cuando suena, advierte al ejército de los dioses del peligro inminente.
+> El nombre proviene del Gjallarhorn - el cuerno de Heimdall en la mitología nórdica. Cuando suena, advierte al ejército de los dioses del peligro inminente.
 
 ---
 
@@ -30,7 +30,7 @@ Gjallarhorn Community incluye:
 
 - **20+ fuentes de Threat Intelligence** (VirusTotal, Shodan, AbuseIPDB, AlienVault OTX, GreyNoise, Criminal IP y más) para investigar IPs, dominios, URLs y hashes
 - **Integraciones SOC**: Wazuh, Velociraptor y OpenVAS/GVM
-- **Análisis estático de archivos**: ejecutables PE, scripts PowerShell/Batch/VBS, documentos Office, PDFs — con detección de ransomware, Cobalt Strike beacon y frameworks C2
+- **Análisis estático de archivos**: ejecutables PE, scripts PowerShell/Batch/VBS, documentos Office, PDFs - con detección de ransomware, Cobalt Strike beacon y frameworks C2
 - **Forense de email**: análisis SPF/DKIM/DMARC, detección de phishing y BEC (Business Email Compromise)
 - **Gestión de casos** con notas, análisis vinculados y adjuntos
 - **Generación de reglas de detección**: KQL (Sentinel/Defender), SPL (Splunk), SIGMA, YARA
@@ -90,7 +90,7 @@ Gjallarhorn Community incluye:
 
 ### Análisis de Archivos
 - Ejecutables PE: entropía, secciones, imports/exports, detección de packers
-- Scripts: PowerShell, Batch, JavaScript, VBScript — deobfuscación y extracción de IOCs
+- Scripts: PowerShell, Batch, JavaScript, VBScript - deobfuscación y extracción de IOCs
 - Documentos: Office (macros, OLE), PDF
 - Detección de ransomware: constantes AES/ChaCha20, ransom notes, eliminación de VSS
 - Detección de Cobalt Strike Beacon: descifrado XOR, parsing de config, extracción de C2
@@ -180,16 +180,16 @@ Gjallarhorn Community incluye:
 
 Gjallarhorn no sería posible sin el trabajo de las siguientes organizaciones y proyectos open-source:
 
-- [MITRE ATT&CK](https://attack.mitre.org/) — framework de tácticas y técnicas adversariales
-- [Wazuh](https://wazuh.com/) — plataforma SIEM open-source de detección de amenazas
-- [Velociraptor](https://docs.velociraptor.app/) — plataforma DFIR para recolección remota de artifacts
-- [Greenbone / OpenVAS](https://www.greenbone.net/) — scanner de vulnerabilidades open-source
-- [VirusTotal](https://www.virustotal.com/) — análisis de archivos e indicadores de amenazas
-- [Abuse.ch](https://abuse.ch/) — feeds de inteligencia gratuitos: ThreatFox, MalwareBazaar y URLhaus
-- [AbuseIPDB](https://www.abuseipdb.com/) — base de datos colaborativa de IPs maliciosas
-- [Shodan](https://www.shodan.io/) — motor de búsqueda de dispositivos expuestos a internet
-- [AlienVault OTX](https://otx.alienvault.com/) — plataforma colaborativa de threat intelligence
-- [GreyNoise](https://www.greynoise.io/) — clasificación de ruido de internet vs. amenazas reales
+- [MITRE ATT&CK](https://attack.mitre.org/) - framework de tácticas y técnicas adversariales
+- [Wazuh](https://wazuh.com/) - plataforma SIEM open-source de detección de amenazas
+- [Velociraptor](https://docs.velociraptor.app/) - plataforma DFIR para recolección remota de artifacts
+- [Greenbone / OpenVAS](https://www.greenbone.net/) - scanner de vulnerabilidades open-source
+- [VirusTotal](https://www.virustotal.com/) - análisis de archivos e indicadores de amenazas
+- [Abuse.ch](https://abuse.ch/) - feeds de inteligencia gratuitos: ThreatFox, MalwareBazaar y URLhaus
+- [AbuseIPDB](https://www.abuseipdb.com/) - base de datos colaborativa de IPs maliciosas
+- [Shodan](https://www.shodan.io/) - motor de búsqueda de dispositivos expuestos a internet
+- [AlienVault OTX](https://otx.alienvault.com/) - plataforma colaborativa de threat intelligence
+- [GreyNoise](https://www.greynoise.io/) - clasificación de ruido de internet vs. amenazas reales
 
 ---
 
@@ -210,7 +210,7 @@ Creado por **Eduardo Emiliano Alaniz** ([@h4wkby73](https://github.com/h4wkby73)
 
 ## Licencia
 
-GNU Affero General Public License v3.0 — ver archivo [LICENSE](LICENSE).
+GNU Affero General Public License v3.0 - ver archivo [LICENSE](LICENSE).
 
 Si modificás y desplegás Gjallarhorn Community como servicio, debés publicar tus modificaciones bajo la misma licencia.
 
@@ -218,7 +218,7 @@ Si modificás y desplegás Gjallarhorn Community como servicio, debés publicar 
 
 ## Seguridad
 
-¿Encontraste una vulnerabilidad? Por favor reportala de forma privada — ver [SECURITY.md](SECURITY.md).
+¿Encontraste una vulnerabilidad? Por favor reportala de forma privada - ver [SECURITY.md](SECURITY.md).
 
 ---
 
