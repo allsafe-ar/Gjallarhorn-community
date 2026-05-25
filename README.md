@@ -1,7 +1,7 @@
 [![Español](https://img.shields.io/badge/lang-es-blue)](README.es.md)
 
 <div align="center">
-  <img src="logo.png" alt="Gjallarhorn Logo" width="300"/>
+  <img src="logo.png" alt="Gjallarhorn Logo" width="500"/>
 
   # Gjallarhorn Community — Blue Team Platform
 
