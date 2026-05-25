@@ -208,6 +208,12 @@ Created by **Eduardo Emiliano Alaniz** ([@h4wkby73](https://github.com/h4wkby73)
 
 ---
 
+## Trademark Notice
+
+The names "AllSafe", "AllSafe Security Solutions", "Gjallarhorn" and all associated logos are trademarks of AllSafe Security Solutions. The AGPL-3.0 license covering this software does not grant any rights to use these names or logos. You may not use them to identify, endorse or promote products derived from this software without prior written permission from AllSafe Security Solutions.
+
+---
+
 ## License
 
 GNU Affero General Public License v3.0 - see [LICENSE](LICENSE) file.
