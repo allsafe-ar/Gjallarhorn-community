@@ -3,7 +3,6 @@ import {
   Search,
   FileSearch,
   Mail,
-  Fish,
   AlertTriangle,
   Clock,
   Bot,
@@ -29,7 +28,7 @@ export const sidebarData: SidebarData = {
     },
     {
       title: 'nav.soc',
-      roles: ['admin', 'analyst', 'analyst_full'],
+      roles: ['admin', 'analyst'],
       items: [
         { title: 'nav.wazuh',        url: '/soc/wazuh',        icon: Activity },
         { title: 'nav.velociraptor', url: '/soc/velociraptor', icon: Network },
@@ -38,17 +37,16 @@ export const sidebarData: SidebarData = {
     },
     {
       title: 'nav.tools',
-      roles: ['admin', 'analyst', 'analyst_full', 'phishing_analyst'],
+      roles: ['admin', 'analyst'],
       items: [
-        { title: 'nav.ioc',      url: '/herramientas/ioc',      icon: Search },
-        { title: 'nav.files',    url: '/herramientas/archivos', icon: FileSearch },
-        { title: 'nav.email',    url: '/herramientas/email',    icon: Mail },
-        { title: 'nav.phishing', url: '/herramientas/phishing', icon: Fish },
+        { title: 'nav.ioc',   url: '/herramientas/ioc',      icon: Search },
+        { title: 'nav.files', url: '/herramientas/archivos', icon: FileSearch },
+        { title: 'nav.email', url: '/herramientas/email',    icon: Mail },
       ],
     },
     {
       title: 'nav.incidents',
-      roles: ['admin', 'analyst', 'analyst_full'],
+      roles: ['admin', 'analyst'],
       items: [
         { title: 'nav.casos',    url: '/incidentes/casos',    icon: AlertTriangle },
         { title: 'nav.timeline', url: '/incidentes/timeline', icon: Clock },
@@ -56,7 +54,7 @@ export const sidebarData: SidebarData = {
     },
     {
       title: 'nav.ai',
-      roles: ['admin', 'analyst', 'analyst_full'],
+      roles: ['admin', 'analyst'],
       items: [
         { title: 'nav.asistente', url: '/ia', icon: Bot },
       ],

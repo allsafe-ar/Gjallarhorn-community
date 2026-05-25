@@ -32,12 +32,10 @@ import { Route as AuthenticatedInteligenciaApisRouteImport } from './routes/_aut
 import { Route as AuthenticatedIncidentesTimelineRouteImport } from './routes/_authenticated/incidentes/timeline'
 import { Route as AuthenticatedIncidentesPlaybooksRouteImport } from './routes/_authenticated/incidentes/playbooks'
 import { Route as AuthenticatedIncidentesCasosRouteImport } from './routes/_authenticated/incidentes/casos'
-import { Route as AuthenticatedHerramientasPhishingRouteImport } from './routes/_authenticated/herramientas/phishing'
 import { Route as AuthenticatedHerramientasIocRouteImport } from './routes/_authenticated/herramientas/ioc'
 import { Route as AuthenticatedHerramientasEmailRouteImport } from './routes/_authenticated/herramientas/email'
 import { Route as AuthenticatedHerramientasArchivosRouteImport } from './routes/_authenticated/herramientas/archivos'
 import { Route as AuthenticatedConfigUsuariosRouteImport } from './routes/_authenticated/config/usuarios'
-import { Route as AuthenticatedConfigSmtpRouteImport } from './routes/_authenticated/config/smtp'
 import { Route as AuthenticatedConfigPlatformsRouteImport } from './routes/_authenticated/config/platforms'
 import { Route as AuthenticatedConfigIaRouteImport } from './routes/_authenticated/config/ia'
 import { Route as AuthenticatedConfigAuditoriaRouteImport } from './routes/_authenticated/config/auditoria'
@@ -166,12 +164,6 @@ const AuthenticatedIncidentesCasosRoute =
     path: '/incidentes/casos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedHerramientasPhishingRoute =
-  AuthenticatedHerramientasPhishingRouteImport.update({
-    id: '/herramientas/phishing',
-    path: '/herramientas/phishing',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedHerramientasIocRoute =
   AuthenticatedHerramientasIocRouteImport.update({
     id: '/herramientas/ioc',
@@ -196,11 +188,6 @@ const AuthenticatedConfigUsuariosRoute =
     path: '/config/usuarios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedConfigSmtpRoute = AuthenticatedConfigSmtpRouteImport.update({
-  id: '/config/smtp',
-  path: '/config/smtp',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedConfigPlatformsRoute =
   AuthenticatedConfigPlatformsRouteImport.update({
     id: '/config/platforms',
@@ -238,12 +225,10 @@ export interface FileRoutesByFullPath {
   '/config/auditoria': typeof AuthenticatedConfigAuditoriaRoute
   '/config/ia': typeof AuthenticatedConfigIaRoute
   '/config/platforms': typeof AuthenticatedConfigPlatformsRoute
-  '/config/smtp': typeof AuthenticatedConfigSmtpRoute
   '/config/usuarios': typeof AuthenticatedConfigUsuariosRoute
   '/herramientas/archivos': typeof AuthenticatedHerramientasArchivosRoute
   '/herramientas/email': typeof AuthenticatedHerramientasEmailRoute
   '/herramientas/ioc': typeof AuthenticatedHerramientasIocRoute
-  '/herramientas/phishing': typeof AuthenticatedHerramientasPhishingRoute
   '/incidentes/casos': typeof AuthenticatedIncidentesCasosRoute
   '/incidentes/playbooks': typeof AuthenticatedIncidentesPlaybooksRoute
   '/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
@@ -272,12 +257,10 @@ export interface FileRoutesByTo {
   '/config/auditoria': typeof AuthenticatedConfigAuditoriaRoute
   '/config/ia': typeof AuthenticatedConfigIaRoute
   '/config/platforms': typeof AuthenticatedConfigPlatformsRoute
-  '/config/smtp': typeof AuthenticatedConfigSmtpRoute
   '/config/usuarios': typeof AuthenticatedConfigUsuariosRoute
   '/herramientas/archivos': typeof AuthenticatedHerramientasArchivosRoute
   '/herramientas/email': typeof AuthenticatedHerramientasEmailRoute
   '/herramientas/ioc': typeof AuthenticatedHerramientasIocRoute
-  '/herramientas/phishing': typeof AuthenticatedHerramientasPhishingRoute
   '/incidentes/casos': typeof AuthenticatedIncidentesCasosRoute
   '/incidentes/playbooks': typeof AuthenticatedIncidentesPlaybooksRoute
   '/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
@@ -308,12 +291,10 @@ export interface FileRoutesById {
   '/_authenticated/config/auditoria': typeof AuthenticatedConfigAuditoriaRoute
   '/_authenticated/config/ia': typeof AuthenticatedConfigIaRoute
   '/_authenticated/config/platforms': typeof AuthenticatedConfigPlatformsRoute
-  '/_authenticated/config/smtp': typeof AuthenticatedConfigSmtpRoute
   '/_authenticated/config/usuarios': typeof AuthenticatedConfigUsuariosRoute
   '/_authenticated/herramientas/archivos': typeof AuthenticatedHerramientasArchivosRoute
   '/_authenticated/herramientas/email': typeof AuthenticatedHerramientasEmailRoute
   '/_authenticated/herramientas/ioc': typeof AuthenticatedHerramientasIocRoute
-  '/_authenticated/herramientas/phishing': typeof AuthenticatedHerramientasPhishingRoute
   '/_authenticated/incidentes/casos': typeof AuthenticatedIncidentesCasosRoute
   '/_authenticated/incidentes/playbooks': typeof AuthenticatedIncidentesPlaybooksRoute
   '/_authenticated/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
@@ -344,12 +325,10 @@ export interface FileRouteTypes {
     | '/config/auditoria'
     | '/config/ia'
     | '/config/platforms'
-    | '/config/smtp'
     | '/config/usuarios'
     | '/herramientas/archivos'
     | '/herramientas/email'
     | '/herramientas/ioc'
-    | '/herramientas/phishing'
     | '/incidentes/casos'
     | '/incidentes/playbooks'
     | '/incidentes/timeline'
@@ -378,12 +357,10 @@ export interface FileRouteTypes {
     | '/config/auditoria'
     | '/config/ia'
     | '/config/platforms'
-    | '/config/smtp'
     | '/config/usuarios'
     | '/herramientas/archivos'
     | '/herramientas/email'
     | '/herramientas/ioc'
-    | '/herramientas/phishing'
     | '/incidentes/casos'
     | '/incidentes/playbooks'
     | '/incidentes/timeline'
@@ -413,12 +390,10 @@ export interface FileRouteTypes {
     | '/_authenticated/config/auditoria'
     | '/_authenticated/config/ia'
     | '/_authenticated/config/platforms'
-    | '/_authenticated/config/smtp'
     | '/_authenticated/config/usuarios'
     | '/_authenticated/herramientas/archivos'
     | '/_authenticated/herramientas/email'
     | '/_authenticated/herramientas/ioc'
-    | '/_authenticated/herramientas/phishing'
     | '/_authenticated/incidentes/casos'
     | '/_authenticated/incidentes/playbooks'
     | '/_authenticated/incidentes/timeline'
@@ -609,13 +584,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIncidentesCasosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/herramientas/phishing': {
-      id: '/_authenticated/herramientas/phishing'
-      path: '/herramientas/phishing'
-      fullPath: '/herramientas/phishing'
-      preLoaderRoute: typeof AuthenticatedHerramientasPhishingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/herramientas/ioc': {
       id: '/_authenticated/herramientas/ioc'
       path: '/herramientas/ioc'
@@ -642,13 +610,6 @@ declare module '@tanstack/react-router' {
       path: '/config/usuarios'
       fullPath: '/config/usuarios'
       preLoaderRoute: typeof AuthenticatedConfigUsuariosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/config/smtp': {
-      id: '/_authenticated/config/smtp'
-      path: '/config/smtp'
-      fullPath: '/config/smtp'
-      preLoaderRoute: typeof AuthenticatedConfigSmtpRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/config/platforms': {
@@ -688,12 +649,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConfigAuditoriaRoute: typeof AuthenticatedConfigAuditoriaRoute
   AuthenticatedConfigIaRoute: typeof AuthenticatedConfigIaRoute
   AuthenticatedConfigPlatformsRoute: typeof AuthenticatedConfigPlatformsRoute
-  AuthenticatedConfigSmtpRoute: typeof AuthenticatedConfigSmtpRoute
   AuthenticatedConfigUsuariosRoute: typeof AuthenticatedConfigUsuariosRoute
   AuthenticatedHerramientasArchivosRoute: typeof AuthenticatedHerramientasArchivosRoute
   AuthenticatedHerramientasEmailRoute: typeof AuthenticatedHerramientasEmailRoute
   AuthenticatedHerramientasIocRoute: typeof AuthenticatedHerramientasIocRoute
-  AuthenticatedHerramientasPhishingRoute: typeof AuthenticatedHerramientasPhishingRoute
   AuthenticatedIncidentesCasosRoute: typeof AuthenticatedIncidentesCasosRoute
   AuthenticatedIncidentesPlaybooksRoute: typeof AuthenticatedIncidentesPlaybooksRoute
   AuthenticatedIncidentesTimelineRoute: typeof AuthenticatedIncidentesTimelineRoute
@@ -716,14 +675,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConfigAuditoriaRoute: AuthenticatedConfigAuditoriaRoute,
   AuthenticatedConfigIaRoute: AuthenticatedConfigIaRoute,
   AuthenticatedConfigPlatformsRoute: AuthenticatedConfigPlatformsRoute,
-  AuthenticatedConfigSmtpRoute: AuthenticatedConfigSmtpRoute,
   AuthenticatedConfigUsuariosRoute: AuthenticatedConfigUsuariosRoute,
   AuthenticatedHerramientasArchivosRoute:
     AuthenticatedHerramientasArchivosRoute,
   AuthenticatedHerramientasEmailRoute: AuthenticatedHerramientasEmailRoute,
   AuthenticatedHerramientasIocRoute: AuthenticatedHerramientasIocRoute,
-  AuthenticatedHerramientasPhishingRoute:
-    AuthenticatedHerramientasPhishingRoute,
   AuthenticatedIncidentesCasosRoute: AuthenticatedIncidentesCasosRoute,
   AuthenticatedIncidentesPlaybooksRoute: AuthenticatedIncidentesPlaybooksRoute,
   AuthenticatedIncidentesTimelineRoute: AuthenticatedIncidentesTimelineRoute,

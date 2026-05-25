@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 const TOKEN_KEY = 'gjallarhorn_token'
 
-export type SgsiRole = 'admin' | 'analyst' | 'analyst_full' | 'phishing_analyst' | 'viewer'
+export type SgsiRole = 'admin' | 'analyst' | 'viewer'
 
 export interface SgsiUser {
   id: number | string

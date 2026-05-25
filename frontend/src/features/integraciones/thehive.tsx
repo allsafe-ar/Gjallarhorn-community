@@ -137,7 +137,7 @@ export function TheHiveView() {
     } catch (e: any) { toast.error(e.message) } finally { setSaving(false) }
   }
 
-  const canCreate = user?.role === 'admin' || user?.role === 'analyst' || user?.role === 'analyst_full'
+  const canCreate = user?.role === 'admin' || user?.role === 'analyst'
 
   return (
     <div className='p-8 max-w-6xl'>

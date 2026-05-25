@@ -22,7 +22,7 @@ import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 
-const ROLES = ['admin', 'analyst', 'analyst_full', 'phishing_analyst', 'viewer'] as const
+const ROLES = ['admin', 'analyst', 'viewer'] as const
 type Role = (typeof ROLES)[number]
 
 type User = {
@@ -52,8 +52,6 @@ export function UsuariosView() {
   const ROLE_LABELS: Record<Role, string> = {
     admin: t('perfil.role.admin'),
     analyst: t('perfil.role.analyst'),
-    analyst_full: t('perfil.role.analyst_full'),
-    phishing_analyst: t('perfil.role.phishing_analyst'),
     viewer: t('perfil.role.viewer'),
   }
 

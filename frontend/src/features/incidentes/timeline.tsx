@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
 
 const SRC_COLORS: Record<string, string> = {
   wazuh: '#3b82f6', ioc: '#8b5cf6', file: '#22c55e', email: '#f59e0b',
-  nessus: '#ef4444', thehive: '#f59e0b', phishing: '#f97316',
+  nessus: '#ef4444', thehive: '#f59e0b',
 }
 const SEV_COLORS: Record<string, string> = {
   critical: '#ef4444', high: '#ef4444', medium: '#f59e0b', low: '#6b7280',
@@ -81,7 +81,7 @@ export function TimelineView() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='__all__'>{t('incidents.timeline.allSources')}</SelectItem>
-              {['wazuh', 'ioc', 'file', 'email', 'nessus', 'thehive', 'phishing'].map(s => (
+              {['wazuh', 'ioc', 'file', 'email', 'nessus', 'thehive'].map(s => (
                 <SelectItem key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
               ))}
             </SelectContent>
