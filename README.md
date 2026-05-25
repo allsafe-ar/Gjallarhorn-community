@@ -18,7 +18,7 @@
 
 ---
 
-Gjallarhorn Community is a free, open-source web platform for security teams that integrates threat investigation, malware analysis, email forensics, and phishing simulation into a single interface.
+Gjallarhorn Community is a free, open-source SOC platform for Blue Team operations — integrating threat investigation, malware analysis, email forensics, case management, and SOC tool integrations into a single interface.
 
 > The name comes from the Gjallarhorn — Heimdall's horn in Norse mythology. When it sounds, it warns the gods' army of imminent danger.
 
@@ -32,12 +32,12 @@ Gjallarhorn Community includes:
 - **SOC integrations**: Wazuh, Velociraptor and OpenVAS/GVM
 - **Static file analysis**: PE executables, PowerShell/Batch/VBS scripts, Office documents, PDFs — with ransomware detection, Cobalt Strike beacon detection, and C2 framework identification
 - **Email forensics**: SPF/DKIM/DMARC analysis, phishing detection and BEC (Business Email Compromise)
-- **Phishing simulation**: native phishing campaign engine — 90+ pre-loaded email templates (EN/ES), landing pages with credential capture, awareness emails, and full lifecycle management
 - **Case management** with notes, linked analyses, and attachments
 - **Detection rule generation**: KQL (Sentinel/Defender), SPL (Splunk), SIGMA, YARA
 - **STIX 2.1 export** for sharing intelligence in a standard format
+- **Auth**: JWT (12h), TOTP 2FA (RFC 6238), account lockout, role-based access (`admin` / `analyst` / `viewer`)
 
-> Looking for **TheHive**, **Nessus**, **AI analysis**, or **automatic correlation playbooks**? Those features are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> Looking for **email phishing campaign simulation**, **WiFi phishing (Munin)**, **TheHive**, **Nessus**, **AI analysis**, or **automatic correlation playbooks**? Those features are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
 
 ---
 
@@ -66,18 +66,6 @@ Gjallarhorn Community includes:
 **Integration Settings**
 <br/>
 <img src="screenshots/configuracion.png" alt="Settings" width="900"/>
-
-<br/><br/>
-
-**Phishing Simulation — Campaigns**
-<br/>
-<img src="screenshots/phishing-campanas.png" alt="Phishing Campaigns" width="900"/>
-
-<br/><br/>
-
-| **Phishing — Email Templates** | **Phishing — Campaign Results** |
-|:---:|:---:|
-| <img src="screenshots/phishing-plantillas.png" alt="Phishing Templates" width="440"/> | <img src="screenshots/phishing-resultados.png" alt="Phishing Results" width="440"/> |
 
 </div>
 
@@ -110,27 +98,13 @@ Gjallarhorn Community includes:
 ### Email Forensics
 - SPF, DKIM, DMARC, ARC analysis
 - Received header chain and geolocation
-- 10+ phishing checks: brand impersonation, lookalike domains, hyperlink mismatch
+- 10+ phishing detection checks: brand impersonation, lookalike domains, hyperlink mismatch
 - BEC detection: urgency patterns, financial language, executive impersonation
 - Automatic IOC extraction (IPs, domains, attachment hashes)
 
-### Phishing Simulation
-
-Native phishing campaign engine — no GoPhish wrapper, integrated with Gjallarhorn's RBAC and timeline.
-
-- **90+ pre-loaded templates** in English and Spanish (AWS, Microsoft, Google, banks, HR)
-- **Landing pages** with credential capture (pre-loaded, read-only in Community)
-- **Awareness emails**: sent automatically on campaign completion, 3 levels (opened / clicked / submitted) with anti-phishing tips
-- **Full lifecycle**: wizard → launch → tracking → complete
-- **Tracking**: open pixel, link clicks, credential capture — all logged with IP and timestamp
-- **Rate-limited sending**: configurable via SMTP settings (emails/minute)
-- **Roles**: `phishing_analyst` (phishing only), `analyst_full` (all tools)
-
-> **Community limitations**: templates and landing pages are read-only (90+ pre-loaded). PDF campaign reports and response pages are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
-
 ### Incident Management
 - **Cases**: full lifecycle (open → investigating → resolved → closed), notes, observables, attachments
-- **Timeline**: unified chronological log of all system events (IOCs, analyses, phishing campaigns, alerts, cases)
+- **Timeline**: unified chronological log of all system events (IOCs, analyses, alerts, cases)
 
 ---
 
@@ -145,9 +119,12 @@ Native phishing campaign engine — no GoPhish wrapper, integrated with Gjallarh
 | Wazuh integration | ✅ | ✅ |
 | Velociraptor integration | ✅ | ✅ |
 | OpenVAS / GVM integration | ✅ | ✅ |
-| Phishing simulation (90+ templates) | ✅ | ✅ |
-| Custom phishing templates/pages | ❌ | ✅ |
-| Phishing PDF reports | ❌ | ✅ |
+| TOTP 2FA + account lockout | ✅ | ✅ |
+| Roles: admin / analyst / viewer | ✅ | ✅ |
+| Audit log | ✅ | ✅ |
+| Email phishing campaigns | ❌ | ✅ |
+| WiFi phishing / evil twin (Munin) | ❌ | ✅ |
+| In-person security training module | ❌ | ✅ |
 | TheHive integration | ❌ | ✅ |
 | Nessus integration | ❌ | ✅ |
 | Automatic correlation playbooks | ❌ | ✅ |
@@ -213,7 +190,6 @@ Gjallarhorn would not be possible without the work of the following organization
 - [Shodan](https://www.shodan.io/) — search engine for internet-exposed devices
 - [AlienVault OTX](https://otx.alienvault.com/) — collaborative threat intelligence platform
 - [GreyNoise](https://www.greynoise.io/) — internet noise classification vs. real threats
-- [Nodemailer](https://nodemailer.com/) — email sending library for the phishing simulation module
 
 ---
 
