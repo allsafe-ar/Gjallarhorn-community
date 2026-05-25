@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronsUpDown, KeyRound, Plug, Bot, UserCog, ClipboardList, MailOpen, Settings2, Bug, Loader2 } from 'lucide-react'
+import { ChevronsUpDown, KeyRound, Plug, Bot, UserCog, ClipboardList, Settings2, Bug, Loader2 } from 'lucide-react'
 import { Link, useLocation } from '@tanstack/react-router'
 import {
   DropdownMenu,
@@ -40,12 +40,11 @@ import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 
 const CONFIG_ITEMS = [
-  { titleKey: 'nav.config.apikeys',  url: '/config/apikeys',   icon: KeyRound },
+  { titleKey: 'nav.config.apikeys',   url: '/config/apikeys',   icon: KeyRound },
   { titleKey: 'nav.config.platforms', url: '/config/platforms', icon: Plug },
-  { titleKey: 'nav.config.smtp',     url: '/config/smtp',      icon: MailOpen },
-  { titleKey: 'nav.config.ia',       url: '/config/ia',        icon: Bot },
-  { titleKey: 'nav.config.users',    url: '/config/usuarios',  icon: UserCog },
-  { titleKey: 'nav.config.audit',    url: '/config/auditoria', icon: ClipboardList },
+  { titleKey: 'nav.config.ia',        url: '/config/ia',        icon: Bot },
+  { titleKey: 'nav.config.users',     url: '/config/usuarios',  icon: UserCog },
+  { titleKey: 'nav.config.audit',     url: '/config/auditoria', icon: ClipboardList },
 ]
 
 const ADMIN_ONLY_KEYS = ['nav.config.users', 'nav.config.audit']

@@ -122,7 +122,7 @@ export function VelociraptorView() {
     } catch (e: any) { toast.error(e.message) } finally { setSaving(false) }
   }
 
-  const canCreate = user?.role === 'admin' || user?.role === 'analyst' || user?.role === 'analyst_full'
+  const canCreate = user?.role === 'admin' || user?.role === 'analyst'
 
   const clientCols: ColDef<VClient>[] = [
     { key: 'client_id', label: t('soc.velociraptor.col.clientId'),    muted: true, render: r => <span className='font-mono text-xs'>{(r.client_id || '').slice(0, 16)}</span> },

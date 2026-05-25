@@ -90,8 +90,6 @@ export function PerfilView() {
   const ROLE_LABELS: Record<string, string> = {
     admin: t('perfil.role.admin'),
     analyst: t('perfil.role.analyst'),
-    analyst_full: t('perfil.role.analyst_full'),
-    phishing_analyst: t('perfil.role.phishing_analyst'),
     viewer: t('perfil.role.viewer'),
   }
 

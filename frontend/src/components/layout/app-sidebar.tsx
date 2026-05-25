@@ -26,7 +26,6 @@ const BOTTOM_GROUPS: string[] = []
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { auth } = useAuthStore()
-  const isPhishingOnly = auth.user?.role === 'phishing_analyst'
 
   const [enabledPlatforms, setEnabledPlatforms] = useState<Record<string, boolean>>({})
   const [aiEnabled, setAiEnabled] = useState(false)
@@ -43,7 +42,7 @@ export function AppSidebar() {
     }).catch(() => {})
   }, [])
 
-  const analystRoles = ['admin', 'analyst', 'analyst_full']
+  const analystRoles = ['admin', 'analyst']
 
   const filteredGroups: NavGroupType[] = sidebarData.navGroups
     .map((group) => {
@@ -62,19 +61,12 @@ export function AppSidebar() {
               ([key, url]) => url === item.url && enabledPlatforms[key]
             )
         )
-        if (items.length === 0 || isPhishingOnly) return null
+        if (items.length === 0) return null
         return { ...group, items }
       }
-
-      if (group.title === 'nav.tools' && isPhishingOnly) {
-        const items = group.items.filter((item) => item.title === 'nav.phishing')
-        return { ...group, items }
-      }
-
-      if (group.title === 'nav.incidents' && isPhishingOnly) return null
 
       if (group.title === 'nav.ai') {
-        if (!aiEnabled || isPhishingOnly) return null
+        if (!aiEnabled) return null
       }
 
       return group

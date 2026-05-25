@@ -87,11 +87,6 @@ type TimelineEvent = {
   id: number; source: string; event_type: string; severity?: string
   ts: string; data: string | Record<string, string>
 }
-type PhishingSummary = {
-  total_campaigns?: number; active_campaigns?: number
-  total_sent?: number; total_opened?: number; total_clicked?: number; total_submitted?: number
-  avg_open_rate?: number; avg_click_rate?: number
-}
 type CorrStatus = { running?: boolean; lastWazuhRun?: string }
 
 function StatusIcon({ status }: { status: string }) {
@@ -136,7 +131,6 @@ export function Dashboard() {
   const [corrStatus, setCorrStatus] = useState<CorrStatus | null>(null)
   const [runningCorr, setRunningCorr] = useState(false)
   const [checkInterval, setCheckInterval] = useState('0')
-  const [phishingSummary, setPhishingSummary] = useState<PhishingSummary | null>(null)
   const testAllRef = useRef<(() => void) | null>(null)
 
   const INTERVAL_OPTS = [
@@ -164,7 +158,6 @@ export function Dashboard() {
       apiFetch<{ events: TimelineEvent[] }>('/timeline?limit=8').then(d => setRecentEvents(d.events || [])).catch(() => {}),
       apiFetch<CorrStatus>('/correlations/status').then(setCorrStatus).catch(() => {}),
       apiFetch<{ interval: string }>('/settings/platform-check-interval').then(d => setCheckInterval(d.interval || '0')).catch(() => {}),
-      apiFetch<PhishingSummary>('/phishing/dashboard/summary').then(setPhishingSummary).catch(() => {}),
     ]).finally(() => setLoading(false))
   }, [])
 
@@ -222,7 +215,7 @@ export function Dashboard() {
   const apiActiveCount = API_KEY_SERVICES.filter(s => apiStatus[s.key]).length
 
   const sevColor: Record<string, string> = { critical: '#ef4444', high: '#ef4444', medium: '#f59e0b', low: '#6b7280' }
-  const srcColor: Record<string, string> = { wazuh: '#3b82f6', ioc: '#e8192c', file: '#22c55e', email: '#f59e0b', nessus: '#ef4444', phishing: '#f97316' }
+  const srcColor: Record<string, string> = { wazuh: '#3b82f6', ioc: '#e8192c', file: '#22c55e', email: '#f59e0b', nessus: '#ef4444' }
 
   const today = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })
 
@@ -414,51 +407,6 @@ export function Dashboard() {
               )
             })()}
 
-            {phishingSummary && (() => {
-              const ph = phishingSummary
-              const sent = ph.total_sent ?? 0
-              const sz = 88, th = 16, r = (sz - th) / 2, cx = sz / 2, cy = sz / 2, circ = 2 * Math.PI * r
-              const segs = sent === 0 ? [] : [
-                { label: t('dashboard.phishing.notOpened'),   value: Math.max(0, sent - (ph.total_opened ?? 0)),                          color: '#6b7280' },
-                { label: t('dashboard.phishing.opened'),      value: Math.max(0, (ph.total_opened ?? 0) - (ph.total_clicked ?? 0)),       color: '#f59e0b' },
-                { label: t('dashboard.phishing.clicked'),     value: Math.max(0, (ph.total_clicked ?? 0) - (ph.total_submitted ?? 0)),    color: '#f97316' },
-                { label: t('dashboard.phishing.credentials'), value: ph.total_submitted ?? 0,                                             color: '#ef4444' },
-              ]
-              let acc = 0
-              return (
-                <div className='flex-1 min-h-0 rounded-lg border bg-card p-3 flex flex-col items-center overflow-hidden'>
-                  <span className='flex-none text-[9px] font-semibold uppercase tracking-widest text-orange-500 mb-2 self-start'>Phishing</span>
-                  <svg width={sz} height={sz} className='shrink-0'>
-                    {sent === 0
-                      ? <circle cx={cx} cy={cy} r={r} fill='none' stroke='currentColor' strokeOpacity={0.1} strokeWidth={th} />
-                      : segs.filter(s => s.value > 0).map(s => {
-                          const frac = s.value / sent, arc = frac * circ, rot = acc * 360 - 90
-                          acc += frac
-                          return <circle key={s.label} cx={cx} cy={cy} r={r} fill='none' stroke={s.color} strokeWidth={th}
-                            strokeDasharray={`${arc} ${circ - arc}`} transform={`rotate(${rot} ${cx} ${cy})`} />
-                        })
-                    }
-                    <text x={cx} y={cy - 3} textAnchor='middle' fill='currentColor' fontSize='14' fontWeight='700'>{sent}</text>
-                    <text x={cx} y={cy + 9} textAnchor='middle' fill='#6b7280' fontSize='7'>{t('dashboard.phishing.sent')}</text>
-                  </svg>
-                  <div className='flex-none mt-2 w-full space-y-1'>
-                    {[
-                      { label: t('dashboard.phishing.campaigns'), value: ph.total_campaigns ?? 0,        color: '#f97316' },
-                      { label: t('dashboard.phishing.active'),    value: ph.active_campaigns ?? 0,       color: '#22c55e' },
-                      { label: t('dashboard.phishing.openRate'),  value: (ph.avg_open_rate ?? 0) + '%',  color: '#f59e0b' },
-                      { label: t('dashboard.phishing.clickRate'), value: (ph.avg_click_rate ?? 0) + '%', color: '#f97316' },
-                    ].map(s => (
-                      <div key={s.label} className='flex justify-between items-center'>
-                        <span className='flex items-center gap-1.5 text-[10px] text-muted-foreground'>
-                          <span className='inline-block size-1.5 rounded-sm flex-shrink-0' style={{ background: s.color }} />{s.label}
-                        </span>
-                        <span className='text-[10px] font-semibold'>{s.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })()}
           </div>
 
           <div className='rounded-lg border bg-card p-3 flex flex-col min-h-0 overflow-hidden'>
