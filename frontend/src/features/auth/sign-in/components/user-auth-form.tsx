@@ -112,9 +112,9 @@ export function UserAuthForm({ className, redirectTo }: UserAuthFormProps) {
 
   function handleForgot() {
     if (!forgotUser.trim()) return
-    const subject = encodeURIComponent('AllSafe SGSI - Recuperación de contraseña')
+    const subject = encodeURIComponent('Gjallarhorn - Recuperación de contraseña')
     const body = encodeURIComponent(
-      `Estimado Administrador,\n\nEl usuario "${forgotUser.trim()}" solicita la recuperación de su contraseña en el sistema AllSafe SGSI.\n\nPor favor, restablezca la contraseña del usuario indicado.\n\nGracias.`
+      `Estimado Administrador,\n\nEl usuario "${forgotUser.trim()}" solicita la recuperación de su contraseña en el sistema Gjallarhorn.\n\nPor favor, restablezca la contraseña del usuario indicado.\n\nGracias.`
     )
     window.location.href = `mailto:info@allsafe.com.ar?subject=${subject}&body=${body}`
     setForgotSent(true)
