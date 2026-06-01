@@ -58,9 +58,9 @@ export function AppTitle() {
                 {t('nav.allsafe.systems')}
               </DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                <a href='https://sgsi.allsafe.com.ar' target='_blank' rel='noreferrer'>
+                <a href='https://skuld.allsafe.com.ar' target='_blank' rel='noreferrer'>
                   <ExternalLink className='size-4' />
-                  SGSI
+                  Skuld
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
