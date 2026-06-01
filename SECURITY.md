@@ -12,7 +12,7 @@
 
 Please report security issues privately:
 
-- **Email:** info@allsafe.com.ar / alaniz.emiliano@gmail.com
+- **Email:** info@allsafe.com.ar
 - **Response time:** 48 hours
 - **Language:** Spanish or English accepted
 
