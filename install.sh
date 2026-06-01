@@ -43,6 +43,7 @@ LOGO
 echo -e "${NC}"
 
 [ "$EUID" -ne 0 ] && error "Run as root: sudo ./install.sh"
+cd "$(dirname "$(realpath "$0")")"
 
 OS=$(. /etc/os-release && echo "$ID")
 [[ "$OS" != "ubuntu" && "$OS" != "debian" ]] && error "Supported: Ubuntu 20/22/24, Debian 11/12"
@@ -68,9 +69,9 @@ fi
 success "Node.js $(node -v)"
 
 if ! command -v mysql &>/dev/null; then
-  info "Installing MySQL..."
-  apt-get install -y mysql-server &>/dev/null
-  systemctl start mysql
+  info "Installing MySQL/MariaDB..."
+  apt-get install -y mysql-server 2>/dev/null || apt-get install -y default-mysql-server &>/dev/null
+  systemctl start mysql 2>/dev/null || systemctl start mariadb
 fi
 success "MySQL ready"
 
@@ -86,7 +87,8 @@ fi
 success "PM2 $(pm2 -v)"
 
 info "Creating database..."
-mysql -uroot -p"$MYSQL_ROOT_PASS" <<SQL 2>/dev/null || warn "DB may already exist"
+MYSQL_ARGS=(); [ -n "$MYSQL_ROOT_PASS" ] && MYSQL_ARGS=(-p"$MYSQL_ROOT_PASS")
+mysql -uroot "${MYSQL_ARGS[@]}" <<SQL 2>/dev/null || warn "DB may already exist"
 CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASS}';
 GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
