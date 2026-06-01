@@ -2143,6 +2143,13 @@ app.post("/api/bug-report", auth, async (req, res) => {
   }
 });
 
+// Serve frontend SPA in production (Docker / standalone)
+const DIST = path.join(__dirname, "public");
+if (require("fs").existsSync(DIST)) {
+  app.use(express.static(DIST));
+  app.get("*", (_, res) => res.sendFile(path.join(DIST, "index.html")));
+}
+
 async function start() {
   try {
     await initDB();
