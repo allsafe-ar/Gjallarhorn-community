@@ -150,10 +150,49 @@ Gjallarhorn Community includes:
 
 ---
 
-## Documentation
+## Installation
 
-### Installation
-- [Full installation guide](INSTALL.md)
+### Option A - Install script (recommended for Linux servers)
+
+```bash
+git clone https://github.com/allsafe-ar/Gjallarhorn-community.git
+cd Gjallarhorn-community
+chmod +x install.sh && sudo ./install.sh
+```
+
+Tested on Ubuntu 22.04 / 24.04 and Debian 12. Installs Node.js, MySQL, nginx and PM2 automatically.
+
+### Option B - Docker
+
+```bash
+git clone https://github.com/allsafe-ar/Gjallarhorn-community.git
+cd Gjallarhorn-community
+cp backend/.env.example backend/.env
+# Edit backend/.env: set DB_PASSWORD and JWT_SECRET
+docker compose up -d
+```
+
+### Option C - Manual
+
+```bash
+# Backend
+cd backend
+npm install
+cp .env.example .env
+# Edit .env: DB credentials + strong JWT_SECRET (min 32 chars)
+npm start   # port 3003
+
+# Frontend
+cd frontend
+npm install
+npm run build   # Production build → dist/
+```
+
+Default credentials (first run): `admin` / `admin123` - **change immediately**.
+
+---
+
+## Documentation
 
 ### API Keys Configuration (Threat Intelligence)
 | Service | Documentation |
