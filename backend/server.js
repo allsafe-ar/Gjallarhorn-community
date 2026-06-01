@@ -2104,43 +2104,9 @@ async function initDB() {
 }
 
 // ── Bug Report ──────────────────────────────────────────────────────────────
+// Community edition: redirect to GitHub Issues
 app.post("/api/bug-report", auth, async (req, res) => {
-  const { category, title, description, url: pageUrl } = req.body;
-  if (!description?.trim()) return res.status(400).json({ error: "description required" });
-
-  const user = req.user;
-  const subject = `[Gjallarhorn] ${category || "Bug"}: ${title || description.slice(0, 60)}`;
-  const html = `
-    <h2 style="color:#3b82f6">Reporte desde Gjallarhorn</h2>
-    <table style="border-collapse:collapse;width:100%;font-family:monospace">
-      <tr><td style="padding:4px 8px;color:#888;width:120px">Usuario</td><td style="padding:4px 8px">${user.username} (${user.role})</td></tr>
-      <tr><td style="padding:4px 8px;color:#888">Categoría</td><td style="padding:4px 8px">${category || '—'}</td></tr>
-      <tr><td style="padding:4px 8px;color:#888">Título</td><td style="padding:4px 8px">${title || '—'}</td></tr>
-      <tr><td style="padding:4px 8px;color:#888">URL</td><td style="padding:4px 8px">${pageUrl || '—'}</td></tr>
-    </table>
-    <hr style="margin:16px 0">
-    <p style="white-space:pre-wrap;font-family:monospace">${description}</p>
-  `;
-
-  try {
-    const nodemailer = require("nodemailer");
-    const transport = nodemailer.createTransport({
-      host: "smtp.example.com",
-      port: 465,
-      secure: true,
-      auth: { user: "reports@example.com", pass: "" },
-    });
-    await transport.sendMail({
-      from: '"Gjallarhorn" <reports@example.com>',
-      to: "reports@example.com",
-      subject,
-      html,
-    });
-    res.json({ ok: true });
-  } catch (e) {
-    console.error("[BugReport] email error:", e.message);
-    res.status(500).json({ error: "email send failed" });
-  }
+  res.json({ ok: true, github: "https://github.com/allsafe-ar/Gjallarhorn-community/issues" });
 });
 
 // Serve frontend SPA in production (Docker / standalone)
