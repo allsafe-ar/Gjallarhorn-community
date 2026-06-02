@@ -4,7 +4,7 @@
 
 | Versión | Alcance | Estado |
 |---------|---------|--------|
-| **v1.0** | Etapas 1–7: plataforma SOC consolidada, integraciones SOC reales (TheHive, Wazuh, Velociraptor, OpenVAS, Nessus) | **COMPLETADA ✓** |
+| **v1.0** | Etapas 1–7: plataforma SOC consolidada con integraciones reales (TheHive, Wazuh, Velociraptor, OpenVAS, Nessus) | **COMPLETADA ✓** |
 | **v1.x** | Correcciones, mejoras UX, ajustes de estabilidad sobre v1.0 | En progreso |
 | **v2.0** | Etapa 8: Agent Investigation — motor de análisis avanzado con playbooks automáticos | Planificada |
 
@@ -519,32 +519,6 @@ Configuración
 ├── Usuarios           ← actual UsersView
 └── Audit Logs         ← actual LogsView
 ```
-
----
-
-## Comparativa Final: Gjallar vs Gjallar
-
-| Funcionalidad | Gjallar | Gjallar |
-|---|---|---|
-| IOC Investigation (20+ fuentes) | ✓ | ✓ Etapa 3 |
-| File Analysis (PE, scripts, docs) | ✓ | ✓ Etapa 4 |
-| Email Forensics (phishing, BEC) | ✓ | ✓ Etapa 5 |
-| Generación de reglas (KQL, SPL, SIGMA, YARA) | ✓ | ✓ Etapa 3+4+5 |
-| STIX 2.1 export | ✓ | ✓ Etapa 3 |
-| Casos internos | ✓ | ✓ Etapa 6 |
-| Reportes HTML/JSON/MITRE | ✓ | ✓ Etapa 6 |
-| Settings > API Keys | ✓ | ✓ Etapa 2 (reestructura) |
-| Agent Investigation (AI) | ✓ Python/motor local | — futuro |
-| Playbooks YAML | ✓ | simplificado Etapa 7 |
-| TheHive integration | ✗ | ✓ Etapa 2 |
-| Wazuh integration | ✗ | ✓ Etapa 2 |
-| Velociraptor integration | ✗ | ✓ Etapa 2 |
-| OpenVAS / Nessus | ✗ | ✓ Etapa 2 |
-| Correlación Wazuh→TheHive | ✗ | ✓ Etapa 7 |
-| Correlación Nessus→Wazuh | ✗ | ✓ Etapa 7 |
-| JWT + 2FA + RBAC | ✗ | ✓ Etapa 1 (hecho) |
-| Audit logs | ✗ | ✓ Etapa 1 (hecho) |
-| Multi-usuario con roles | ✗ | ✓ Etapa 1 (hecho) |
 
 ---
 
