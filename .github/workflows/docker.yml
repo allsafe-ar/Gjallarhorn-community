@@ -70,6 +70,9 @@ jobs:
 
       - name: Push to GHCR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # Publishing is optional (users install via git clone / docker compose).
+        # A pre-existing GHCR package can deny write_package; don't fail the check for it.
+        continue-on-error: true
         run: |
           docker push ${{ env.IMAGE }}:latest
           docker push ${{ env.IMAGE }}:${{ github.sha }}
