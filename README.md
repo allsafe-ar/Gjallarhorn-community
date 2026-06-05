@@ -108,6 +108,21 @@ Gjallarhorn Community includes:
 - **Cases**: full lifecycle (open → investigating → resolved → closed), notes, observables, attachments
 - **Timeline**: unified chronological log of all system events (IOCs, analyses, alerts, cases)
 
+### Security & Auth
+
+Security is a first-class feature here — the same hardening baseline as the commercial AllSafe suite:
+
+- **JWT** — 12h expiry with `token_version` revocation: changing a password or disabling a user invalidates existing tokens immediately
+- **TOTP 2FA** — RFC 6238, setup via QR code
+- **Account lockout** — 5 failed attempts → 15-minute lockout, **persisted in the database** (survives restarts)
+- **bcrypt** password hashing (per-user salt)
+- **Security headers** (Helmet) + **HTTP rate limiting** (300 req/15 min; auth endpoints throttled separately)
+- **Role-based access control** — `admin` / `analyst` / `viewer`
+- **Audit log** — security-relevant actions recorded with user, IP and timestamp
+- **100% parameterized SQL** — no string-built queries, no injection vectors (OWASP Top 10 2021)
+- **Fail-fast startup** — the backend refuses to boot with a missing or default `JWT_SECRET`
+- **CORS** locked to the configured origin (no wildcard)
+
 ---
 
 ## Community vs Pro
