@@ -45,6 +45,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Generate test .env
+        run: |
+          cat > .env <<EOF
+          DB_PASSWORD=ci_test_db_pw
+          DB_ROOT_PASSWORD=ci_test_root_pw
+          JWT_SECRET=$(openssl rand -hex 32)
+          EOF
+
       - name: Smoke test
         run: |
           docker compose up -d --no-build

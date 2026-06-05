@@ -9,6 +9,8 @@ const express  = require("express");
 const jwt      = require("jsonwebtoken");
 const bcrypt   = require("bcryptjs");
 const cors     = require("cors");
+const helmet   = require("helmet");
+const rateLimit = require("express-rate-limit");
 const mysql    = require("mysql2/promise");
 const { v4: uuidv4 } = require("uuid");
 const https    = require("https");
@@ -49,6 +51,10 @@ const attachUpload = multer({
 // ── Config ────────────────────────────────────────────────────────────────────
 const PORT       = process.env.PORT       || 3003;
 const JWT_SECRET = process.env.JWT_SECRET || "gjallar_jwt_secret_CHANGE_IN_PROD";
+if (!process.env.JWT_SECRET || JWT_SECRET === "gjallar_jwt_secret_CHANGE_IN_PROD" || JWT_SECRET.length < 16) {
+  console.error("[Gjallar] FATAL: JWT_SECRET no configurado o inseguro. Configurá uno aleatorio de >=32 caracteres en .env");
+  process.exit(1);
+}
 
 const VALID_PLATFORMS = ["wazuh", "velociraptor", "openvas"];
 
@@ -222,16 +228,29 @@ async function testPlatformConnection(platform, cfg) {
 
 // ── Express ───────────────────────────────────────────────────────────────────
 const app = express();
-app.use(cors({ origin: process.env.CORS_ORIGIN || "*", credentials: true }));
+app.set("trust proxy", 1);
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+app.use(cors({ origin: process.env.CORS_ORIGIN || false, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// ── Rate limiting (capa HTTP) ───────────────────────────────────────────────
+const apiLimiter  = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20,  standardHeaders: true, legacyHeaders: false, message: { error: "Demasiados intentos. Probá de nuevo en 15 minutos." } });
+app.use("/api/", apiLimiter);
+
 // ── Auth middleware ───────────────────────────────────────────────────────────
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   const h = req.headers.authorization;
   if (!h?.startsWith("Bearer ")) return res.status(401).json({ error: "Token requerido" });
-  try { req.user = jwt.verify(h.slice(7), JWT_SECRET); next(); }
-  catch { res.status(401).json({ error: "Token inválido o expirado" }); }
+  try {
+    const decoded = jwt.verify(h.slice(7), JWT_SECRET);
+    const u = await qRow("SELECT token_version, enabled FROM users WHERE id = ?", [decoded.id]);
+    if (!u || !u.enabled || (u.token_version || 0) !== (decoded.tv || 0))
+      return res.status(401).json({ error: "Token inválido" });
+    req.user = decoded;
+    next();
+  } catch { res.status(401).json({ error: "Token inválido o expirado" }); }
 };
 
 const adminOnly = (req, res, next) =>
@@ -241,24 +260,9 @@ const analystOrAdmin = (req, res, next) =>
   ["admin", "analyst"].includes(req.user.role) ? next() : res.status(403).json({ error: "Sin permisos" });
 
 
-// ── Rate limiting ─────────────────────────────────────────────────────────────
-const loginAttempts = new Map();
-const MAX_ATTEMPTS  = 5;
-const LOCK_MINUTES  = 15;
-
-function checkRL(u) {
-  const d = loginAttempts.get(u);
-  if (d?.lockedUntil && Date.now() < d.lockedUntil) return Math.ceil((d.lockedUntil - Date.now()) / 60000);
-  return null;
-}
-function recordFail(u) {
-  const d = loginAttempts.get(u) || { count: 0, lockedUntil: null };
-  d.count++;
-  d.lockedUntil = d.count >= MAX_ATTEMPTS ? Date.now() + LOCK_MINUTES * 60000 : null;
-  loginAttempts.set(u, d);
-  return d;
-}
-function clearRL(u) { loginAttempts.delete(u); }
+// ── Account lockout (persistido en DB: users.failed_attempts / locked_until) ──
+const MAX_ATTEMPTS = 5;
+const LOCK_MINUTES = 15;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HEALTH
@@ -268,23 +272,21 @@ app.get("/api/health", (req, res) => res.json({ ok: true, version: "1.0.0", plat
 // ─────────────────────────────────────────────────────────────────────────────
 // AUTH ROUTES
 // ─────────────────────────────────────────────────────────────────────────────
-app.post("/api/auth/login", async (req, res) => {
+app.post("/api/auth/login", authLimiter, async (req, res) => {
   const { username, password } = req.body;
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "—";
   if (!username || !password) return res.status(400).json({ error: "Credenciales requeridas" });
 
-  const locked = checkRL(username);
-  if (locked) {
-    await auditLog("LOGIN_BLOCKED", `Bloqueado: ${username}`, username, "—", ip, "fail");
-    return res.status(429).json({ error: `Cuenta bloqueada. Intentá en ${locked} minuto${locked !== 1 ? "s" : ""}.`, locked: true, minutes: locked });
-  }
-
   const user = await qRow("SELECT * FROM users WHERE username = ?", [username]);
   if (!user) {
-    const d = recordFail(username);
-    await auditLog("LOGIN_FAIL", `Usuario no encontrado: ${username} (${d.count}/${MAX_ATTEMPTS})`, username, "—", ip, "fail");
-    if (d.lockedUntil) return res.status(429).json({ error: `Cuenta bloqueada ${LOCK_MINUTES} min.`, locked: true, minutes: LOCK_MINUTES });
-    return res.status(401).json({ error: `Usuario o contraseña incorrectos. Intentos restantes: ${MAX_ATTEMPTS - d.count}` });
+    await auditLog("LOGIN_FAIL", `Usuario no encontrado: ${username}`, username, "—", ip, "fail");
+    return res.status(401).json({ error: "Usuario o contraseña incorrectos" });
+  }
+
+  if (user.locked_until && new Date(user.locked_until) > new Date()) {
+    const mins = Math.ceil((new Date(user.locked_until) - new Date()) / 60000);
+    await auditLog("LOGIN_BLOCKED", `Bloqueado: ${username}`, username, user.role, ip, "fail");
+    return res.status(429).json({ error: `Cuenta bloqueada. Intentá en ${mins} minuto${mins !== 1 ? "s" : ""}.`, locked: true, minutes: mins });
   }
 
   if (!user.enabled) {
@@ -294,13 +296,15 @@ app.post("/api/auth/login", async (req, res) => {
 
   const ok = await bcrypt.compare(password, user.password_hash);
   if (!ok) {
-    const d = recordFail(username);
-    await auditLog("LOGIN_FAIL", `Contraseña incorrecta: ${username} (${d.count}/${MAX_ATTEMPTS})`, username, user.role, ip, "fail");
-    if (d.lockedUntil) return res.status(429).json({ error: `Cuenta bloqueada ${LOCK_MINUTES} min.`, locked: true, minutes: LOCK_MINUTES });
-    return res.status(401).json({ error: `Usuario o contraseña incorrectos. Intentos restantes: ${MAX_ATTEMPTS - d.count}` });
+    const attempts = (user.failed_attempts || 0) + 1;
+    const locked = attempts >= MAX_ATTEMPTS ? new Date(Date.now() + LOCK_MINUTES * 60000) : null;
+    await qRun("UPDATE users SET failed_attempts = ?, locked_until = ? WHERE id = ?", [attempts, locked, user.id]);
+    await auditLog("LOGIN_FAIL", `Contraseña incorrecta: ${username} (${attempts}/${MAX_ATTEMPTS})`, username, user.role, ip, "fail");
+    if (locked) return res.status(429).json({ error: `Cuenta bloqueada ${LOCK_MINUTES} min.`, locked: true, minutes: LOCK_MINUTES });
+    return res.status(401).json({ error: `Usuario o contraseña incorrectos. Intentos restantes: ${MAX_ATTEMPTS - attempts}` });
   }
 
-  clearRL(username);
+  await qRun("UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE id = ?", [user.id]);
 
   if (user.totp_secret) {
     await auditLog("LOGIN_2FA_REQUIRED", `2FA requerido: ${username}`, username, user.role, ip, "pending");
@@ -308,14 +312,14 @@ app.post("/api/auth/login", async (req, res) => {
   }
 
   const token = jwt.sign(
-    { id: user.id, username: user.username, role: user.role, nombre: user.nombre },
-    JWT_SECRET, { expiresIn: "24h" }
+    { id: user.id, username: user.username, role: user.role, nombre: user.nombre, tv: user.token_version || 0 },
+    JWT_SECRET, { expiresIn: "12h" }
   );
   await auditLog("LOGIN_OK", "Acceso exitoso", username, user.role, ip, "ok");
   res.json({ token, user: { id: user.id, username: user.username, role: user.role, nombre: user.nombre } });
 });
 
-app.post("/api/auth/verify-totp", async (req, res) => {
+app.post("/api/auth/verify-totp", authLimiter, async (req, res) => {
   const { userId, token: totpToken } = req.body;
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "—";
   if (!userId || !totpToken) return res.status(400).json({ error: "Datos requeridos" });
@@ -331,8 +335,8 @@ app.post("/api/auth/verify-totp", async (req, res) => {
   }
 
   const token = jwt.sign(
-    { id: user.id, username: user.username, role: user.role, nombre: user.nombre },
-    JWT_SECRET, { expiresIn: "24h" }
+    { id: user.id, username: user.username, role: user.role, nombre: user.nombre, tv: user.token_version || 0 },
+    JWT_SECRET, { expiresIn: "12h" }
   );
   await auditLog("TOTP_OK", "Acceso con 2FA exitoso", user.username, user.role, ip, "ok");
   res.json({ token, user: { id: user.id, username: user.username, role: user.role, nombre: user.nombre } });
@@ -361,7 +365,7 @@ app.post("/api/auth/change-password", auth, async (req, res) => {
     if (!ok) return res.status(401).json({ error: "Contraseña actual incorrecta" });
   }
   const hash = await bcrypt.hash(newPassword, 10);
-  await qRun("UPDATE users SET password_hash = ? WHERE id = ?", [hash, req.user.id]);
+  await qRun("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?", [hash, req.user.id]);
   await auditLog("PASS_CHANGE", "Contraseña cambiada", req.user.username, req.user.role, "internal", "ok");
   res.json({ ok: true });
 });
@@ -464,7 +468,7 @@ app.put("/api/users/:id/toggle", auth, adminOnly, async (req, res) => {
   const user = await qRow("SELECT id, username, enabled FROM users WHERE id = ?", [req.params.id]);
   if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
   const newEnabled = !user.enabled;
-  await qRun("UPDATE users SET enabled = ? WHERE id = ?", [newEnabled ? 1 : 0, req.params.id]);
+  await qRun("UPDATE users SET enabled = ?, token_version = token_version + 1 WHERE id = ?", [newEnabled ? 1 : 0, req.params.id]);
   await auditLog("USER_TOGGLE", `Usuario ${newEnabled ? "habilitado" : "deshabilitado"}: ${user.username}`, req.user.username, req.user.role, "internal", "ok");
   res.json({ ok: true, enabled: newEnabled });
 });
@@ -1901,11 +1905,19 @@ async function initDB() {
     nombre       VARCHAR(255) NOT NULL,
     enabled      TINYINT(1)   NOT NULL DEFAULT 1,
     totp_secret  VARCHAR(255),
+    token_version INT NOT NULL DEFAULT 0,
+    failed_attempts INT NOT NULL DEFAULT 0,
+    locked_until  DATETIME NULL,
     created_at   DATETIME     DEFAULT CURRENT_TIMESTAMP
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
   await db.execute(
     "ALTER TABLE users MODIFY COLUMN role ENUM('admin','analyst','viewer') NOT NULL DEFAULT 'analyst'"
   ).catch(() => {});
+  for (const col of [
+    "ADD COLUMN token_version INT NOT NULL DEFAULT 0",
+    "ADD COLUMN failed_attempts INT NOT NULL DEFAULT 0",
+    "ADD COLUMN locked_until DATETIME NULL",
+  ]) { await db.execute(`ALTER TABLE users ${col}`).catch(() => {}); }
 
   await db.execute(`CREATE TABLE IF NOT EXISTS audit_logs (
     id       VARCHAR(36)  PRIMARY KEY,

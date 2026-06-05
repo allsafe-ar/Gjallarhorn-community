@@ -98,7 +98,9 @@ success "Database '$DB_NAME' ready"
 
 info "Installing to $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
-cp -r . "$INSTALL_DIR/"
+rsync -a --exclude='.git' --exclude='node_modules' --exclude='screenshots' --exclude='docs' ./ "$INSTALL_DIR/" 2>/dev/null || cp -r . "$INSTALL_DIR/"
+# NOTE: el backend corre bajo PM2 como root. Para producción endurecida, considerá
+# ejecutarlo bajo un usuario de servicio (www-data) vía systemd o `pm2 --uid`.
 chown -R www-data:www-data "$INSTALL_DIR" 2>/dev/null || true
 
 JWT_SECRET=$(openssl rand -hex 32)
@@ -144,6 +146,17 @@ NGINX
 ln -sf /etc/nginx/sites-available/gjallarhorn /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
 success "Nginx configured"
+
+if [ "$DOMAIN" != "localhost" ]; then
+  info "Requesting TLS certificate (Let's Encrypt)..."
+  apt-get install -y certbot python3-certbot-nginx &>/dev/null
+  if certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "admin@${DOMAIN}" --redirect &>/dev/null; then
+    sed -i "s|^CORS_ORIGIN=.*|CORS_ORIGIN=https://${DOMAIN}|" "$INSTALL_DIR/backend/.env"
+    success "TLS enabled (https://${DOMAIN})"
+  else
+    warn "Could not issue TLS cert (check that DNS points here). Continuing on HTTP."
+  fi
+fi
 
 info "Starting backend with PM2..."
 cd "$INSTALL_DIR/backend"

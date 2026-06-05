@@ -8,8 +8,8 @@ services:
     environment:
       MYSQL_DATABASE: gjallar
       MYSQL_USER: gjallar
-      MYSQL_PASSWORD: ${DB_PASSWORD:-changeme}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootchangeme}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD no definida — copiá .env.example a .env y completala}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD no definida en .env}
     volumes:
       - gjallarhorn_db:/var/lib/mysql
     healthcheck:
@@ -28,9 +28,9 @@ services:
       DB_HOST: db
       DB_PORT: 3306
       DB_USER: gjallar
-      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD no definida — copiá .env.example a .env y completala}
       DB_NAME: gjallar
-      JWT_SECRET: ${JWT_SECRET:-change_this_to_a_random_64char_string}
+      JWT_SECRET: "${JWT_SECRET:?JWT_SECRET no definida (generala con openssl rand -hex 32)}"
       NODE_ENV: production
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3003}
     depends_on:
