@@ -671,6 +671,7 @@ app.put("/api/settings/allsafe-logo", auth, adminOnly, async (req, res) => {
 const API_KEY_SERVICES = [
   "virustotal","abuseipdb","shodan","alienvault","greynoise",
   "urlscan","criminalip","ipqualityscore","threatfox","hybrid",
+  "safebrowsing",
 ];
 
 app.get("/api/settings/api-keys", auth, adminOnly, async (req, res) => {

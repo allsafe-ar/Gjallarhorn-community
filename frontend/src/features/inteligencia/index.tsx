@@ -32,6 +32,7 @@ const API_KEY_SERVICES = [
   { key: 'ipqualityscore',  label: 'IPQualityScore',       color: '#ec4899' },
   { key: 'threatfox',       label: 'Abuse.ch (ThreatFox)', color: '#a855f7' },
   { key: 'hybrid',          label: 'Hybrid Analysis',      color: '#14b8a6' },
+  { key: 'safebrowsing',    label: 'Google Safe Browsing', color: '#4285f4' },
 ]
 
 const FREE_INTEL = [

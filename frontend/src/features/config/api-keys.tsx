@@ -12,6 +12,7 @@ const SERVICES = [
   { key: 'shodan',         label: 'Shodan',               desc: 'Internet device intelligence + C2 detection' },
   { key: 'alienvault',     label: 'AlienVault OTX',       desc: 'Open Threat Exchange pulses' },
   { key: 'greynoise',      label: 'GreyNoise',            desc: 'IP noise / riot classification' },
+  { key: 'safebrowsing',   label: 'Google Safe Browsing', desc: 'URL / domain phishing & malware blocklist' },
   { key: 'urlscan',        label: 'URLScan.io',           desc: 'URL & domain screenshot + verdict' },
   { key: 'criminalip',     label: 'Criminal IP',          desc: 'IP threat intelligence score' },
   { key: 'ipqualityscore', label: 'IPQualityScore',       desc: 'Fraud & proxy / VPN scoring' },

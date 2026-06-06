@@ -337,6 +337,32 @@ async function getDomainAge(domain) {
 }
 
 // ── Main query dispatcher ─────────────────────────────────────────────────────
+// ── Google Safe Browsing ────────────────────
+async function queryGoogleSafeBrowsing(ioc, iocType, apiKey) {
+  if (!apiKey) return { source: "Google Safe Browsing", skipped: true };
+  if (!["url", "domain"].includes(iocType)) return { source: "Google Safe Browsing", skipped: true };
+  try {
+    const target = iocType === "domain" ? `http://${ioc}/` : ioc;
+    const r = await httpRequest(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`, {
+      method: "POST",
+      timeout: 12000,
+      body: {
+        client: { clientId: "gjallarhorn", clientVersion: "1.0" },
+        threatInfo: {
+          threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"],
+          platformTypes: ["ANY_PLATFORM"],
+          threatEntryTypes: ["URL"],
+          threatEntries: [{ url: target }],
+        },
+      },
+    });
+    if (r.status !== 200) return { source: "Google Safe Browsing", skipped: false, error: `HTTP ${r.status}` };
+    const matches = (parseJSON(r.data) || {}).matches || [];
+    const types = [...new Set(matches.map(m => m.threatType))];
+    return { source: "Google Safe Browsing", found: matches.length > 0, threat_types: types, score_contribution: matches.length ? 60 : 0 };
+  } catch (e) { return { source: "Google Safe Browsing", skipped: false, error: e.message }; }
+}
+
 async function queryAll(ioc, iocType, apiKeys = {}) {
   const tasks = [];
 
@@ -364,11 +390,13 @@ async function queryAll(ioc, iocType, apiKeys = {}) {
     tasks.push(queryURLhaus(ioc, iocType, apiKeys.threatfox));
     tasks.push(queryURLScan(ioc, iocType, apiKeys.urlscan));
     tasks.push(queryOpenPhish(ioc));
+    tasks.push(queryGoogleSafeBrowsing(ioc, iocType, apiKeys.safebrowsing));
     tasks.push(queryC2Trackers(ioc));
   }
 
   // Domain-specific
   if (iocType === "domain") {
+    tasks.push(queryGoogleSafeBrowsing(ioc, iocType, apiKeys.safebrowsing));
     tasks.push(queryC2Trackers(ioc));
   }
 

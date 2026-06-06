@@ -20,6 +20,7 @@ const API_KEY_SERVICES = [
   { key: 'shodan',          label: 'Shodan',               url: 'shodan.io',           paid: false },
   { key: 'alienvault',      label: 'AlienVault OTX',       url: 'otx.alienvault.com',  paid: false },
   { key: 'greynoise',       label: 'GreyNoise',            url: 'greynoise.io',        paid: true  },
+  { key: 'safebrowsing',    label: 'Google Safe Browsing', url: 'developers.google.com/safe-browsing', paid: false },
   { key: 'urlscan',         label: 'URLScan.io',           url: 'urlscan.io',          paid: false },
   { key: 'criminalip',      label: 'Criminal IP',          url: 'criminalip.io',       paid: false },
   { key: 'ipqualityscore',  label: 'IPQualityScore',       url: 'ipqualityscore.com',  paid: false },

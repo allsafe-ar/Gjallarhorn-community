@@ -38,6 +38,7 @@ const API_KEY_SERVICES = [
   { key: 'ipqualityscore', label: 'IPQualityScore' },
   { key: 'threatfox',      label: 'Abuse.ch (ThreatFox)' },
   { key: 'hybrid',         label: 'Hybrid Analysis' },
+  { key: 'safebrowsing',   label: 'Google Safe Browsing' },
 ]
 
 const FREE_INTEL_COUNT = 10
