@@ -30,7 +30,7 @@ Gjallarhorn Community is a free, open-source SOC platform for Blue Team operatio
 
 Gjallarhorn Community includes:
 
-- **20+ Threat Intelligence sources** (VirusTotal, Shodan, AbuseIPDB, AlienVault OTX, GreyNoise, Criminal IP and more) to investigate IPs, domains, URLs and hashes
+- **20+ Threat Intelligence sources** (VirusTotal, Shodan, AbuseIPDB, AlienVault OTX, GreyNoise, Criminal IP, Google Safe Browsing and more) to investigate IPs, domains, URLs and hashes
 - **SOC integrations**: Wazuh, Velociraptor and OpenVAS/GVM
 - **Static file analysis**: PE executables, PowerShell/Batch/VBS scripts, Office documents, PDFs - with ransomware detection, Cobalt Strike beacon detection, and C2 framework identification
 - **Email forensics**: SPF/DKIM/DMARC analysis, phishing detection and BEC (Business Email Compromise)
@@ -218,6 +218,7 @@ Default credentials (first run): `admin` / `admin123` - **change immediately**.
 | AlienVault OTX | [docs/api-keys/alienvault-otx.md](docs/api-keys/alienvault-otx.md) |
 | GreyNoise | [docs/api-keys/greynoise.md](docs/api-keys/greynoise.md) |
 | URLScan.io | [docs/api-keys/urlscan.md](docs/api-keys/urlscan.md) |
+| Google Safe Browsing | [docs/api-keys/google-safe-browsing.md](docs/api-keys/google-safe-browsing.md) |
 | Criminal IP | [docs/api-keys/criminalip.md](docs/api-keys/criminalip.md) |
 | IPQualityScore | [docs/api-keys/ipqualityscore.md](docs/api-keys/ipqualityscore.md) |
 | Abuse.ch (ThreatFox / MalwareBazaar / URLhaus) | [docs/api-keys/abusech.md](docs/api-keys/abusech.md) |
