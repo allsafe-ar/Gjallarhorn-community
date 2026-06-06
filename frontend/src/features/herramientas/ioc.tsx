@@ -262,18 +262,24 @@ export function IocView() {
               {findings.length === 0
                 ? <p className='text-sm text-muted-foreground'>{t('tools.ioc.noSources')}</p>
                 : (
-                  <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'>
+                  <div className='grid grid-cols-2 md:grid-cols-3 gap-3'>
                     {findings.map((f: any, i: number) => {
-                      const clean = !f.found
-                      const mal = f.found && (f.detections > 0 || f.maliciousCount > 0)
-                      const borderCls = clean ? 'border-emerald-500/50' : mal ? 'border-destructive/60' : 'border-amber-400/50'
-                      const barColor  = clean ? '#22c55e' : mal ? '#ef4444' : '#f59e0b'
-                      const badgeCls  = clean
-                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
-                        : mal
-                          ? 'bg-destructive/10 text-destructive border-destructive/30'
-                          : 'bg-amber-400/10 text-amber-400 border-amber-400/30'
-                      const badgeText = clean ? t('tools.ioc.clean') : mal ? t('tools.ioc.detected') : t('tools.ioc.suspicious')
+                      const skipped = !!f.skipped
+                      const errored = !skipped && !!f.error
+                      const clean = !skipped && !errored && !f.found
+                      const mal = !skipped && !errored && f.found && (f.detections > 0 || f.maliciousCount > 0)
+                      const borderCls = skipped ? 'border-muted-foreground/20' : errored ? 'border-amber-400/40' : clean ? 'border-emerald-500/50' : mal ? 'border-destructive/60' : 'border-amber-400/50'
+                      const barColor  = skipped ? '#6b7280' : errored ? '#f59e0b' : clean ? '#22c55e' : mal ? '#ef4444' : '#f59e0b'
+                      const badgeCls  = skipped
+                        ? 'bg-muted text-muted-foreground border-muted-foreground/20'
+                        : errored
+                          ? 'bg-amber-400/10 text-amber-400 border-amber-400/30'
+                          : clean
+                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
+                            : mal
+                              ? 'bg-destructive/10 text-destructive border-destructive/30'
+                              : 'bg-amber-400/10 text-amber-400 border-amber-400/30'
+                      const badgeText = skipped ? t('tools.ioc.notConfigured') : errored ? t('tools.ioc.error') : clean ? t('tools.ioc.clean') : mal ? t('tools.ioc.detected') : t('tools.ioc.suspicious')
                       return (
                         <div key={i} className={cn('rounded-lg border bg-card p-4 flex flex-col gap-1.5 relative overflow-hidden', borderCls)}>
                           <div className='flex items-center justify-between gap-2'>
@@ -292,6 +298,12 @@ export function IocView() {
                           )}
                           {clean && f.detections == null && (
                             <div className='text-xs text-muted-foreground'>{t('tools.ioc.noDetections')}</div>
+                          )}
+                          {skipped && (
+                            <div className='text-xs text-muted-foreground'>{t('tools.ioc.notConfiguredHint')}</div>
+                          )}
+                          {errored && (
+                            <div className='text-xs text-amber-400/80 line-clamp-2'>{f.error}</div>
                           )}
                           {f.score != null && <div className='text-xs text-muted-foreground'>Score: {f.score}</div>}
                           {f.details && <div className='text-xs text-muted-foreground line-clamp-2'>{f.details}</div>}
