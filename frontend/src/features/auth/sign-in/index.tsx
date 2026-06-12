@@ -13,7 +13,7 @@ export function SignIn() {
     <AuthLayout>
       <div className='w-full max-w-md space-y-6 px-4'>
         <div className='flex flex-col items-center gap-3'>
-          <img src={LOGO_B64} alt='AllSafe' className='h-16 w-auto mx-auto block' />
+          <img src={LOGO_B64} alt='AllSafe' className='h-32 w-auto mx-auto block' />
           <div className='text-center'>
             <h1 className='text-2xl font-bold tracking-tight'>Gjallarhorn</h1>
             <p className='text-sm text-muted-foreground'>{t('auth.signin.tagline')}</p>
