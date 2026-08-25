@@ -33,13 +33,14 @@ Gjallarhorn Community incluye:
 - **20+ fuentes de Threat Intelligence** (VirusTotal, Shodan, AbuseIPDB, AlienVault OTX, GreyNoise, Criminal IP, Google Safe Browsing y más) para investigar IPs, dominios, URLs y hashes
 - **Integraciones SOC**: Wazuh, Velociraptor y OpenVAS/GVM
 - **Análisis estático de archivos**: ejecutables PE, scripts PowerShell/Batch/VBS, documentos Office, PDFs - con detección de ransomware, Cobalt Strike beacon y frameworks C2
+- **Sandbox dinámico**: enviá un archivo o URL a tu propio sandbox (CAPEv2, Cuckoo o Triage de nube) y mirá el comportamiento - procesos, red y veredicto. Restringido a `admin` (detona malware real)
 - **Forense de email**: análisis SPF/DKIM/DMARC, detección de phishing y BEC (Business Email Compromise)
 - **Gestión de casos** con notas, análisis vinculados y adjuntos
 - **Generación de reglas de detección**: KQL (Sentinel/Defender), SPL (Splunk), SIGMA, YARA
 - **Exportación STIX 2.1** para compartir inteligencia en formato estándar
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), lockout de cuenta, control de acceso por rol (`admin` / `analyst` / `viewer`)
 
-> ¿Buscás el **sandbox dinámico** (CAPE/Cuckoo/Triage), la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), **campañas de phishing por email/WiFi**, **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA) o el **módulo de IA**? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> ¿Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **campañas de phishing por email/WiFi**, **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA) o el **módulo de IA**? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
 
 ---
 
@@ -129,6 +130,8 @@ La seguridad es una característica de primer nivel — la misma base de hardeni
 
 El criterio es el mismo en todo AllSafe: **la calidad de la catalogación es idéntica en las dos ediciones - lo que Pro agrega es profundidad, integración y automatización.** Una herramienta que clasifica mal está defectuosa en cualquier edición, así que las correcciones nunca se cobran; lo que se paga es la profundidad del análisis, la integración con tu infraestructura y la automatización.
 
+Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo más claro es el **sandbox dinámico**: las dos ediciones te dejan enviar una muestra a tu propio motor y leer el comportamiento y el veredicto - igual que las integraciones Wazuh/Velociraptor/OpenVAS, le habla a infraestructura que vos levantás. Pro suma la **automatización** encima: esos veredictos alimentando casos y el circuito de respuesta automática, los IOCs extraídos de la detonación, y el envío en lote. Community te muestra la capacidad; Pro la conecta a tu flujo de trabajo.
+
 | Funcionalidad | Community | Pro |
 |---|:---:|:---:|
 | Investigación IOC (20+ fuentes) | ✅ | ✅ |
@@ -141,7 +144,8 @@ El criterio es el mismo en todo AllSafe: **la calidad de la catalogación es id�
 | Integración Velociraptor | ✅ | ✅ |
 | Integración OpenVAS / GVM | ✅ | ✅ |
 | TOTP 2FA + lockout · roles · audit log | ✅ | ✅ |
-| **Sandbox dinámico** (CAPEv2 / Cuckoo / Triage) | ❌ | ✅ |
+| **Sandbox dinámico** - enviar y ver el comportamiento (tu propio CAPEv2 / Cuckoo / Triage) | ✅ | ✅ |
+| **Automatización** del sandbox - veredictos alimentando casos y respuestas, IOCs de detonación, lote | ❌ | ✅ |
 | **Evaluación y prueba** de reglas (SIGMA / YARA) | ❌ | ✅ |
 | Integraciones **Suricata** (IDS) + **Shuffle** (SOAR) | ❌ | ✅ |
 | Integraciones TheHive · Nessus | ❌ | ✅ |

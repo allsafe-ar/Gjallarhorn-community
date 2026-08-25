@@ -1,4 +1,5 @@
 import {
+  Boxes,
   LayoutDashboard,
   Search,
   FileSearch,
@@ -41,6 +42,7 @@ export const sidebarData: SidebarData = {
       items: [
         { title: 'nav.ioc',   url: '/herramientas/ioc',      icon: Search },
         { title: 'nav.files', url: '/herramientas/archivos', icon: FileSearch },
+        { title: 'nav.sandbox', url: '/herramientas/sandbox', icon: Boxes },
         { title: 'nav.email', url: '/herramientas/email',    icon: Mail },
       ],
     },

@@ -17,7 +17,7 @@ import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 
-const PLATFORM_ORDER = ['thehive', 'wazuh', 'velociraptor', 'openvas', 'nessus'] as const
+const PLATFORM_ORDER = ['thehive', 'wazuh', 'velociraptor', 'openvas', 'nessus', 'cape', 'cuckoo', 'triage'] as const
 type PlatformKey = (typeof PLATFORM_ORDER)[number]
 
 const PLATFORM_META: Record<PlatformKey, {
@@ -28,6 +28,9 @@ const PLATFORM_META: Record<PlatformKey, {
   wazuh:        { name: 'Wazuh',           abbr: 'WZ', color: '#3b82f6', desc: 'Security Monitoring / SIEM',           fields: [{ key: 'url', label: 'URL', placeholder: 'https://localhost:55000' }, { key: 'username', label: 'Username', placeholder: 'wazuh-wui' }, { key: 'password', label: 'Password', type: 'password', sensitive: true }] },
   velociraptor: { name: 'Velociraptor',    abbr: 'VR', color: '#8b5cf6', desc: 'DFIR — Forensics & Incident Response', fields: [{ key: 'url', label: 'URL', placeholder: 'https://localhost:8889' }, { key: 'username', label: 'Usuario', placeholder: 'admin' }, { key: 'password', label: 'Contraseña', type: 'password', sensitive: true }] },
   openvas:      { name: 'OpenVAS / GVM',   abbr: 'OV', color: '#22c55e', desc: 'Vulnerability Scanner (Greenbone)',    fields: [{ key: 'url', label: 'URL (proxy :9391)', placeholder: 'http://localhost:9391' }, { key: 'api_key', label: 'GMP Password', type: 'password', sensitive: true }] },
+  cape:         { name: 'CAPEv2',          abbr: 'CP', color: '#06b6d4', desc: 'Sandbox - detonación self-hosted',   fields: [{ key: 'url', label: 'URL', placeholder: 'http://localhost:8000' }, { key: 'api_key', label: 'Token (opcional)', type: 'password', sensitive: true }] },
+  cuckoo:       { name: 'Cuckoo',          abbr: 'CK', color: '#84cc16', desc: 'Sandbox - detonación self-hosted',   fields: [{ key: 'url', label: 'URL', placeholder: 'http://localhost:8090' }, { key: 'api_key', label: 'Token (opcional)', type: 'password', sensitive: true }] },
+  triage:       { name: 'Triage (nube)',   abbr: 'TR', color: '#a855f7', desc: 'Sandbox de nube - la muestra sale de la red', fields: [{ key: 'url', label: 'URL', placeholder: 'https://tria.ge' }, { key: 'api_key', label: 'API Key', type: 'password', sensitive: true }] },
   nessus:       { name: 'Nessus',          abbr: 'NS', color: '#ef4444', desc: 'Vulnerability Management (Tenable)',   fields: [{ key: 'url', label: 'URL', placeholder: 'https://localhost:8834' }, { key: 'api_key', label: 'Access Key', type: 'password', sensitive: true }, { key: 'extra_secretKey', label: 'Secret Key', type: 'password', sensitive: true }] },
 }
 

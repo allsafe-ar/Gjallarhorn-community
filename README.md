@@ -33,13 +33,14 @@ Gjallarhorn Community includes:
 - **20+ Threat Intelligence sources** (VirusTotal, Shodan, AbuseIPDB, AlienVault OTX, GreyNoise, Criminal IP, Google Safe Browsing and more) to investigate IPs, domains, URLs and hashes
 - **SOC integrations**: Wazuh, Velociraptor and OpenVAS/GVM
 - **Static file analysis**: PE executables, PowerShell/Batch/VBS scripts, Office documents, PDFs - with ransomware detection, Cobalt Strike beacon detection, and C2 framework identification
+- **Dynamic sandbox**: submit a file or URL to your own sandbox (CAPEv2, Cuckoo, or cloud Triage) and see the behavior - processes, network and verdict. Restricted to `admin` (it detonates real malware)
 - **Email forensics**: SPF/DKIM/DMARC analysis, phishing detection and BEC (Business Email Compromise)
 - **Case management** with notes, linked analyses, and attachments
 - **Detection rule generation**: KQL (Sentinel/Defender), SPL (Splunk), SIGMA, YARA
 - **STIX 2.1 export** for sharing intelligence in a standard format
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), account lockout, role-based access (`admin` / `analyst` / `viewer`)
 
-> Looking for the **dynamic sandbox** (CAPE/Cuckoo/Triage), **rule evaluation** (SIGMA/YARA testing), **Suricata (IDS) + Shuffle (SOAR)**, the **active correlation & response circuit** with **automatic responses** (email + IP block feed), **email/WiFi phishing simulation**, **TheHive/Nessus**, **executive reporting** (PDF, MITRE coverage, SLA), or the **AI module**? Those are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> Looking for **rule evaluation** (SIGMA/YARA testing), **Suricata (IDS) + Shuffle (SOAR)**, the **active correlation & response circuit** with **automatic responses** (email + IP block feed), **sandbox automation** (detonation verdicts feeding cases and responses), **email/WiFi phishing simulation**, **TheHive/Nessus**, **executive reporting** (PDF, MITRE coverage, SLA), or the **AI module**? Those are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
 
 ---
 
@@ -129,6 +130,8 @@ Security is a first-class feature here — the same hardening baseline as the co
 
 The rule is the same across AllSafe: **cataloguing quality is identical in both editions - what Pro adds is depth, integration and automation.** A tool that classifies wrong is defective in any edition, so corrections are never paywalled; what you pay for is analysis depth, integration with your infrastructure, and automation.
 
+Some capabilities are shared at the base and **deepened** in Pro. The clearest example is the **dynamic sandbox**: both editions let you submit a sample to your own engine and read the behavior and verdict - just like the Wazuh/Velociraptor/OpenVAS integrations, it talks to infrastructure you run. Pro adds the **automation** on top: those verdicts feeding cases and the automatic response circuit, IOCs extracted from the detonation, and batch submission. Community shows you the capability; Pro wires it into your workflow.
+
 | Feature | Community | Pro |
 |---|:---:|:---:|
 | IOC Investigation (20+ sources) | ✅ | ✅ |
@@ -141,7 +144,8 @@ The rule is the same across AllSafe: **cataloguing quality is identical in both 
 | Velociraptor integration | ✅ | ✅ |
 | OpenVAS / GVM integration | ✅ | ✅ |
 | TOTP 2FA + account lockout · roles · audit log | ✅ | ✅ |
-| **Dynamic sandbox** (CAPEv2 / Cuckoo / Triage) | ❌ | ✅ |
+| **Dynamic sandbox** - submit & view behavior (your own CAPEv2 / Cuckoo / Triage) | ✅ | ✅ |
+| Sandbox **automation** - detonation verdicts feeding cases & responses, IOCs from detonation, batch | ❌ | ✅ |
 | Detection rule **evaluation & testing** (SIGMA / YARA) | ❌ | ✅ |
 | **Suricata** (IDS) + **Shuffle** (SOAR) integrations | ❌ | ✅ |
 | TheHive · Nessus integrations | ❌ | ✅ |

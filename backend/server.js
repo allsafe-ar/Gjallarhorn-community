@@ -13,6 +13,7 @@ const helmet   = require("helmet");
 const rateLimit = require("express-rate-limit");
 const mysql    = require("mysql2/promise");
 const { v4: uuidv4 } = require("uuid");
+const sandbox      = require("./sandbox");
 const https    = require("https");
 const http     = require("http");
 const path     = require("path");
@@ -56,7 +57,7 @@ if (!process.env.JWT_SECRET || JWT_SECRET === "gjallar_jwt_secret_CHANGE_IN_PROD
   process.exit(1);
 }
 
-const VALID_PLATFORMS = ["wazuh", "velociraptor", "openvas"];
+const VALID_PLATFORMS = ["wazuh", "velociraptor", "openvas", "cape", "cuckoo", "triage"];
 
 // ── MySQL Pool ────────────────────────────────────────────────────────────────
 const db = mysql.createPool({
@@ -255,6 +256,10 @@ const auth = async (req, res, next) => {
 
 const adminOnly = (req, res, next) =>
   req.user.role !== "admin" ? res.status(403).json({ error: "Solo administradores" }) : next();
+
+// El análisis dinámico detona malware real: en Community lo restringimos a admin.
+const canSandbox = (req, res, next) =>
+  req.user.role === "admin" ? next() : res.status(403).json({ error: "El análisis dinámico requiere rol admin" });
 
 const analystOrAdmin = (req, res, next) =>
   ["admin", "analyst"].includes(req.user.role) ? next() : res.status(403).json({ error: "Sin permisos" });
@@ -1085,6 +1090,126 @@ app.get("/api/emails/:id/rules", auth, analystOrAdmin, async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SANDBOX DINÁMICO — detonación en un motor propio (CAPE/Cuckoo) o de nube (Triage)
+// Community: enviar a mano y ver el resultado. La automatización (verdictos que
+// alimentan la respuesta/casos, IOCs de detonación, lote) es de Gjallarhorn Pro.
+// Restringido a admin: detona malware real.
+// ─────────────────────────────────────────────────────────────────────────────
+app.get("/api/sandbox/engines", auth, canSandbox, async (req, res) => {
+  const filas = await qRows(
+    `SELECT platform, url, enabled FROM platform_configs WHERE platform IN (${sandbox.IDS.map(() => "?").join(",")})`,
+    sandbox.IDS
+  );
+  const porId = Object.fromEntries(filas.map(f => [f.platform, f]));
+  res.json({
+    engines: sandbox.catalogo().map(m => {
+      const cfg = porId[m.id] || {};
+      let destino = null;
+      try { destino = cfg.url ? new URL(cfg.url).host : null; } catch { destino = cfg.url || null; }
+      return { ...m, configurado: !!cfg.url, habilitado: !!cfg.enabled && !!cfg.url, destino };
+    }),
+  });
+});
+
+const ORIGENES = ["subida"];
+
+app.post("/api/sandbox/submit", auth, canSandbox, upload.single("file"), async (req, res) => {
+  const engineId = String(req.body?.engine || "").toLowerCase();
+  const motor = sandbox.motor(engineId);
+  if (!motor) return res.status(400).json({ error: "Motor de sandbox inválido" });
+
+  const origen = String(req.body?.origen || "subida").toLowerCase();
+  if (!ORIGENES.includes(origen)) return res.status(400).json({ error: `Origen no soportado todavía: ${origen}` });
+
+  const cfg = await qRow("SELECT * FROM platform_configs WHERE platform = ?", [engineId]);
+  if (!cfg?.url)   return res.status(400).json({ error: `${motor.meta.nombre} no está configurado` });
+  if (!cfg.enabled) return res.status(400).json({ error: `${motor.meta.nombre} está deshabilitado` });
+
+  const urlObjetivo = req.body?.url ? String(req.body.url).trim() : null;
+  if (!req.file && !urlObjetivo) return res.status(400).json({ error: "Hace falta un archivo o una URL" });
+  if (urlObjetivo && !motor.meta.urls) return res.status(400).json({ error: `${motor.meta.nombre} no acepta URLs` });
+
+  try {
+    const envio = urlObjetivo
+      ? await motor.submitUrl(cfg, { url: urlObjetivo })
+      : await motor.submitFile(cfg, { buffer: req.file.buffer, filename: req.file.originalname || "muestra.bin" });
+    if (!envio.ok) return res.status(502).json({ error: envio.error || "El motor rechazó el envío" });
+
+    const id     = uuidv4();
+    const tipo   = urlObjetivo ? "url" : "file";
+    const nombre = urlObjetivo || req.file.originalname || "muestra.bin";
+    const sha256 = req.file ? crypto.createHash("sha256").update(req.file.buffer).digest("hex") : null;
+
+    await qRun(
+      `INSERT INTO sandbox_submissions (id, engine, task_id, kind, origin, target, sha256, file_analysis_id, status, analyst)
+       VALUES (?,?,?,?,?,?,?,?, 'pendiente', ?)`,
+      [id, engineId, envio.taskId, tipo, origen, nombre.slice(0, 500), sha256, req.body?.file_analysis_id || null, req.user.username]
+    );
+    await auditLog("SANDBOX_SUBMIT",
+      `${tipo === "url" ? "URL" : "Archivo"} enviado a ${motor.meta.nombre} (${motor.meta.tipo}): ${nombre.slice(0, 120)}` +
+      (motor.meta.publica ? " — motor de envío público" : ""),
+      req.user.username, req.user.role, req.ip, "ok");
+    res.json({ id, engine: engineId, taskId: envio.taskId, estado: "pendiente", publica: motor.meta.publica });
+  } catch (e) {
+    console.error("[SANDBOX]", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+const crypto = require("crypto");
+function urlReporteAbsoluta(urlReporte, cfgUrl) {
+  if (!urlReporte) return null;
+  if (/^https?:\/\//i.test(urlReporte)) return urlReporte;
+  if (!cfgUrl) return null;
+  try { const base = new URL(cfgUrl); return `${base.protocol}//${base.host}${urlReporte.startsWith("/") ? "" : "/"}${urlReporte}`; }
+  catch { return null; }
+}
+
+app.get("/api/sandbox/result/:id", auth, canSandbox, async (req, res) => {
+  const fila = await qRow("SELECT * FROM sandbox_submissions WHERE id = ?", [req.params.id]);
+  if (!fila) return res.status(404).json({ error: "Envío no encontrado" });
+
+  if (fila.status === "listo") {
+    const datos = JSON.parse(fila.result_data || "{}");
+    const cfgL = await qRow("SELECT url FROM platform_configs WHERE platform = ?", [fila.engine]);
+    return res.json({ id: fila.id, engine: fila.engine, estado: "listo", verdicto: fila.verdict, puntaje: fila.score, familia: fila.family, ...datos, urlReporte: urlReporteAbsoluta(datos.urlReporte, cfgL?.url) });
+  }
+  if (fila.status === "error") return res.json({ id: fila.id, engine: fila.engine, estado: "error", error: fila.error });
+
+  const motor = sandbox.motor(fila.engine);
+  const cfg   = await qRow("SELECT * FROM platform_configs WHERE platform = ?", [fila.engine]);
+  if (!motor || !cfg?.url) return res.status(400).json({ error: "El motor ya no está configurado" });
+
+  const r = await motor.getResult(cfg, fila.task_id);
+  if (!r.ok) {
+    await qRun("UPDATE sandbox_submissions SET status = 'error', error = ? WHERE id = ?", [String(r.error).slice(0, 500), fila.id]);
+    return res.json({ id: fila.id, engine: fila.engine, estado: "error", error: r.error });
+  }
+  if (r.estado !== "listo") {
+    await qRun("UPDATE sandbox_submissions SET status = ? WHERE id = ?", [r.estado, fila.id]);
+    return res.json({ id: fila.id, engine: fila.engine, estado: r.estado });
+  }
+
+  const { estado, ok, verdicto, puntaje, familia, ...resto } = r;
+  await qRun("UPDATE sandbox_submissions SET status = 'listo', verdict = ?, score = ?, family = ?, result_data = ? WHERE id = ?",
+    [verdicto, puntaje || 0, familia || null, JSON.stringify(resto), fila.id]);
+  await auditLog("SANDBOX_RESULT", `${fila.engine} → ${verdicto} (${puntaje}) sobre ${String(fila.target).slice(0, 120)}`, req.user.username, req.user.role, req.ip, "ok");
+  addTimelineEvent("sandbox", "SANDBOX_ANALYZED", puntaje >= 70 ? "high" : puntaje >= 40 ? "medium" : "low",
+    { target: fila.target, engine: fila.engine, verdict: verdicto, score: puntaje, id: fila.id });
+
+  res.json({ id: fila.id, engine: fila.engine, estado: "listo", verdicto, puntaje, familia, ...resto, urlReporte: urlReporteAbsoluta(resto.urlReporte, cfg.url) });
+});
+
+app.get("/api/sandbox/history", auth, canSandbox, async (req, res) => {
+  const limite = Math.min(Math.max(1, parseInt(req.query.limit) || 50), 200);
+  const rows = await qRows(
+    `SELECT id, ts, engine, kind, origin, target, sha256, status, verdict, score, family, analyst
+     FROM sandbox_submissions ORDER BY ts DESC LIMIT ${limite}`
+  );
+  res.json({ submissions: rows });
 });
 
 // POST /api/emails/:id/create-case — crear caso en TheHive
@@ -2081,6 +2206,26 @@ async function initDB() {
     ts      DATETIME     DEFAULT CURRENT_TIMESTAMP,
     content TEXT         NOT NULL,
     author  VARCHAR(100)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+
+  await db.execute(`CREATE TABLE IF NOT EXISTS sandbox_submissions (
+    id            VARCHAR(36)  PRIMARY KEY,
+    ts            DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    engine        VARCHAR(30)  NOT NULL,
+    task_id       VARCHAR(120) NOT NULL,
+    kind          ENUM('file','url') NOT NULL DEFAULT 'file',
+    origin        VARCHAR(20)  NOT NULL DEFAULT 'subida',
+    target        VARCHAR(500),
+    sha256        VARCHAR(64),
+    file_analysis_id VARCHAR(36),
+    status        VARCHAR(20)  NOT NULL DEFAULT 'pendiente',
+    verdict       VARCHAR(20),
+    score         INT          DEFAULT 0,
+    family        VARCHAR(120),
+    result_data   MEDIUMTEXT,
+    error         TEXT,
+    analyst       VARCHAR(100),
+    INDEX (sha256), INDEX (status), INDEX (file_analysis_id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
 
   await db.execute(`CREATE TABLE IF NOT EXISTS events_timeline (
