@@ -39,7 +39,7 @@ Gjallarhorn Community includes:
 - **STIX 2.1 export** for sharing intelligence in a standard format
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), account lockout, role-based access (`admin` / `analyst` / `viewer`)
 
-> Looking for **email phishing campaign simulation**, **WiFi phishing (Munin)**, **TheHive**, **Nessus**, **AI analysis**, or **automatic correlation playbooks**? Those features are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> Looking for the **dynamic sandbox** (CAPE/Cuckoo/Triage), **rule evaluation** (SIGMA/YARA testing), **Suricata (IDS) + Shuffle (SOAR)**, the **active correlation & response circuit** with **automatic responses** (email + IP block feed), **email/WiFi phishing simulation**, **TheHive/Nessus**, **executive reporting** (PDF, MITRE coverage, SLA), or the **AI module**? Those are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
 
 ---
 
@@ -127,26 +127,32 @@ Security is a first-class feature here — the same hardening baseline as the co
 
 ## Community vs Pro
 
+The rule is the same across AllSafe: **cataloguing quality is identical in both editions - what Pro adds is depth, integration and automation.** A tool that classifies wrong is defective in any edition, so corrections are never paywalled; what you pay for is analysis depth, integration with your infrastructure, and automation.
+
 | Feature | Community | Pro |
 |---|:---:|:---:|
 | IOC Investigation (20+ sources) | ✅ | ✅ |
-| File Analysis | ✅ | ✅ |
-| Email Forensics | ✅ | ✅ |
-| Cases & Timeline | ✅ | ✅ |
+| Static file analysis | ✅ | ✅ |
+| Email forensics | ✅ | ✅ |
+| Cases & timeline | ✅ | ✅ |
+| Detection rule **generation** (KQL / SPL / SIGMA / YARA) | ✅ | ✅ |
+| STIX 2.1 export | ✅ | ✅ |
 | Wazuh integration | ✅ | ✅ |
 | Velociraptor integration | ✅ | ✅ |
 | OpenVAS / GVM integration | ✅ | ✅ |
-| TOTP 2FA + account lockout | ✅ | ✅ |
-| Roles: admin / analyst / viewer | ✅ | ✅ |
-| Audit log | ✅ | ✅ |
+| TOTP 2FA + account lockout · roles · audit log | ✅ | ✅ |
+| **Dynamic sandbox** (CAPEv2 / Cuckoo / Triage) | ❌ | ✅ |
+| Detection rule **evaluation & testing** (SIGMA / YARA) | ❌ | ✅ |
+| **Suricata** (IDS) + **Shuffle** (SOAR) integrations | ❌ | ✅ |
+| TheHive · Nessus integrations | ❌ | ✅ |
+| **Active correlation & response circuit** (sensor → response) | ❌ | ✅ |
+| **Automatic native responses** (email alert + IP block feed) | ❌ | ✅ |
 | Email phishing campaigns | ❌ | ✅ |
-| WiFi phishing / evil twin (Munin) | ❌ | ✅ |
-| In-person security training module | ❌ | ✅ |
-| TheHive integration | ❌ | ✅ |
-| Nessus integration | ❌ | ✅ |
-| Automatic correlation playbooks | ❌ | ✅ |
-| Advanced analysis engine | ❌ | ✅ |
-| PDF export for audit reports | ❌ | ✅ |
+| WiFi phishing / evil twin (Munin) · in-person training | ❌ | ✅ |
+| **Executive reporting** (PDF, phishing heatmap, MITRE coverage, scheduler) | ❌ | ✅ |
+| **SOC metrics** (case SLA, per-analyst metrics) | ❌ | ✅ |
+| **Scheduled IOC re-check** · timeline noise tuning | ❌ | ✅ |
+| AI module (experimental) | ❌ | ✅ |
 
 > **Upgrade path**: Community and Pro share the same database schema. Upgrading = replace files + `npm install` + `pm2 restart`. No migration needed.
 

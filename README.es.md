@@ -39,7 +39,7 @@ Gjallarhorn Community incluye:
 - **Exportación STIX 2.1** para compartir inteligencia en formato estándar
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), lockout de cuenta, control de acceso por rol (`admin` / `analyst` / `viewer`)
 
-> ¿Buscás **campañas de phishing por email**, **phishing WiFi (Munin)**, **TheHive**, **Nessus**, **análisis con IA** o **playbooks de correlación automática**? Esas funcionalidades están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> ¿Buscás el **sandbox dinámico** (CAPE/Cuckoo/Triage), la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), **campañas de phishing por email/WiFi**, **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA) o el **módulo de IA**? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
 
 ---
 
@@ -127,26 +127,32 @@ La seguridad es una característica de primer nivel — la misma base de hardeni
 
 ## Community vs Pro
 
+El criterio es el mismo en todo AllSafe: **la calidad de la catalogación es idéntica en las dos ediciones - lo que Pro agrega es profundidad, integración y automatización.** Una herramienta que clasifica mal está defectuosa en cualquier edición, así que las correcciones nunca se cobran; lo que se paga es la profundidad del análisis, la integración con tu infraestructura y la automatización.
+
 | Funcionalidad | Community | Pro |
 |---|:---:|:---:|
 | Investigación IOC (20+ fuentes) | ✅ | ✅ |
-| Análisis de archivos | ✅ | ✅ |
+| Análisis estático de archivos | ✅ | ✅ |
 | Forense de email | ✅ | ✅ |
-| Casos y Timeline | ✅ | ✅ |
+| Casos y timeline | ✅ | ✅ |
+| **Generación** de reglas (KQL / SPL / SIGMA / YARA) | ✅ | ✅ |
+| Exportación STIX 2.1 | ✅ | ✅ |
 | Integración Wazuh | ✅ | ✅ |
 | Integración Velociraptor | ✅ | ✅ |
 | Integración OpenVAS / GVM | ✅ | ✅ |
-| TOTP 2FA + lockout de cuenta | ✅ | ✅ |
-| Roles: admin / analyst / viewer | ✅ | ✅ |
-| Audit log | ✅ | ✅ |
+| TOTP 2FA + lockout · roles · audit log | ✅ | ✅ |
+| **Sandbox dinámico** (CAPEv2 / Cuckoo / Triage) | ❌ | ✅ |
+| **Evaluación y prueba** de reglas (SIGMA / YARA) | ❌ | ✅ |
+| Integraciones **Suricata** (IDS) + **Shuffle** (SOAR) | ❌ | ✅ |
+| Integraciones TheHive · Nessus | ❌ | ✅ |
+| **Circuito activo de correlación y respuesta** (de visor a respuesta) | ❌ | ✅ |
+| **Respuestas nativas automáticas** (aviso por mail + feed de bloqueo de IPs) | ❌ | ✅ |
 | Campañas de phishing por email | ❌ | ✅ |
-| Phishing WiFi / evil twin (Munin) | ❌ | ✅ |
-| Módulo de capacitaciones presenciales | ❌ | ✅ |
-| Integración TheHive | ❌ | ✅ |
-| Integración Nessus | ❌ | ✅ |
-| Playbooks de correlación automática | ❌ | ✅ |
-| Motor de análisis avanzado | ❌ | ✅ |
-| Exportación PDF para informes de auditoría | ❌ | ✅ |
+| Phishing WiFi / evil twin (Munin) · capacitaciones presenciales | ❌ | ✅ |
+| **Reporting ejecutivo** (PDF, heatmap de phishing, cobertura MITRE, scheduler) | ❌ | ✅ |
+| **Métricas del SOC** (SLA de casos, métricas por analista) | ❌ | ✅ |
+| **Re-chequeo programado de IOCs** · tuning de ruido del timeline | ❌ | ✅ |
+| Módulo de IA (experimental) | ❌ | ✅ |
 
 > **Upgrade path**: Community y Pro comparten el mismo esquema de base de datos. Actualizar = reemplazar archivos + `npm install` + `pm2 restart`. Sin migraciones.
 
