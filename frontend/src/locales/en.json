@@ -33,7 +33,6 @@
   "common.language": "Language",
   "common.subject": "Subject",
   "common.domain": "Domain",
-
   "nav.dashboards": "Dashboards",
   "nav.soc": "SOC Integrations",
   "nav.tools": "Tools",
@@ -66,7 +65,6 @@
   "nav.config.audit": "Audit",
   "nav.allsafe.systems": "AllSafe Systems",
   "nav.blueteam": "Blue Team SOC",
-
   "errors.forbidden.title": "Access denied",
   "errors.forbidden.desc": "You don't have the necessary permissions to view this resource.",
   "errors.general.title": "Something went wrong :'(",
@@ -78,7 +76,6 @@
   "errors.notFound.desc": "The page you're looking for doesn't exist or was removed.",
   "errors.unauthorized.title": "Not authenticated",
   "errors.unauthorized.desc": "Please sign in with the correct credentials to access this resource.",
-
   "auth.signin.tagline": "AllSafe - Blue Team Platform",
   "auth.signin.footer": "AllSafe Security Solutions · Data encrypted locally",
   "auth.signin.username": "Username",
@@ -104,10 +101,8 @@
   "auth.otp.codeRequired": "Please enter the 6-digit code.",
   "auth.otp.codeLabel": "One-Time Password",
   "auth.otp.verify": "Verify",
-
   "main.sessionExpired": "Session expired",
   "main.serverError": "Internal server error",
-
   "dashboard.title": "Operations Center",
   "dashboard.welcome": "Welcome, {{name}}",
   "dashboard.subtitle": "Operations center · Gjallarhorn",
@@ -158,7 +153,6 @@
   "dashboard.interval.5m": "Every 5 min",
   "dashboard.interval.15m": "Every 15 min",
   "dashboard.interval.1h": "Every 1 hour",
-
   "perfil.title": "My account",
   "perfil.role.admin": "Administrator",
   "perfil.role.analyst": "Analyst",
@@ -198,7 +192,6 @@
   "perfil.lang.updated": "Language updated",
   "perfil.branding.title": "AllSafe Branding",
   "perfil.branding.desc": "Custom logo configuration in reports. Manageable from Settings → Platforms.",
-
   "config.apikeys.title": "API Keys",
   "config.apikeys.desc": "Keys for threat intelligence services.",
   "config.apikeys.discard": "Discard",
@@ -209,7 +202,6 @@
   "config.apikeys.new": "New API Key",
   "config.apikeys.delete": "Delete",
   "config.apikeys.saved": "API Keys saved",
-
   "config.audit.title": "Audit",
   "config.audit.desc": "System activity log.",
   "config.audit.filter": "Filter…",
@@ -225,7 +217,6 @@
   "config.audit.filtered": "(filtered)",
   "config.audit.cleared": "Records cleared",
   "config.audit.confirmDelete": "Delete all audit records? This action cannot be undone.",
-
   "config.ia.title": "AI Module",
   "config.ia.desc": "Artificial intelligence assistant configuration.",
   "config.ia.status": "Module status",
@@ -245,7 +236,6 @@
   "config.ia.noConnection": "No connection",
   "config.ia.recommendedModels": "Recommended models",
   "config.ia.ollamaRecommended": "Ollama (local) — recommended",
-
   "config.platforms.title": "SOC Integrations",
   "config.platforms.desc": "Platforms connected to the operations center.",
   "config.platforms.adminOnly": "Only administrators can modify the configuration.",
@@ -259,7 +249,6 @@
   "config.platforms.autoVerifyLabel": "Auto verification: {{label}}",
   "config.platforms.urlNotConfigured": "URL: Not configured",
   "config.platforms.emptyUrl": "(empty = keep current)",
-
   "config.smtp.title": "SMTP Phishing",
   "config.smtp.desc": "Mail server for phishing simulations.",
   "config.smtp.host": "SMTP Host",
@@ -272,7 +261,6 @@
   "config.smtp.save": "Save",
   "config.smtp.testConnection": "Test connection",
   "config.smtp.saved": "SMTP config saved",
-
   "config.users.title": "Users",
   "config.users.desc": "Access and roles management.",
   "config.users.new": "New user",
@@ -307,7 +295,6 @@
   "config.users.2faReset": "2FA reset",
   "config.users.confirmDelete": "Delete user \"{{username}}\"?",
   "config.users.confirmReset2fa": "Reset 2FA for \"{{username}}\"?",
-
   "tools.ioc.title": "IOC Investigation",
   "tools.ioc.desc": "Analyze IPs, domains, URLs and hashes with multiple intelligence sources.",
   "tools.ioc.placeholder": "IP, domain, URL...",
@@ -349,7 +336,6 @@
   "tools.ioc.view": "View →",
   "tools.ioc.caseCreated": "Case created",
   "tools.ioc.copied": "Copied",
-
   "tools.files.title": "File Analysis",
   "tools.files.desc": "Analyze malicious files: PE, scripts, documents, etc.",
   "tools.files.dropzone": "Drag a file or click to select",
@@ -377,7 +363,6 @@
   "tools.files.info.size": "Size",
   "tools.files.info.entropy": "Entropy",
   "tools.files.caseCreated": "Case created",
-
   "tools.email.title": "Email Forensics",
   "tools.email.desc": "Forensic analysis of .eml emails with phishing and BEC detection.",
   "tools.email.dropzone": "Drag an .eml file or click to select",
@@ -423,7 +408,6 @@
   "tools.email.info.arc": "ARC",
   "tools.email.info.attachments": "Attachments",
   "tools.email.info.links": "Links",
-
   "phishing.title": "Phishing Simulations",
   "phishing.desc": "Ethical phishing campaign management for security assessment.",
   "phishing.tab.campaigns": "Campaigns",
@@ -619,7 +603,6 @@
   "phishing.wizard.noCapture": "No data capture",
   "phishing.pdf.campaignTitle": "Phishing Campaign",
   "phishing.pdf.generated": "Generated",
-
   "ia.title": "AI Assistant",
   "ia.experimental": "EXPERIMENTAL",
   "ia.desc": "The AI module enriches analyses with additional context and recommendations.",
@@ -642,7 +625,6 @@
   "ia.error.noConnection": "No connection with the AI backend. Check that Ollama is running at localhost:11434 or configure the OpenAI API in Settings → AI Module.",
   "ia.error.modelNotInstalled": "Model {{model}} not installed. Run: ollama pull {{model}}",
   "ia.error.disabled": "The AI module is disabled. Enable it in Settings → AI Module.",
-
   "incidents.casos.title": "Cases",
   "incidents.casos.desc": "Security incident management.",
   "incidents.casos.new": "New case",
@@ -677,7 +659,6 @@
   "incidents.casos.cancel": "Cancel",
   "incidents.casos.created": "Case created",
   "incidents.casos.saved": "Saved",
-
   "incidents.timeline.title": "Timeline",
   "incidents.timeline.desc": "Chronological record of security events.",
   "incidents.timeline.allSources": "All sources",
@@ -693,7 +674,6 @@
   "incidents.timeline.events": "{{n}} events — page {{p}} / {{total}}",
   "incidents.timeline.prev": "Previous",
   "incidents.timeline.next": "Next",
-
   "incidents.playbooks.title": "Playbooks",
   "incidents.playbooks.desc": "Automation and correlation of security events.",
   "incidents.playbooks.engine": "Correlation engine",
@@ -714,7 +694,6 @@
   "incidents.playbooks.disabled": "Playbook disabled",
   "incidents.playbooks.enabled": "Playbook enabled",
   "incidents.playbooks.created": "Playbook created",
-
   "soc.thehive.title": "TheHive",
   "soc.thehive.subtitle": "Case & Alert Management",
   "soc.thehive.update": "Update",
@@ -739,7 +718,6 @@
   "soc.thehive.dialog.tags": "Tags separated by comma",
   "soc.thehive.dialog.cancel": "Cancel",
   "soc.thehive.dialog.create": "Create case",
-
   "soc.wazuh.title": "Wazuh",
   "soc.wazuh.subtitle": "Security Monitoring / SIEM",
   "soc.wazuh.update": "Update",
@@ -763,7 +741,6 @@
   "soc.wazuh.noAgents": "No agents registered",
   "soc.wazuh.noAlerts": "No recent alerts",
   "soc.wazuh.error": "Error connecting to Wazuh",
-
   "soc.velociraptor.title": "Velociraptor",
   "soc.velociraptor.subtitle": "DFIR — Digital Forensics & Incident Response",
   "soc.velociraptor.update": "Update",
@@ -796,7 +773,6 @@
   "soc.velociraptor.dialog.cancel": "Cancel",
   "soc.velociraptor.dialog.create": "Create",
   "soc.velociraptor.huntCreated": "Hunt created",
-
   "soc.openvas.title": "OpenVAS / GVM",
   "soc.openvas.subtitle": "Vulnerability Scanner (Greenbone)",
   "soc.openvas.update": "Update",
@@ -815,7 +791,6 @@
   "soc.openvas.viewVulns": "View vulns",
   "soc.openvas.noTasks": "No scan tasks",
   "soc.openvas.selectTask": "Select a task to view vulnerabilities",
-
   "soc.nessus.title": "Nessus",
   "soc.nessus.subtitle": "Vulnerability Management (Tenable)",
   "soc.nessus.update": "Update",
@@ -834,7 +809,6 @@
   "soc.nessus.viewVulns": "View vulns",
   "soc.nessus.noScans": "No scans",
   "soc.nessus.selectScan": "Select a scan to view vulnerabilities",
-
   "intel.index.title": "Intelligence Sources",
   "intel.index.desc": "Status, coverage and usage metrics of all TI sources",
   "intel.index.kpi.totalQueries": "Total queries",
@@ -859,7 +833,6 @@
   "intel.index.verdict.clean": "Clean",
   "intel.index.verdict.unknown": "Unknown",
   "intel.index.queries": "{{n}} queries",
-
   "intel.threat.title": "Threat Intelligence",
   "intel.threat.desc": "Statistical analysis of IOC investigations",
   "intel.threat.kpi.total": "Total investigations",
@@ -874,7 +847,6 @@
   "intel.threat.queries": "queries",
   "intel.threat.noUsage": "No usage data yet — run IOC investigations to see metrics",
   "intel.threat.pctTotal": "{{n}}% of total",
-
   "intel.apis.title": "APIs & Modules",
   "intel.apis.desc": "Operational status of integrations and AI module",
   "intel.apis.kpi.activeKeys": "Active API Keys",
@@ -897,7 +869,6 @@
   "intel.apis.status.error": "Error",
   "intel.apis.noIaConnection": "No AI connection. Check Ollama or configure OpenAI in Administration → AI Module.",
   "intel.apis.iaDisabled": "AI module disabled. Enable it in Administration → AI Module.",
-
   "pagination.10": "10 per page",
   "pagination.50": "50 per page",
   "pagination.100": "100 per page",
@@ -905,7 +876,6 @@
   "pagination.prev": "‹ Previous",
   "pagination.next": "Next ›",
   "pagination.showing": "{{from}}–{{to}} of {{total}}",
-
   "bugreport.menu": "Report an issue",
   "bugreport.title": "Report an issue",
   "bugreport.category": "Category",
@@ -917,5 +887,26 @@
   "bugreport.desc": "Description",
   "bugreport.descPlaceholder": "Describe the issue in as much detail as possible: what you were doing, what you expected to happen, and what actually happened.",
   "bugreport.send": "Send report",
-  "bugreport.sent": "Report sent. Thank you!"
+  "bugreport.sent": "Report sent. Thank you!",
+  "help.aria": "Help",
+  "help.howTo": "How to use it",
+  "help.ioc.title": "IOC Investigation",
+  "help.ioc.desc": "Look up an indicator of compromise (IP, domain, URL, hash) against multiple intelligence sources at once, returning a scored verdict, the evidence from each source, and ready-to-use detection rules.",
+  "help.ioc.tips": [
+    "Paste the indicator and let the system detect its type.",
+    "The verdict combines all sources; check the breakdown to see what each one contributed.",
+    "Known infrastructure (CDNs, resolvers) is silenced to keep the result free of noise."
+  ],
+  "help.files.title": "File Analysis",
+  "help.files.desc": "Analyze a file from the outside without running it: hashes, type, strings, PE structure, packing and beacon detection. It cross-checks hashes against threat intelligence. To see what it does when it runs, use the Sandbox.",
+  "help.files.tips": [
+    "Drag the file in or upload it. Analysis is instant and runs nothing.",
+    "If the file looks suspicious, send it to the Sandbox from the Dynamic Analysis tab."
+  ],
+  "help.email.title": "Email Forensics",
+  "help.email.desc": "Analyze a suspicious email: headers, authentication (SPF, DKIM, DMARC), links and attachments, to determine whether it is phishing or spoofing.",
+  "help.email.tips": [
+    "Upload the email as .eml or paste its raw content.",
+    "Watch for failed authentication and links that don't match their text."
+  ]
 }

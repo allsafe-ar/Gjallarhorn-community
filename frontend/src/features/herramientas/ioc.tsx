@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { useTranslation } from 'react-i18next'
+import { HelpTip } from '@/components/help-tip'
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
@@ -177,7 +178,10 @@ export function IocView() {
 
   return (
     <div className='p-8'>
-      <h1 className='text-2xl font-bold mb-1'>{t('tools.ioc.title')}</h1>
+      <div className='flex items-center gap-2 mb-1'>
+        <h1 className='text-2xl font-bold'>{t('tools.ioc.title')}</h1>
+        <HelpTip title={t('help.ioc.title')} description={t('help.ioc.desc')} tips={t('help.ioc.tips', { returnObjects: true }) as string[]} />
+      </div>
       <p className='text-sm text-muted-foreground mb-6'>{t('tools.ioc.desc')}</p>
 
       <form onSubmit={investigate} className='flex gap-3 mb-8 items-end'>

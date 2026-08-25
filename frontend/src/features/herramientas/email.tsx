@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { useTranslation } from 'react-i18next'
+import { HelpTip } from '@/components/help-tip'
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -128,7 +129,10 @@ export function EmailView() {
 
   return (
     <div className='p-8'>
-      <h1 className='text-2xl font-bold mb-1'>{t('tools.email.title')}</h1>
+      <div className='flex items-center gap-2 mb-1'>
+        <h1 className='text-2xl font-bold'>{t('tools.email.title')}</h1>
+        <HelpTip title={t('help.email.title')} description={t('help.email.desc')} tips={t('help.email.tips', { returnObjects: true }) as string[]} />
+      </div>
       <p className='text-sm text-muted-foreground mb-6'>{t('tools.email.desc')}</p>
 
       <div
