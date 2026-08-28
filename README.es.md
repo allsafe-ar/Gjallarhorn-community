@@ -40,7 +40,7 @@ Gjallarhorn Community incluye:
 - **Exportación STIX 2.1** para compartir inteligencia en formato estándar
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), lockout de cuenta, control de acceso por rol (`admin` / `analyst` / `viewer`)
 
-> ¿Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **campañas de phishing por email/WiFi**, **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA) o el **módulo de IA**? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> ¿Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **campañas de phishing por email/WiFi**, **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA), el **módulo de IA** o el **SaaS multi-tenant con licencias por cliente**? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
 
 ---
 
@@ -78,7 +78,7 @@ Gjallarhorn Community incluye:
 
 ### Investigación IOC
 - Consultas paralelas a 20+ fuentes usando `Promise.allSettled()`
-- Scoring automático 0–100 con veredicto CLEAN / SUSPICIOUS / MALICIOUS / UNKNOWN
+- Scoring automático 0-100 con veredicto CLEAN / SUSPICIOUS / MALICIOUS / UNKNOWN
 - Detección DGA (Domain Generation Algorithm) con 7 heurísticas: entropía Shannon, ratio consonante/vocal, bigramas raros, familias DGA conocidas (GameOverZeus, Qakbot, Suppobox)
 - Detección C2 en banners Shodan: Cobalt Strike, Metasploit, Empire, Sliver, Havoc, Mythic y más
 - Edad de dominio via WHOIS (dominios <7 días reciben penalización máxima)
@@ -111,17 +111,17 @@ Gjallarhorn Community incluye:
 
 ### Seguridad & Auth
 
-La seguridad es una característica de primer nivel — la misma base de hardening que la suite comercial de AllSafe:
+La seguridad es una característica de primer nivel - la misma base de hardening que la suite comercial de AllSafe:
 
-- **JWT** — expiración 12h con revocación por `token_version`: cambiar la contraseña o deshabilitar un usuario invalida los tokens existentes de inmediato
-- **TOTP 2FA** — RFC 6238, setup via código QR
-- **Lockout de cuenta** — 5 intentos fallidos → bloqueo de 15 minutos, **persistido en la base de datos** (sobrevive reinicios)
+- **JWT** - expiración 12h con revocación por `token_version`: cambiar la contraseña o deshabilitar un usuario invalida los tokens existentes de inmediato
+- **TOTP 2FA** - RFC 6238, setup via código QR
+- **Lockout de cuenta** - 5 intentos fallidos → bloqueo de 15 minutos, **persistido en la base de datos** (sobrevive reinicios)
 - **bcrypt** para el hashing de contraseñas (salt por usuario)
 - **Headers de seguridad** (Helmet) + **rate limiting HTTP** (300 req/15 min; endpoints de auth con límite aparte)
-- **Control de acceso por rol** — `admin` / `analyst` / `viewer`
-- **Audit log** — acciones relevantes de seguridad registradas con usuario, IP y timestamp
-- **SQL 100% parametrizado** — sin queries armadas por concatenación, sin vectores de inyección (OWASP Top 10 2021)
-- **Arranque fail-fast** — el backend no inicia con un `JWT_SECRET` ausente o por defecto
+- **Control de acceso por rol** - `admin` / `analyst` / `viewer`
+- **Audit log** - acciones relevantes de seguridad registradas con usuario, IP y timestamp
+- **SQL 100% parametrizado** - sin queries armadas por concatenación, sin vectores de inyección (OWASP Top 10 2021)
+- **Arranque fail-fast** - el backend no inicia con un `JWT_SECRET` ausente o por defecto
 - **CORS** restringido al origen configurado (sin comodín)
 
 ---
@@ -157,8 +157,11 @@ Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo m�
 | **Métricas del SOC** (SLA de casos, métricas por analista) | ❌ | ✅ |
 | **Re-chequeo programado de IOCs** · tuning de ruido del timeline | ❌ | ✅ |
 | Módulo de IA (experimental) | ❌ | ✅ |
+| **Multi-tenant / SaaS** (instancias aisladas por cliente, admin Clientes SaaS) | ❌ | ✅ |
+| **Licencias** (serial, plan, vencimiento; vencida/suspendida = solo lectura) | ❌ | ✅ |
+| **Config de integraciones y API keys de threat intel por cliente** | ❌ | ✅ |
 
-> **Upgrade path**: Community y Pro comparten el mismo esquema de base de datos. Actualizar = reemplazar archivos + `npm install` + `pm2 restart`. Sin migraciones.
+> **Upgrade path**: Community es self-host de una sola organización. El esquema de Pro es superconjunto del de Community (agrega multi-tenant, licencias y config de integraciones por cliente). Actualizar Community → Pro = reemplazar archivos + `npm install` + `pm2 restart`; en el primer arranque, Pro migra tus datos a tu instancia AllSafe solo. Sin migración manual.
 
 ---
 
@@ -177,7 +180,7 @@ Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo m�
 
 ## Instalación
 
-### Opción A — Script de instalación (recomendado para servidores Linux)
+### Opción A - Script de instalación (recomendado para servidores Linux)
 
 ```bash
 git clone https://github.com/allsafe-ar/Gjallarhorn-community.git
@@ -187,7 +190,7 @@ chmod +x install.sh && sudo ./install.sh
 
 Probado en Ubuntu 22.04 / 24.04 y Debian 12. Instala Node.js, MySQL, nginx y PM2 automáticamente.
 
-### Opción B — Docker
+### Opción B - Docker
 
 ```bash
 git clone https://github.com/allsafe-ar/Gjallarhorn-community.git
@@ -197,7 +200,7 @@ cp .env.example .env
 docker compose up -d
 ```
 
-### Opción C — Manual
+### Opción C - Manual
 
 ```bash
 # Backend
@@ -213,7 +216,7 @@ npm install
 npm run build   # Build de producción → dist/
 ```
 
-Credenciales por defecto (primer arranque): `admin` / `admin123` — **cambiar inmediatamente**.
+Credenciales por defecto (primer arranque): `admin` / `admin123` - **cambiar inmediatamente**.
 
 ---
 

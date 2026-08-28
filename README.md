@@ -40,7 +40,7 @@ Gjallarhorn Community includes:
 - **STIX 2.1 export** for sharing intelligence in a standard format
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), account lockout, role-based access (`admin` / `analyst` / `viewer`)
 
-> Looking for **rule evaluation** (SIGMA/YARA testing), **Suricata (IDS) + Shuffle (SOAR)**, the **active correlation & response circuit** with **automatic responses** (email + IP block feed), **sandbox automation** (detonation verdicts feeding cases and responses), **email/WiFi phishing simulation**, **TheHive/Nessus**, **executive reporting** (PDF, MITRE coverage, SLA), or the **AI module**? Those are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> Looking for **rule evaluation** (SIGMA/YARA testing), **Suricata (IDS) + Shuffle (SOAR)**, the **active correlation & response circuit** with **automatic responses** (email + IP block feed), **sandbox automation** (detonation verdicts feeding cases and responses), **email/WiFi phishing simulation**, **TheHive/Nessus**, **executive reporting** (PDF, MITRE coverage, SLA), the **AI module**, or **multi-tenant SaaS with per-client licensing**? Those are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
 
 ---
 
@@ -78,7 +78,7 @@ Gjallarhorn Community includes:
 
 ### IOC Investigation
 - Parallel queries to 20+ sources using `Promise.allSettled()`
-- Automatic scoring 0–100 with CLEAN / SUSPICIOUS / MALICIOUS / UNKNOWN verdict
+- Automatic scoring 0-100 with CLEAN / SUSPICIOUS / MALICIOUS / UNKNOWN verdict
 - DGA detection (Domain Generation Algorithm) with 7 heuristics: Shannon entropy, consonant/vowel ratio, rare bigrams, known DGA families (GameOverZeus, Qakbot, Suppobox)
 - C2 detection in Shodan banners: Cobalt Strike, Metasploit, Empire, Sliver, Havoc, Mythic and more
 - Domain age via WHOIS (domains <7 days receive maximum penalty)
@@ -111,17 +111,17 @@ Gjallarhorn Community includes:
 
 ### Security & Auth
 
-Security is a first-class feature here — the same hardening baseline as the commercial AllSafe suite:
+Security is a first-class feature here - the same hardening baseline as the commercial AllSafe suite:
 
-- **JWT** — 12h expiry with `token_version` revocation: changing a password or disabling a user invalidates existing tokens immediately
-- **TOTP 2FA** — RFC 6238, setup via QR code
-- **Account lockout** — 5 failed attempts → 15-minute lockout, **persisted in the database** (survives restarts)
+- **JWT** - 12h expiry with `token_version` revocation: changing a password or disabling a user invalidates existing tokens immediately
+- **TOTP 2FA** - RFC 6238, setup via QR code
+- **Account lockout** - 5 failed attempts → 15-minute lockout, **persisted in the database** (survives restarts)
 - **bcrypt** password hashing (per-user salt)
 - **Security headers** (Helmet) + **HTTP rate limiting** (300 req/15 min; auth endpoints throttled separately)
-- **Role-based access control** — `admin` / `analyst` / `viewer`
-- **Audit log** — security-relevant actions recorded with user, IP and timestamp
-- **100% parameterized SQL** — no string-built queries, no injection vectors (OWASP Top 10 2021)
-- **Fail-fast startup** — the backend refuses to boot with a missing or default `JWT_SECRET`
+- **Role-based access control** - `admin` / `analyst` / `viewer`
+- **Audit log** - security-relevant actions recorded with user, IP and timestamp
+- **100% parameterized SQL** - no string-built queries, no injection vectors (OWASP Top 10 2021)
+- **Fail-fast startup** - the backend refuses to boot with a missing or default `JWT_SECRET`
 - **CORS** locked to the configured origin (no wildcard)
 
 ---
@@ -157,8 +157,11 @@ Some capabilities are shared at the base and **deepened** in Pro. The clearest e
 | **SOC metrics** (case SLA, per-analyst metrics) | ❌ | ✅ |
 | **Scheduled IOC re-check** · timeline noise tuning | ❌ | ✅ |
 | AI module (experimental) | ❌ | ✅ |
+| **Multi-tenant / SaaS** (isolated per-client instances, Clientes SaaS admin) | ❌ | ✅ |
+| **Licensing** (serial, plan, expiry; expired/suspended = read-only) | ❌ | ✅ |
+| **Per-client integrations config & threat-intel API keys** | ❌ | ✅ |
 
-> **Upgrade path**: Community and Pro share the same database schema. Upgrading = replace files + `npm install` + `pm2 restart`. No migration needed.
+> **Upgrade path**: Community is a single-organization self-host. Pro's schema is a superset of Community's (it adds multi-tenant, licensing and per-client integration config). Upgrading Community → Pro = replace files + `npm install` + `pm2 restart`; Pro's first boot migrates your existing data into your AllSafe instance automatically. No manual migration.
 
 ---
 
