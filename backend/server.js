@@ -1175,7 +1175,9 @@ app.get("/api/sandbox/result/:id", auth, canSandbox, async (req, res) => {
   if (fila.status === "listo") {
     const datos = JSON.parse(fila.result_data || "{}");
     const cfgL = await qRow("SELECT url FROM platform_configs WHERE platform = ?", [fila.engine]);
-    return res.json({ id: fila.id, engine: fila.engine, estado: "listo", verdicto: fila.verdict, puntaje: fila.score, familia: fila.family, ...datos, urlReporte: urlReporteAbsoluta(datos.urlReporte, cfgL?.url) });
+    const caso = await casoDeDetonacion(fila.id);
+    return res.json({ id: fila.id, engine: fila.engine, estado: "listo", verdicto: fila.verdict, puntaje: fila.score, familia: fila.family, ...datos, urlReporte: urlReporteAbsoluta(datos.urlReporte, cfgL?.url),
+      internal_case_id: caso?.id || null, internal_case_title: caso?.title || null, target: fila.target, file_analysis_id: fila.file_analysis_id || null });
   }
   if (fila.status === "error") return res.json({ id: fila.id, engine: fila.engine, estado: "error", error: fila.error });
 
@@ -1200,7 +1202,47 @@ app.get("/api/sandbox/result/:id", auth, canSandbox, async (req, res) => {
   addTimelineEvent("sandbox", "SANDBOX_ANALYZED", puntaje >= 70 ? "high" : puntaje >= 40 ? "medium" : "low",
     { target: fila.target, engine: fila.engine, verdict: verdicto, score: puntaje, id: fila.id });
 
-  res.json({ id: fila.id, engine: fila.engine, estado: "listo", verdicto, puntaje, familia, ...resto, urlReporte: urlReporteAbsoluta(resto.urlReporte, cfg.url) });
+  res.json({ internal_case_id: (await casoDeDetonacion(fila.id))?.id || null, target: fila.target, id: fila.id, engine: fila.engine, estado: "listo", verdicto, puntaje, familia, ...resto, urlReporte: urlReporteAbsoluta(resto.urlReporte, cfg.url) });
+});
+
+/** Caso interno ya abierto para esta detonación, si lo hay. */
+async function casoDeDetonacion(submissionId) {
+  return qRow(
+    `SELECT c.id, c.title, c.status FROM cases c
+       JOIN case_analyses ca ON ca.case_id = c.id
+      WHERE ca.analysis_id = ? AND ca.analysis_type = 'sandbox' LIMIT 1`,
+    [submissionId]
+  );
+}
+
+/** Caso interno a partir de una detonación, con la detonación atada como evidencia. */
+app.post("/api/sandbox/:id/create-case", auth, canSandbox, async (req, res) => {
+  try {
+    const fila = await qRow("SELECT * FROM sandbox_submissions WHERE id = ?", [req.params.id]);
+    if (!fila) return res.status(404).json({ error: "Envío no encontrado" });
+    if (fila.status !== "listo") return res.status(400).json({ error: "El análisis todavía no terminó" });
+
+    const existente = await casoDeDetonacion(fila.id);
+    if (existente) {
+      return res.status(409).json({ error: `Ya existe un caso para esta detonación: "${existente.title}" (${existente.status})`,
+        existing_case_id: existente.id, existing_case_title: existente.title, existing_case_status: existente.status });
+    }
+
+    const puntaje = fila.score || 0;
+    const id = uuidv4();
+    await qRun(
+      "INSERT INTO cases (id,title,description,severity,status,created_by) VALUES(?,?,?,?,'open',?)",
+      [id, `Sandbox: ${String(fila.target).slice(0, 80)}`,
+       `Detonación en ${fila.engine}.\n- Muestra: ${fila.target}\n- Veredicto: ${fila.verdict}\n- Puntaje: ${puntaje}/100${fila.family ? `\n- Familia: ${fila.family}` : ""}${fila.sha256 ? `\n- SHA256: ${fila.sha256}` : ""}`,
+       puntaje >= 70 ? "high" : puntaje >= 40 ? "medium" : "low", req.user.username]
+    );
+    await qRun("INSERT IGNORE INTO case_analyses (case_id,analysis_id,analysis_type) VALUES(?,?,'sandbox')", [id, fila.id]).catch(() => {});
+    if (fila.file_analysis_id) {
+      await qRun("INSERT IGNORE INTO case_analyses (case_id,analysis_id,analysis_type) VALUES(?,?,'file')", [id, fila.file_analysis_id]).catch(() => {});
+    }
+    await auditLog("SANDBOX_CASE", `Caso creado desde detonación: ${fila.target}`, req.user.username, req.user.role, req.ip, "ok");
+    res.json({ ok: true, id });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get("/api/sandbox/history", auth, canSandbox, async (req, res) => {
@@ -2199,6 +2241,10 @@ async function initDB() {
     linked_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (case_id, analysis_id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+
+  // La detonación es evidencia por derecho propio: en la práctica la muestra se sube directo al
+  // sandbox y no existe un análisis estático previo al que atarla.
+  await db.execute("ALTER TABLE case_analyses MODIFY COLUMN analysis_type ENUM('ioc','file','email','sandbox') NOT NULL").catch(() => {});
 
   await db.execute(`CREATE TABLE IF NOT EXISTS case_notes (
     id      VARCHAR(36)  PRIMARY KEY,

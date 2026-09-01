@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ShieldAlert, Plus, Loader2, ChevronRight, Fingerprint, FileSearch, Mail, Fish, ExternalLink } from 'lucide-react'
+import { ShieldAlert, Plus, Loader2, ChevronRight, Fingerprint, FileSearch, Mail, Fish, FlaskConical, ExternalLink } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -34,6 +34,7 @@ const EVID_META: Record<string, { icon: typeof Fingerprint; ruta: string; campo:
   file:     { icon: FileSearch,  ruta: '/herramientas/archivos', campo: 'filename' },
   email:    { icon: Mail,        ruta: '/herramientas/email',    campo: 'subject' },
   phishing: { icon: Fish,        ruta: '/herramientas/phishing', campo: 'email' },
+  sandbox:  { icon: FlaskConical, ruta: '/herramientas/sandbox',  campo: 'target' },
 }
 function verdictColor(v?: string) {
   if (v === 'MALICIOUS') return '#ef4444'

@@ -961,5 +961,9 @@
   "incidents.casos.evidence.type.ioc": "Indicador",
   "incidents.casos.evidence.type.file": "Archivo",
   "incidents.casos.evidence.type.email": "Correo",
-  "incidents.casos.evidence.type.phishing": "Phishing"
+  "incidents.casos.evidence.type.phishing": "Phishing",
+  "tools.sandbox.createCase": "Abrir caso",
+  "tools.sandbox.existingCase": "Caso ya abierto",
+  "tools.sandbox.caseCreated": "Caso creado",
+  "incidents.casos.evidence.type.sandbox": "Detonación"
 }

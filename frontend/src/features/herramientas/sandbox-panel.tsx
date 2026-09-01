@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { Loader2, Send, ShieldAlert, ServerCog, Upload } from 'lucide-react'
+import { Loader2, Send, ShieldAlert, ServerCog, Upload, FolderPlus } from 'lucide-react'
+import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -25,6 +26,11 @@ export type Resultado = {
   archivos?: { nombre?: string; sha256?: string; tipo?: string }[]
   capturas?: string[]
   urlReporte?: string | null
+  // Identificación de la detonación y del caso que se haya abierto a partir de ella.
+  id?: string
+  target?: string
+  internal_case_id?: string | null
+  internal_case_title?: string | null
 }
 
 function colorPuntaje(s = 0) {
@@ -205,6 +211,22 @@ export function SandboxPanel({ file, fileAnalysisId, standalone, onDone }: { fil
 // Detalle completo de un análisis, reutilizable en el panel y en el historial.
 export function ResultadoSandbox({ resultado, destino }: { resultado: Resultado; destino?: string | null }) {
   const { t } = useTranslation()
+  const [casoInterno, setCasoInterno] = useState<string | null>(resultado.internal_case_id ?? null)
+  const [creandoInterno, setCreandoInterno] = useState(false)
+
+  useEffect(() => { setCasoInterno(resultado.internal_case_id ?? null) }, [resultado.internal_case_id])
+
+  async function crearCasoInterno() {
+    if (!resultado.id) return
+    setCreandoInterno(true)
+    try {
+      const d = await apiFetch<{ id: string }>(`/sandbox/${resultado.id}/create-case`, { method: 'POST' })
+      setCasoInterno(d.id)
+      toast.success(t('tools.sandbox.caseCreated', 'Caso creado'))
+    } catch (e: any) { toast.error(e.message) }
+    finally { setCreandoInterno(false) }
+  }
+
   return (
     <div className='space-y-4'>
       {resultado.verdicto === 'UNANALYZED' && (
@@ -232,6 +254,20 @@ export function ResultadoSandbox({ resultado, destino }: { resultado: Resultado;
           </a>
         )}
       </div>
+
+      {resultado.id && resultado.verdicto !== 'UNANALYZED' && (
+        <div className='flex flex-wrap items-center gap-2'>
+          <Button size='sm' variant={casoInterno ? 'outline' : 'destructive'}
+            disabled={!!casoInterno || creandoInterno} onClick={crearCasoInterno}>
+            {creandoInterno
+              ? <Loader2 className='h-3.5 w-3.5 animate-spin' />
+              : <><FolderPlus className='h-3.5 w-3.5 mr-1.5' />{casoInterno ? t('tools.sandbox.existingCase', 'Caso ya abierto') : t('tools.sandbox.createCase', 'Abrir caso')}</>}
+          </Button>
+          {casoInterno && resultado.internal_case_title && (
+            <span className='text-[11px] text-muted-foreground'>{resultado.internal_case_title}</span>
+          )}
+        </div>
+      )}
 
       <Seccion titulo={t('tools.sandbox.behaviors')} vacio={!resultado.comportamientos?.length}>
         {resultado.comportamientos?.map((c, i) => (
