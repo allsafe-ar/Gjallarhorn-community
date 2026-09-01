@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { ShieldAlert, Plus, Loader2, ChevronRight } from 'lucide-react'
+import { ShieldAlert, Plus, Loader2, ChevronRight, Fingerprint, FileSearch, Mail, Fish, ExternalLink } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +28,19 @@ import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 
 const SEV_COLORS: Record<string, string> = { critical: '#ef4444', high: '#f97316', medium: '#f59e0b', low: '#22c55e' }
+// Evidencia que originó el caso: de dónde viene cada análisis y adónde se va a verlo completo.
+const EVID_META: Record<string, { icon: typeof Fingerprint; ruta: string; campo: string }> = {
+  ioc:      { icon: Fingerprint, ruta: '/herramientas/ioc',      campo: 'ioc_value' },
+  file:     { icon: FileSearch,  ruta: '/herramientas/archivos', campo: 'filename' },
+  email:    { icon: Mail,        ruta: '/herramientas/email',    campo: 'subject' },
+  phishing: { icon: Fish,        ruta: '/herramientas/phishing', campo: 'email' },
+}
+function verdictColor(v?: string) {
+  if (v === 'MALICIOUS') return '#ef4444'
+  if (v === 'SUSPICIOUS') return '#f59e0b'
+  if (v === 'CLEAN') return '#22c55e'
+  return '#94a3b8'
+}
 const TLP_META: Record<number, { label: string; color: string }> = {
   0: { label: 'WHITE', color: '#94a3b8' }, 1: { label: 'GREEN', color: '#22c55e' },
   2: { label: 'AMBER', color: '#f59e0b' }, 3: { label: 'RED', color: '#ef4444' },
@@ -226,12 +240,65 @@ export function CasosView() {
                 selected.description && <p className='text-sm text-muted-foreground mb-4'>{selected.description}</p>
               )}
 
-              <Tabs defaultValue='notas'>
+              <Tabs defaultValue='evidencia'>
                 <TabsList className='mb-4'>
+                  <TabsTrigger value='evidencia'>{t('incidents.casos.tab.evidence', 'Evidencia')}{selected.analyses?.length ? ` (${selected.analyses.length})` : ''}</TabsTrigger>
                   <TabsTrigger value='notas'>{t('incidents.casos.tab.notes')}{selected.notes?.length ? ` (${selected.notes.length})` : ''}</TabsTrigger>
                   <TabsTrigger value='observables'>{t('incidents.casos.tab.observables')}{selected.observables?.length ? ` (${selected.observables.length})` : ''}</TabsTrigger>
                   <TabsTrigger value='actividad'>{t('incidents.casos.tab.activity')}</TabsTrigger>
                 </TabsList>
+
+                {/* ── Evidencia: los análisis que originaron el caso ── */}
+                <TabsContent value='evidencia'>
+                  {(selected.analyses || []).length === 0 ? (
+                    <p className='text-sm text-muted-foreground'>
+                      {t('incidents.casos.evidence.none', 'Este caso no tiene análisis vinculados.')}
+                    </p>
+                  ) : (
+                    <>
+                      <p className='text-xs text-muted-foreground mb-3'>
+                        {t('incidents.casos.evidence.intro', 'Análisis que originaron este caso o que se le vincularon durante la investigación.')}
+                      </p>
+                      <div className='flex flex-col gap-2'>
+                        {(selected.analyses || []).map((a: any) => {
+                          const meta = EVID_META[a.analysis_type] || EVID_META.ioc
+                          const Icono = meta.icon
+                          const valor = a.detail?.[meta.campo] || a.analysis_id
+                          const vc = verdictColor(a.detail?.verdict)
+                          return (
+                            <div key={`${a.analysis_type}-${a.analysis_id}`} className='rounded-lg border px-3 py-2.5'>
+                              <div className='flex items-center gap-2.5'>
+                                <Icono className='h-4 w-4 shrink-0 text-muted-foreground' />
+                                <Badge variant='secondary' className='text-[10px] shrink-0'>
+                                  {t(`incidents.casos.evidence.type.${a.analysis_type}`, a.analysis_type)}
+                                </Badge>
+                                <span className='font-mono text-xs flex-1 break-all'>{valor}</span>
+                                {a.detail?.verdict && (
+                                  <span className='text-[10px] font-bold shrink-0' style={{ color: vc }}>
+                                    {a.detail.verdict}
+                                  </span>
+                                )}
+                                {typeof a.detail?.threat_score === 'number' && (
+                                  <Badge variant='outline' className='text-[10px] shrink-0' style={{ color: vc, borderColor: vc + '66' }}>
+                                    {a.detail.threat_score}/100
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className='flex items-center gap-3 mt-1.5 pl-6.5 text-[11px] text-muted-foreground'>
+                                {a.detail?.ts && <span>{fmtDate(a.detail.ts)}</span>}
+                                {a.linked_at && <span>{t('incidents.casos.evidence.linked', 'Vinculado')}: {fmtDate(a.linked_at)}</span>}
+                                <Link to={meta.ruta} className='ml-auto inline-flex items-center gap-1 hover:text-foreground transition-colors'>
+                                  {t('incidents.casos.evidence.open', 'Ver el análisis completo')}
+                                  <ExternalLink className='h-3 w-3' />
+                                </Link>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )}
+                </TabsContent>
 
                 <TabsContent value='notas'>
                   <div className='flex flex-col gap-2 mb-4'>

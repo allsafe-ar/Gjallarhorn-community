@@ -952,5 +952,14 @@
     "Es una función avanzada: solo perfiles admin y analista completo tienen acceso."
   ],
   "tools.sandbox.unanalyzed": "NO ANALIZADO",
-  "tools.sandbox.unanalyzedWarn": "El motor no observó ninguna ejecución. La muestra no se pudo detonar (puede faltar la aplicación que la abre, o no ser un tipo de archivo ejecutable). Esto NO significa que sea limpia."
+  "tools.sandbox.unanalyzedWarn": "El motor no observó ninguna ejecución. La muestra no se pudo detonar (puede faltar la aplicación que la abre, o no ser un tipo de archivo ejecutable). Esto NO significa que sea limpia.",
+  "incidents.casos.tab.evidence": "Evidencia",
+  "incidents.casos.evidence.none": "Este caso no tiene análisis vinculados.",
+  "incidents.casos.evidence.intro": "Análisis que originaron este caso o que se le vincularon durante la investigación.",
+  "incidents.casos.evidence.open": "Ver el análisis completo",
+  "incidents.casos.evidence.linked": "Vinculado",
+  "incidents.casos.evidence.type.ioc": "Indicador",
+  "incidents.casos.evidence.type.file": "Archivo",
+  "incidents.casos.evidence.type.email": "Correo",
+  "incidents.casos.evidence.type.phishing": "Phishing"
 }

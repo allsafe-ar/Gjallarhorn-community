@@ -952,5 +952,14 @@
     "It is an advanced feature: only admin and full-analyst profiles have access."
   ],
   "tools.sandbox.unanalyzed": "NOT ANALYZED",
-  "tools.sandbox.unanalyzedWarn": "The engine observed no execution. The sample could not be detonated (the app that opens it may be missing, or it isn't an executable file type). This does NOT mean it is clean."
+  "tools.sandbox.unanalyzedWarn": "The engine observed no execution. The sample could not be detonated (the app that opens it may be missing, or it isn't an executable file type). This does NOT mean it is clean.",
+  "incidents.casos.tab.evidence": "Evidence",
+  "incidents.casos.evidence.none": "This case has no linked analyses.",
+  "incidents.casos.evidence.intro": "Analyses that originated this case or were linked to it during the investigation.",
+  "incidents.casos.evidence.open": "Open the full analysis",
+  "incidents.casos.evidence.linked": "Linked",
+  "incidents.casos.evidence.type.ioc": "Indicator",
+  "incidents.casos.evidence.type.file": "File",
+  "incidents.casos.evidence.type.email": "Email",
+  "incidents.casos.evidence.type.phishing": "Phishing"
 }
