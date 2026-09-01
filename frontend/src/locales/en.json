@@ -890,24 +890,24 @@
   "bugreport.sent": "Report sent. Thank you!",
   "help.aria": "Help",
   "help.howTo": "How to use it",
-  "help.ioc.title": "IOC Investigation",
-  "help.ioc.desc": "Look up an indicator of compromise (IP, domain, URL, hash) against multiple intelligence sources at once, returning a scored verdict, the evidence from each source, and ready-to-use detection rules.",
+  "help.ioc.title": "Indicator of compromise investigation",
+  "help.ioc.desc": "Queries an indicator of compromise, whether an IP address, a domain, a web address or a file hash, against multiple intelligence sources simultaneously. It returns a scored verdict, the evidence contributed by each source and detection rules ready to apply.",
   "help.ioc.tips": [
-    "Paste the indicator and let the system detect its type.",
-    "The verdict combines all sources; check the breakdown to see what each one contributed.",
-    "Known infrastructure (CDNs, resolvers) is silenced to keep the result free of noise."
+    "The indicator is pasted as is and the system determines its type automatically.",
+    "The verdict combines all sources. The breakdown shows what each one contributed.",
+    "Known infrastructure, such as content delivery networks and resolvers, is silenced so that it does not distort the result."
   ],
-  "help.files.title": "File Analysis",
-  "help.files.desc": "Analyze a file from the outside without running it: hashes, type, strings, PE structure, packing and beacon detection. It cross-checks hashes against threat intelligence. To see what it does when it runs, use the Sandbox.",
+  "help.files.title": "File analysis",
+  "help.files.desc": "Analyses a file without running it, obtaining its hashes, its type, its text strings, its internal structure and the detection of packing and of communication with command and control servers. Hashes are cross-checked against threat intelligence sources. Runtime behaviour is observed in the Sandbox.",
   "help.files.tips": [
-    "Drag the file in or upload it. Analysis is instant and runs nothing.",
-    "If the file looks suspicious, send it to the Sandbox from the Dynamic Analysis tab."
+    "The file is dragged in or selected. Analysis is immediate and the file is never executed.",
+    "A suspicious file can be sent to the Sandbox from the dynamic analysis tab."
   ],
-  "help.email.title": "Email Forensics",
-  "help.email.desc": "Analyze a suspicious email: headers, authentication (SPF, DKIM, DMARC), links and attachments, to determine whether it is phishing or spoofing.",
+  "help.email.title": "Email forensics",
+  "help.email.desc": "Analyses a suspicious email, including its headers, SPF, DKIM and DMARC authentication, its links and its attachments, to determine whether it is phishing or identity spoofing.",
   "help.email.tips": [
-    "Upload the email as .eml or paste its raw content.",
-    "Watch for failed authentication and links that don't match their text."
+    "The email is loaded as an .eml file or its raw content is pasted.",
+    "The main indications are failed authentication and links whose destination does not match the text they display."
   ],
   "nav.sandbox": "Sandbox",
   "tools.sandbox.noEngines": "No sandbox engine is configured. They are set up under Platforms, like Wazuh or TheHive.",
@@ -943,13 +943,13 @@
   "common.refresh": "Refresh",
   "tools.sandbox.forbidden": "Dynamic analysis is an advanced feature. Your profile has no access.",
   "tools.sandbox.detailUnavailable": "No detail available for this analysis.",
-  "help.sandbox.title": "Sandbox - Dynamic Analysis",
-  "help.sandbox.desc": "Detonate a file or URL on an isolated machine and observe what it does when it runs: processes, network connections, system changes. It goes beyond static analysis, which only looks at the file from the outside.",
+  "help.sandbox.title": "Sandbox, dynamic analysis",
+  "help.sandbox.desc": "Detonates a file or a web address on an isolated machine and observes its behaviour during execution, including the processes it creates, its network connections and the changes it makes to the system. It complements static analysis, which examines the file without running it.",
   "help.sandbox.tips": [
-    "Pick the engine. A self-hosted one (CAPE) keeps the sample inside the network; a cloud one does not, and on free tiers the sample is usually public.",
-    "Upload a file or paste a URL, then send to the sandbox. Analysis takes a few minutes.",
-    "In the history, click an analysis to see the full detail: behaviors, network and processes.",
-    "It is an advanced feature: only admin and full-analyst profiles have access."
+    "The choice of engine determines where the sample is detonated. A self-hosted engine, such as CAPE, keeps it inside the organisation's network. A cloud engine sends it outside, and on free tiers the sample is usually publicly accessible.",
+    "The sample is uploaded as a file or a web address is provided. Analysis takes a few minutes.",
+    "Each analysis in the history can be opened to consult its full detail, with the observed behaviours, network activity and processes.",
+    "Access is restricted to the administration and full analyst profiles."
   ],
   "tools.sandbox.unanalyzed": "NOT ANALYZED",
   "tools.sandbox.unanalyzedWarn": "The engine observed no execution. The sample could not be detonated (the app that opens it may be missing, or it isn't an executable file type). This does NOT mean it is clean.",

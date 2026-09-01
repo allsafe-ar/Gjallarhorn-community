@@ -890,24 +890,24 @@
   "bugreport.sent": "Reporte enviado. ¡Gracias!",
   "help.aria": "Ayuda",
   "help.howTo": "Cómo usarlo",
-  "help.ioc.title": "Investigación de IOC",
-  "help.ioc.desc": "Consulta un indicador de compromiso (IP, dominio, URL, hash) contra múltiples fuentes de inteligencia a la vez, y devuelve un veredicto con puntaje, la evidencia de cada fuente y reglas de detección listas para usar.",
+  "help.ioc.title": "Investigación de indicadores de compromiso",
+  "help.ioc.desc": "Consulta un indicador de compromiso, sea una dirección IP, un dominio, una dirección web o el hash de un archivo, contra múltiples fuentes de inteligencia de forma simultánea. Devuelve un veredicto con su puntaje, la evidencia aportada por cada fuente y reglas de detección listas para aplicar.",
   "help.ioc.tips": [
-    "Pegá el indicador y dejá que el sistema detecte el tipo solo.",
-    "El veredicto combina todas las fuentes; mirá el desglose para ver qué aportó cada una.",
-    "La infraestructura conocida (CDN, resolvers) se silencia para no ensuciar el resultado con ruido."
+    "El indicador se pega tal cual y el sistema determina su tipo automáticamente.",
+    "El veredicto combina todas las fuentes. El desglose muestra qué aportó cada una.",
+    "La infraestructura conocida, como redes de distribución de contenido y servidores de resolución, se silencia para que no distorsione el resultado."
   ],
-  "help.files.title": "Análisis de Archivos",
-  "help.files.desc": "Analiza un archivo por fuera sin ejecutarlo: hashes, tipo, strings, estructura PE, detección de empaquetado y beacons. Cruza los hashes con inteligencia de amenazas. Para ver qué hace al ejecutarse, usá el Sandbox.",
+  "help.files.title": "Análisis de archivos",
+  "help.files.desc": "Analiza un archivo sin ejecutarlo, obteniendo sus hashes, su tipo, sus cadenas de texto, su estructura interna y la detección de empaquetado y de comunicaciones con servidores de comando y control. Los hashes se cruzan con las fuentes de inteligencia de amenazas. El comportamiento en ejecución se observa en el Sandbox.",
   "help.files.tips": [
-    "Arrastrá el archivo o subilo. El análisis es inmediato y no ejecuta nada.",
-    "Si el archivo es sospechoso, mandalo al Sandbox desde la pestaña Análisis Dinámico."
+    "El archivo se arrastra o se selecciona. El análisis es inmediato y no ejecuta el archivo en ningún momento.",
+    "Un archivo sospechoso puede enviarse al Sandbox desde la pestaña de análisis dinámico."
   ],
-  "help.email.title": "Forense de Email",
-  "help.email.desc": "Analiza un correo sospechoso: cabeceras, autenticación (SPF, DKIM, DMARC), enlaces y adjuntos, para determinar si es phishing o suplantación.",
+  "help.email.title": "Forense de correo electrónico",
+  "help.email.desc": "Analiza un correo sospechoso, incluidas sus cabeceras, la autenticación por SPF, DKIM y DMARC, sus enlaces y sus adjuntos, para determinar si se trata de phishing o de suplantación de identidad.",
   "help.email.tips": [
-    "Subí el correo en formato .eml o pegá su contenido crudo.",
-    "Prestá atención a la autenticación fallida y a los enlaces que no coinciden con el texto."
+    "El correo se carga en formato .eml o se pega su contenido crudo.",
+    "Los indicios principales son la autenticación fallida y los enlaces cuyo destino no coincide con el texto que muestran."
   ],
   "nav.sandbox": "Sandbox",
   "tools.sandbox.noEngines": "No hay ningún motor de sandbox configurado. Se configuran en Plataformas, igual que Wazuh o TheHive.",
@@ -943,13 +943,13 @@
   "common.refresh": "Actualizar",
   "tools.sandbox.forbidden": "El análisis dinámico es una función avanzada. Tu perfil no tiene acceso.",
   "tools.sandbox.detailUnavailable": "No hay detalle disponible para este análisis.",
-  "help.sandbox.title": "Sandbox - Análisis Dinámico",
-  "help.sandbox.desc": "Detona un archivo o una URL en una máquina aislada y observa lo que hace al ejecutarse: procesos, conexiones de red, cambios en el sistema. Va más allá del análisis estático, que solo mira el archivo por fuera.",
+  "help.sandbox.title": "Sandbox, análisis dinámico",
+  "help.sandbox.desc": "Detona un archivo o una dirección web en una máquina aislada y observa su comportamiento durante la ejecución, incluidos los procesos que crea, sus conexiones de red y los cambios que introduce en el sistema. Complementa al análisis estático, que examina el archivo sin ejecutarlo.",
   "help.sandbox.tips": [
-    "Elegí el motor. Uno autohospedado (CAPE) no saca la muestra de la red; uno de nube sí, y en cuentas gratuitas la muestra suele quedar pública.",
-    "Subí un archivo o pegá una URL, y enviá al sandbox. El análisis tarda unos minutos.",
-    "En el historial, hacé clic en un análisis para ver el detalle completo: comportamientos, red y procesos.",
-    "Es una función avanzada: solo perfiles admin y analista completo tienen acceso."
+    "La elección del motor determina dónde se detona la muestra. Un motor autohospedado, como CAPE, la mantiene dentro de la red del organismo. Uno en la nube la envía fuera, y en las cuentas gratuitas la muestra suele quedar accesible públicamente.",
+    "La muestra se carga como archivo o se indica una dirección web. El análisis demora algunos minutos.",
+    "Cada análisis del historial se abre para consultar su detalle completo, con los comportamientos observados, la actividad de red y los procesos.",
+    "El acceso está restringido a los perfiles de administración y de análisis completo."
   ],
   "tools.sandbox.unanalyzed": "NO ANALIZADO",
   "tools.sandbox.unanalyzedWarn": "El motor no observó ninguna ejecución. La muestra no se pudo detonar (puede faltar la aplicación que la abre, o no ser un tipo de archivo ejecutable). Esto NO significa que sea limpia.",
