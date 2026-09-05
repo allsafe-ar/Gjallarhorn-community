@@ -42,7 +42,7 @@ export function AsistenteView() {
           <Brain className='h-5 w-5 text-primary' />
           {t('ia.title')}
         </h1>
-        <Badge variant='outline' className='text-[10px] font-bold tracking-wider border-amber-400/40 text-amber-400'>
+        <Badge variant='outline' className='text-[10px] font-bold tracking-wider border-amber-400/40 text-amber-700 dark:text-amber-400'>
           {t('ia.experimental')}
         </Badge>
       </div>
@@ -113,7 +113,7 @@ export function AsistenteView() {
             </div>
           )}
           {status?.modelInstalled === false && (
-            <div className='rounded-lg border border-amber-400/30 bg-amber-400/5 px-4 py-3 text-sm text-amber-400'>
+            <div className='rounded-lg border border-amber-400/30 bg-amber-400/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-400'>
               {t('ia.error.modelNotInstalled', { model: status.model })}
             </div>
           )}

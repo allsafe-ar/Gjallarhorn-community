@@ -215,7 +215,7 @@ export function ArchivosView() {
                 <div className='font-mono text-sm mb-1 truncate'>{result.filename}</div>
                 <div className='text-xs text-muted-foreground flex gap-4 flex-wrap'>
                   <span>{fmtSize(result.fileSize)}</span>
-                  <span>{t('tools.files.info.entropy')}: <span className={cn(analysis.entropy && analysis.entropy >= 7 ? 'text-destructive' : analysis.entropy && analysis.entropy >= 5 ? 'text-amber-400' : '')}>{analysis.entropy ?? '—'}</span></span>
+                  <span>{t('tools.files.info.entropy')}: <span className={cn(analysis.entropy && analysis.entropy >= 7 ? 'text-destructive' : analysis.entropy && analysis.entropy >= 5 ? 'text-amber-700 dark:text-amber-400' : '')}>{analysis.entropy ?? '—'}</span></span>
                   {analysis.peInfo?.arch && <span>Arch: {analysis.peInfo.arch}</span>}
                 </div>
               </div>
@@ -345,7 +345,7 @@ export function ArchivosView() {
                         <td className='px-3 py-2 font-mono max-w-[200px] truncate'>{h.filename}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>
                         <td className='px-3 py-2'>
-                          <span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-400' : 'text-emerald-500')}>{h.verdict}</span>
+                          <span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span>
                         </td>
                         <td className='px-3 py-2'><span className='text-primary text-[11px]'>{t('tools.ioc.view')}</span></td>
                       </tr>

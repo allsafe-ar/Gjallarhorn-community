@@ -242,7 +242,7 @@ export function EmailView() {
                       <span className='text-2xl font-black tabular-nums' style={{ color: scoreColor(result.phishing.score ?? 0) }}>{result.phishing.score ?? 0}</span>
                       <span className='text-sm text-muted-foreground'>{t('tools.email.phishingScore')}</span>
                       {result.phishing.linkCount != null && <span className='text-xs text-muted-foreground ml-4'>Links: {result.phishing.linkCount}</span>}
-                      {result.phishing.shortLinks != null && result.phishing.shortLinks > 0 && <span className='text-xs text-amber-400'>Short links: {result.phishing.shortLinks}</span>}
+                      {result.phishing.shortLinks != null && result.phishing.shortLinks > 0 && <span className='text-xs text-amber-700 dark:text-amber-400'>Short links: {result.phishing.shortLinks}</span>}
                       {result.phishing.mismatchedLinks != null && result.phishing.mismatchedLinks > 0 && <span className='text-xs text-destructive'>Links mismatched: {result.phishing.mismatchedLinks}</span>}
                     </div>
                     {result.phishing.indicators?.length > 0 ? (
@@ -266,7 +266,7 @@ export function EmailView() {
                     <div className='flex items-center gap-3 mb-4'>
                       <span className='text-2xl font-black tabular-nums' style={{ color: scoreColor(result.bec.score ?? 0) }}>{result.bec.score ?? 0}</span>
                       <span className='text-sm text-muted-foreground'>{t('tools.email.becScore')}</span>
-                      {result.bec.verdict && <span className={cn('text-xs font-bold ml-4', result.bec.verdict === 'BEC' ? 'text-destructive' : result.bec.verdict === 'SUSPICIOUS' ? 'text-amber-400' : 'text-emerald-500')}>{result.bec.verdict}</span>}
+                      {result.bec.verdict && <span className={cn('text-xs font-bold ml-4', result.bec.verdict === 'BEC' ? 'text-destructive' : result.bec.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{result.bec.verdict}</span>}
                     </div>
                     {result.bec.indicators?.length > 0 ? (
                       <div className='space-y-2'>
@@ -370,7 +370,7 @@ export function EmailView() {
                         <td className='px-3 py-2 max-w-[200px] truncate'>{h.subject || '—'}</td>
                         <td className='px-3 py-2 max-w-[160px] truncate text-muted-foreground'>{h.email_from || '—'}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>
-                        <td className='px-3 py-2'><span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-400' : 'text-emerald-500')}>{h.verdict}</span></td>
+                        <td className='px-3 py-2'><span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span></td>
                         <td className='px-3 py-2'><span className='text-primary text-[11px]'>{t('tools.ioc.view')}</span></td>
                       </tr>
                     ))}

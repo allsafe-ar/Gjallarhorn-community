@@ -56,7 +56,7 @@ export function AuditoriaView() {
     : logs
 
   const resultColor: Record<string, string> = {
-    ok: 'text-emerald-500', fail: 'text-destructive', pending: 'text-amber-400',
+    ok: 'text-emerald-500', fail: 'text-destructive', pending: 'text-amber-700 dark:text-amber-400',
   }
 
   return (

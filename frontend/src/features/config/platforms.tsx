@@ -44,7 +44,7 @@ function StatusDot({ status }: { status: string }) {
   const colors: Record<string, string> = {
     connected: 'text-emerald-500', error: 'text-destructive',
     unconfigured: 'text-muted-foreground', unknown: 'text-muted-foreground',
-    checking: 'text-amber-400',
+    checking: 'text-amber-700 dark:text-amber-400',
   }
   return <Circle className={cn('h-2 w-2 fill-current', colors[status] ?? 'text-muted-foreground')} />
 }

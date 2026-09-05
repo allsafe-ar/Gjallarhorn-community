@@ -242,7 +242,7 @@ export function ResultadoSandbox({ resultado, destino }: { resultado: Resultado;
           <div className='text-[11px] text-muted-foreground'>{t('tools.sandbox.score')}</div>
         </div>
         <Badge variant={resultado.verdicto === 'MALICIOUS' ? 'destructive' : 'outline'}
-          className={resultado.verdicto === 'UNANALYZED' ? 'border-amber-500/50 text-amber-400' : undefined}>
+          className={resultado.verdicto === 'UNANALYZED' ? 'border-amber-500/50 text-amber-700 dark:text-amber-400' : undefined}>
           {resultado.verdicto === 'UNANALYZED' ? t('tools.sandbox.unanalyzed') : resultado.verdicto}
         </Badge>
         {resultado.familia && <Badge variant='outline'>{t('tools.sandbox.family')}: {resultado.familia}</Badge>}

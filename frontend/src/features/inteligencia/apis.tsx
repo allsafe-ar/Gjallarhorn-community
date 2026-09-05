@@ -174,7 +174,7 @@ export function ApisView() {
               <div className='flex items-center gap-2 mb-2'>
                 <Brain className='h-3.5 w-3.5 text-muted-foreground' />
                 <span className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>{t('intel.apis.iaModule')}</span>
-                <Badge variant='outline' className='text-[10px] font-bold tracking-wider border-amber-400/40 text-amber-400 ml-1'>
+                <Badge variant='outline' className='text-[10px] font-bold tracking-wider border-amber-400/40 text-amber-700 dark:text-amber-400 ml-1'>
                   {t('intel.apis.experimental')}
                 </Badge>
                 <span className='ml-auto text-sm font-semibold' style={{ color: aiMeta.color }}>{aiMeta.label}</span>

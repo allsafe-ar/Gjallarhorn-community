@@ -14,10 +14,10 @@ type HistItem = {
 }
 
 function colorVerdict(v?: string) {
-  if (v === 'MALICIOUS') return 'text-red-400'
-  if (v === 'SUSPICIOUS') return 'text-amber-400'
-  if (v === 'CLEAN') return 'text-emerald-400'
-  if (v === 'UNANALYZED') return 'text-amber-400/80'
+  if (v === 'MALICIOUS') return 'text-red-700 dark:text-red-400'
+  if (v === 'SUSPICIOUS') return 'text-amber-700 dark:text-amber-400'
+  if (v === 'CLEAN') return 'text-emerald-700 dark:text-emerald-400'
+  if (v === 'UNANALYZED') return 'text-amber-700/80 dark:text-amber-400/80'
   return 'text-muted-foreground'
 }
 

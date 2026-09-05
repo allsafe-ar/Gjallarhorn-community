@@ -224,7 +224,7 @@ export function IocView() {
                 <div className='font-mono text-sm bg-muted rounded px-3 py-1.5 break-all'>{result.iocValue}</div>
                 {result.domainInfo && (
                   <div className='text-xs text-muted-foreground mt-1.5'>
-                    <span className={result.domainInfo.ageDays <= 30 ? 'text-amber-400' : 'text-foreground'}>
+                    <span className={result.domainInfo.ageDays <= 30 ? 'text-amber-700 dark:text-amber-400' : 'text-foreground'}>
                       {t('tools.ioc.domainAge', { n: result.domainInfo.ageDays })}
                     </span>
                   </div>
@@ -277,12 +277,12 @@ export function IocView() {
                       const badgeCls  = skipped
                         ? 'bg-muted text-muted-foreground border-muted-foreground/20'
                         : errored
-                          ? 'bg-amber-400/10 text-amber-400 border-amber-400/30'
+                          ? 'bg-amber-400/10 text-amber-700 dark:text-amber-400 border-amber-400/30'
                           : clean
                             ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
                             : mal
                               ? 'bg-destructive/10 text-destructive border-destructive/30'
-                              : 'bg-amber-400/10 text-amber-400 border-amber-400/30'
+                              : 'bg-amber-400/10 text-amber-700 dark:text-amber-400 border-amber-400/30'
                       const badgeText = skipped ? t('tools.ioc.notConfigured') : errored ? t('tools.ioc.error') : clean ? t('tools.ioc.clean') : mal ? t('tools.ioc.detected') : t('tools.ioc.suspicious')
                       return (
                         <div key={i} className={cn('rounded-lg border bg-card p-4 flex flex-col gap-1.5 relative overflow-hidden', borderCls)}>
@@ -307,7 +307,7 @@ export function IocView() {
                             <div className='text-xs text-muted-foreground'>{t('tools.ioc.notConfiguredHint')}</div>
                           )}
                           {errored && (
-                            <div className='text-xs text-amber-400/80 line-clamp-2'>{f.error}</div>
+                            <div className='text-xs text-amber-700/80 dark:text-amber-400/80 line-clamp-2'>{f.error}</div>
                           )}
                           {f.score != null && <div className='text-xs text-muted-foreground'>Score: {f.score}</div>}
                           {f.details && <div className='text-xs text-muted-foreground line-clamp-2'>{f.details}</div>}
@@ -414,7 +414,7 @@ export function IocView() {
                         <td className='px-3 py-2 text-muted-foreground'>{h.ioc_type}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>
                         <td className='px-3 py-2'>
-                          <span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-400' : 'text-emerald-500')}>{h.verdict}</span>
+                          <span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span>
                         </td>
                         <td className='px-3 py-2 text-muted-foreground'>{h.analyst}</td>
                         <td className='px-3 py-2'><span className='text-primary text-[11px]'>{t('tools.ioc.view')}</span></td>
