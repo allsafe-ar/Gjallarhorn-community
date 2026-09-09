@@ -2381,7 +2381,7 @@ async function procesarChequeo(c) {
 
   await qRun(`INSERT INTO monitor_eventos
                 (id, activo_id, chequeo_id, origen, severidad, estado_nuevo, mensaje, notificado)
-              VALUES (?,?,?,?, 'propio', ?, ?, ?, ?)`,
+              VALUES (?,?,?, 'propio', ?, ?, ?, ?)`,
     [uuidv4(), c.activo_id, c.id, severidad, r.estado, mensaje, r.notificable ? 1 : 0])
     .catch((e) => console.error("[monitor] evento:", e.message));
 
@@ -2526,7 +2526,7 @@ app.post("/api/monitoreo/activos", auth, adminOnly, async (req, res) => {
   if (!ip && !hostname) return res.status(400).json({ error: "Hace falta una dirección IP o un nombre de host" });
   const id = uuidv4();
   await qRun(`INSERT INTO monitor_activos (id, nombre, alias, ip, hostname, grupo, origen, criticidad, notas, created_by)
-              VALUES (?,?,?,?,?,?,?, 'propio', ?, ?, ?)`,
+              VALUES (?,?,?,?,?,?, 'propio', ?, ?, ?)`,
     [id, nombre, alias || null, ip || null, hostname || null, grupo || null,
      monitoreo.CRITICIDADES.includes(criticidad) ? criticidad : "media", notas || null, req.user.username]);
   res.status(201).json({ id });
