@@ -19,6 +19,7 @@ import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authOtpRouteImport } from './routes/(auth)/otp'
 import { Route as AuthenticatedPerfilIndexRouteImport } from './routes/_authenticated/perfil/index'
+import { Route as AuthenticatedMonitoreoIndexRouteImport } from './routes/_authenticated/monitoreo/index'
 import { Route as AuthenticatedInteligenciaIndexRouteImport } from './routes/_authenticated/inteligencia/index'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
@@ -27,6 +28,8 @@ import { Route as AuthenticatedSocVelociraptorRouteImport } from './routes/_auth
 import { Route as AuthenticatedSocThehiveRouteImport } from './routes/_authenticated/soc/thehive'
 import { Route as AuthenticatedSocOpenvasRouteImport } from './routes/_authenticated/soc/openvas'
 import { Route as AuthenticatedSocNessusRouteImport } from './routes/_authenticated/soc/nessus'
+import { Route as AuthenticatedMonitoreoTableroRouteImport } from './routes/_authenticated/monitoreo/tablero'
+import { Route as AuthenticatedMonitoreoPanelRouteImport } from './routes/_authenticated/monitoreo/panel'
 import { Route as AuthenticatedInteligenciaThreatRouteImport } from './routes/_authenticated/inteligencia/threat'
 import { Route as AuthenticatedInteligenciaApisRouteImport } from './routes/_authenticated/inteligencia/apis'
 import { Route as AuthenticatedIncidentesTimelineRouteImport } from './routes/_authenticated/incidentes/timeline'
@@ -92,6 +95,12 @@ const AuthenticatedPerfilIndexRoute =
     path: '/perfil/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMonitoreoIndexRoute =
+  AuthenticatedMonitoreoIndexRouteImport.update({
+    id: '/monitoreo/',
+    path: '/monitoreo/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInteligenciaIndexRoute =
   AuthenticatedInteligenciaIndexRouteImport.update({
     id: '/inteligencia/',
@@ -135,6 +144,18 @@ const AuthenticatedSocNessusRoute = AuthenticatedSocNessusRouteImport.update({
   path: '/soc/nessus',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMonitoreoTableroRoute =
+  AuthenticatedMonitoreoTableroRouteImport.update({
+    id: '/monitoreo/tablero',
+    path: '/monitoreo/tablero',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMonitoreoPanelRoute =
+  AuthenticatedMonitoreoPanelRouteImport.update({
+    id: '/monitoreo/panel',
+    path: '/monitoreo/panel',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInteligenciaThreatRoute =
   AuthenticatedInteligenciaThreatRouteImport.update({
     id: '/inteligencia/threat',
@@ -242,6 +263,8 @@ export interface FileRoutesByFullPath {
   '/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
   '/inteligencia/apis': typeof AuthenticatedInteligenciaApisRoute
   '/inteligencia/threat': typeof AuthenticatedInteligenciaThreatRoute
+  '/monitoreo/panel': typeof AuthenticatedMonitoreoPanelRoute
+  '/monitoreo/tablero': typeof AuthenticatedMonitoreoTableroRoute
   '/soc/nessus': typeof AuthenticatedSocNessusRoute
   '/soc/openvas': typeof AuthenticatedSocOpenvasRoute
   '/soc/thehive': typeof AuthenticatedSocThehiveRoute
@@ -250,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/inteligencia/': typeof AuthenticatedInteligenciaIndexRoute
+  '/monitoreo/': typeof AuthenticatedMonitoreoIndexRoute
   '/perfil/': typeof AuthenticatedPerfilIndexRoute
 }
 export interface FileRoutesByTo {
@@ -275,6 +299,8 @@ export interface FileRoutesByTo {
   '/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
   '/inteligencia/apis': typeof AuthenticatedInteligenciaApisRoute
   '/inteligencia/threat': typeof AuthenticatedInteligenciaThreatRoute
+  '/monitoreo/panel': typeof AuthenticatedMonitoreoPanelRoute
+  '/monitoreo/tablero': typeof AuthenticatedMonitoreoTableroRoute
   '/soc/nessus': typeof AuthenticatedSocNessusRoute
   '/soc/openvas': typeof AuthenticatedSocOpenvasRoute
   '/soc/thehive': typeof AuthenticatedSocThehiveRoute
@@ -283,6 +309,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/inteligencia': typeof AuthenticatedInteligenciaIndexRoute
+  '/monitoreo': typeof AuthenticatedMonitoreoIndexRoute
   '/perfil': typeof AuthenticatedPerfilIndexRoute
 }
 export interface FileRoutesById {
@@ -310,6 +337,8 @@ export interface FileRoutesById {
   '/_authenticated/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
   '/_authenticated/inteligencia/apis': typeof AuthenticatedInteligenciaApisRoute
   '/_authenticated/inteligencia/threat': typeof AuthenticatedInteligenciaThreatRoute
+  '/_authenticated/monitoreo/panel': typeof AuthenticatedMonitoreoPanelRoute
+  '/_authenticated/monitoreo/tablero': typeof AuthenticatedMonitoreoTableroRoute
   '/_authenticated/soc/nessus': typeof AuthenticatedSocNessusRoute
   '/_authenticated/soc/openvas': typeof AuthenticatedSocOpenvasRoute
   '/_authenticated/soc/thehive': typeof AuthenticatedSocThehiveRoute
@@ -318,6 +347,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/_authenticated/inteligencia/': typeof AuthenticatedInteligenciaIndexRoute
+  '/_authenticated/monitoreo/': typeof AuthenticatedMonitoreoIndexRoute
   '/_authenticated/perfil/': typeof AuthenticatedPerfilIndexRoute
 }
 export interface FileRouteTypes {
@@ -345,6 +375,8 @@ export interface FileRouteTypes {
     | '/incidentes/timeline'
     | '/inteligencia/apis'
     | '/inteligencia/threat'
+    | '/monitoreo/panel'
+    | '/monitoreo/tablero'
     | '/soc/nessus'
     | '/soc/openvas'
     | '/soc/thehive'
@@ -353,6 +385,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/ia/'
     | '/inteligencia/'
+    | '/monitoreo/'
     | '/perfil/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -378,6 +411,8 @@ export interface FileRouteTypes {
     | '/incidentes/timeline'
     | '/inteligencia/apis'
     | '/inteligencia/threat'
+    | '/monitoreo/panel'
+    | '/monitoreo/tablero'
     | '/soc/nessus'
     | '/soc/openvas'
     | '/soc/thehive'
@@ -386,6 +421,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/ia'
     | '/inteligencia'
+    | '/monitoreo'
     | '/perfil'
   id:
     | '__root__'
@@ -412,6 +448,8 @@ export interface FileRouteTypes {
     | '/_authenticated/incidentes/timeline'
     | '/_authenticated/inteligencia/apis'
     | '/_authenticated/inteligencia/threat'
+    | '/_authenticated/monitoreo/panel'
+    | '/_authenticated/monitoreo/tablero'
     | '/_authenticated/soc/nessus'
     | '/_authenticated/soc/openvas'
     | '/_authenticated/soc/thehive'
@@ -420,6 +458,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/'
     | '/_authenticated/ia/'
     | '/_authenticated/inteligencia/'
+    | '/_authenticated/monitoreo/'
     | '/_authenticated/perfil/'
   fileRoutesById: FileRoutesById
 }
@@ -506,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPerfilIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/monitoreo/': {
+      id: '/_authenticated/monitoreo/'
+      path: '/monitoreo'
+      fullPath: '/monitoreo/'
+      preLoaderRoute: typeof AuthenticatedMonitoreoIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inteligencia/': {
       id: '/_authenticated/inteligencia/'
       path: '/inteligencia'
@@ -560,6 +606,20 @@ declare module '@tanstack/react-router' {
       path: '/soc/nessus'
       fullPath: '/soc/nessus'
       preLoaderRoute: typeof AuthenticatedSocNessusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/monitoreo/tablero': {
+      id: '/_authenticated/monitoreo/tablero'
+      path: '/monitoreo/tablero'
+      fullPath: '/monitoreo/tablero'
+      preLoaderRoute: typeof AuthenticatedMonitoreoTableroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/monitoreo/panel': {
+      id: '/_authenticated/monitoreo/panel'
+      path: '/monitoreo/panel'
+      fullPath: '/monitoreo/panel'
+      preLoaderRoute: typeof AuthenticatedMonitoreoPanelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/inteligencia/threat': {
@@ -679,6 +739,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIncidentesTimelineRoute: typeof AuthenticatedIncidentesTimelineRoute
   AuthenticatedInteligenciaApisRoute: typeof AuthenticatedInteligenciaApisRoute
   AuthenticatedInteligenciaThreatRoute: typeof AuthenticatedInteligenciaThreatRoute
+  AuthenticatedMonitoreoPanelRoute: typeof AuthenticatedMonitoreoPanelRoute
+  AuthenticatedMonitoreoTableroRoute: typeof AuthenticatedMonitoreoTableroRoute
   AuthenticatedSocNessusRoute: typeof AuthenticatedSocNessusRoute
   AuthenticatedSocOpenvasRoute: typeof AuthenticatedSocOpenvasRoute
   AuthenticatedSocThehiveRoute: typeof AuthenticatedSocThehiveRoute
@@ -687,6 +749,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedIaIndexRoute: typeof AuthenticatedIaIndexRoute
   AuthenticatedInteligenciaIndexRoute: typeof AuthenticatedInteligenciaIndexRoute
+  AuthenticatedMonitoreoIndexRoute: typeof AuthenticatedMonitoreoIndexRoute
   AuthenticatedPerfilIndexRoute: typeof AuthenticatedPerfilIndexRoute
 }
 
@@ -707,6 +770,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIncidentesTimelineRoute: AuthenticatedIncidentesTimelineRoute,
   AuthenticatedInteligenciaApisRoute: AuthenticatedInteligenciaApisRoute,
   AuthenticatedInteligenciaThreatRoute: AuthenticatedInteligenciaThreatRoute,
+  AuthenticatedMonitoreoPanelRoute: AuthenticatedMonitoreoPanelRoute,
+  AuthenticatedMonitoreoTableroRoute: AuthenticatedMonitoreoTableroRoute,
   AuthenticatedSocNessusRoute: AuthenticatedSocNessusRoute,
   AuthenticatedSocOpenvasRoute: AuthenticatedSocOpenvasRoute,
   AuthenticatedSocThehiveRoute: AuthenticatedSocThehiveRoute,
@@ -715,6 +780,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedIaIndexRoute: AuthenticatedIaIndexRoute,
   AuthenticatedInteligenciaIndexRoute: AuthenticatedInteligenciaIndexRoute,
+  AuthenticatedMonitoreoIndexRoute: AuthenticatedMonitoreoIndexRoute,
   AuthenticatedPerfilIndexRoute: AuthenticatedPerfilIndexRoute,
 }
 

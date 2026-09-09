@@ -13,7 +13,7 @@
   ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
   ![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=flat-square&logo=mysql&logoColor=white)
   ![License](https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square)
-  ![Version](https://img.shields.io/badge/Version-1.3.0-blue?style=flat-square)
+  ![Version](https://img.shields.io/badge/Version-1.4.0-blue?style=flat-square)
 
   [![Sitio web](https://img.shields.io/badge/Sitio_web-allsafe.com.ar%2Fgjallarhorn--community-6ab4ff?style=for-the-badge&labelColor=1e324d)](https://allsafe.com.ar/gjallarhorn-community/)
 </div>
@@ -38,9 +38,10 @@ Gjallarhorn Community incluye:
 - **Gestión de casos** con notas, análisis vinculados y adjuntos
 - **Generación de reglas de detección**: KQL (Sentinel/Defender), SPL (Splunk), SIGMA, YARA
 - **Exportación STIX 2.1** para compartir inteligencia en formato estándar
+- **Inventario de activos y monitoreo de disponibilidad**: se le indican los equipos que importan y los mide por su cuenta, por ping, por puerto o por respuesta web. Estado por equipo, historial de caídas y recuperaciones, latencia, panel en vivo y tablero de métricas. Anda on-premise: el servidor tiene que estar dentro de la red que mide
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), lockout de cuenta, control de acceso por rol (`admin` / `analyst` / `viewer`)
 
-> ¿Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **campañas de phishing por email/WiFi**, **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA), el **módulo de IA** o el **SaaS multi-tenant con licencias por cliente**? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> ¿Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **campañas de phishing por email/WiFi**, **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA), el **módulo de IA** o el **SaaS multi-tenant con licencias por cliente**, o la **integración con Zabbix y GLPI** con unificación de activos entre fuentes? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
 
 ---
 
@@ -140,6 +141,10 @@ Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo m�
 | Casos y timeline | ✅ | ✅ |
 | **Generación** de reglas (KQL / SPL / SIGMA / YARA) | ✅ | ✅ |
 | Exportación STIX 2.1 | ✅ | ✅ |
+| **Inventario de activos y monitoreo de disponibilidad** (chequeos propios ICMP/TCP/HTTP, estados, historial) | ✅ | ✅ |
+| **Integración con Zabbix y GLPI** - activos y problemas desde las herramientas del cliente | ❌ | ✅ |
+| **Unificación entre fuentes y reporte de discrepancias** (un equipo, varias fuentes) | ❌ | ✅ |
+| **Avisos de caída por correo** · mural de activos | ❌ | ✅ |
 | Integración Wazuh | ✅ | ✅ |
 | Integración Velociraptor | ✅ | ✅ |
 | Integración OpenVAS / GVM | ✅ | ✅ |

@@ -1,4 +1,6 @@
 import {
+  ChartColumn,
+  Gauge,
   Boxes,
   LayoutDashboard,
   Search,
@@ -25,6 +27,7 @@ export const sidebarData: SidebarData = {
         { title: 'nav.dashboard', url: '/dashboard',           icon: LayoutDashboard },
         { title: 'nav.threat',   url: '/inteligencia/threat', icon: ShieldAlert },
         { title: 'nav.apis',     url: '/inteligencia/apis',   icon: Key },
+        { title: 'nav.monitoreo_tablero', url: '/monitoreo/tablero', icon: ChartColumn },
       ],
     },
     {
@@ -40,6 +43,8 @@ export const sidebarData: SidebarData = {
       title: 'nav.tools',
       roles: ['admin', 'analyst'],
       items: [
+        { title: 'nav.monitoreo', url: '/monitoreo',             icon: Gauge },
+        { title: 'nav.monitoreo_panel', url: '/monitoreo/panel', icon: Activity },
         { title: 'nav.ioc',   url: '/herramientas/ioc',      icon: Search },
         { title: 'nav.files', url: '/herramientas/archivos', icon: FileSearch },
         { title: 'nav.sandbox', url: '/herramientas/sandbox', icon: Boxes },

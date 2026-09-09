@@ -14,6 +14,7 @@ const rateLimit = require("express-rate-limit");
 const mysql    = require("mysql2/promise");
 const { v4: uuidv4 } = require("uuid");
 const sandbox      = require("./sandbox");
+const monitoreo    = require("./monitoreo");
 const https    = require("https");
 const http     = require("http");
 const path     = require("path");
@@ -2307,6 +2308,485 @@ async function initDB() {
   }
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MONITOREO DE INFRAESTRUCTURA E INVENTARIO DE ACTIVOS
+//
+// Gjallarhorn mide por su cuenta los equipos que se le indiquen, por ping, por puerto o por
+// respuesta web, y mantiene el estado, el historial de caídas y recuperaciones y la latencia.
+//
+// ⚠️ Solo sirve on-premise: el servidor tiene que estar dentro de la red que mide.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * El ciclo de medición.
+ *
+ * 🔑 Solo se mide lo que venció su intervalo. Cada chequeo tiene el suyo, y este ciclo
+ * despierta cada veinte segundos para ver a cuáles les toca. Medir todo cada vez llenaría la
+ * tabla sin decir nada nuevo.
+ *
+ * ⚠️ Los chequeos corren **en paralelo con un tope**. En serie, cien equipos caídos con
+ * timeout de 5 segundos tardarían más de ocho minutos por vuelta y el monitoreo llegaría
+ * siempre tarde. Sin tope, cien pings simultáneos saturan la tabla de conexiones.
+ */
+const MONITOR_TOPE_PARALELO = 20;
+
+async function correrMonitoreo() {
+  let pendientes;
+  try {
+    pendientes = await qRows(`
+      SELECT c.id, c.activo_id, c.tipo, c.destino, c.intervalo_seg, c.timeout_ms, c.umbral_fallos, c.esperado,
+             -- El alias manda sobre el nombre del sistema: el aviso lo lee alguien que
+             -- conoce al equipo como "el servidor de facturación", no como srv-db01.
+             COALESCE(a.alias, a.nombre) AS nombre,
+             a.ip, a.hostname,  a.criticidad,
+             e.estado, e.fallos_seguidos, e.medido_at
+        FROM monitor_chequeos c
+        JOIN monitor_activos  a ON a.id = c.activo_id
+        LEFT JOIN monitor_estado e ON e.chequeo_id = c.id
+       WHERE c.habilitado = 1 AND a.monitoreado = 1
+         AND (e.medido_at IS NULL OR e.medido_at <= DATE_SUB(NOW(), INTERVAL c.intervalo_seg SECOND))`);
+  } catch (err) {
+    return console.error("[monitor]", err.message);
+  }
+  if (!pendientes.length) return;
+
+  for (let i = 0; i < pendientes.length; i += MONITOR_TOPE_PARALELO) {
+    await Promise.all(pendientes.slice(i, i + MONITOR_TOPE_PARALELO).map(procesarChequeo));
+  }
+}
+
+async function procesarChequeo(c) {
+  const activo = { nombre: c.nombre, ip: c.ip, hostname: c.hostname };
+  const resultado = await monitoreo.ejecutar(c, activo);
+  const r = monitoreo.aplicarResultado(
+    { estado: c.estado, fallos_seguidos: c.fallos_seguidos }, resultado, c.umbral_fallos || 3);
+
+  await qRun(`INSERT INTO monitor_estado (chequeo_id, estado, fallos_seguidos, latencia_ms, ultimo_ok, ultimo_error, medido_at)
+              VALUES (?,?,?,?, ${resultado.ok ? "NOW()" : "NULL"}, ?, NOW())
+              ON DUPLICATE KEY UPDATE
+                estado = VALUES(estado), fallos_seguidos = VALUES(fallos_seguidos),
+                latencia_ms = VALUES(latencia_ms), ultimo_error = VALUES(ultimo_error), medido_at = NOW()
+                ${resultado.ok ? ", ultimo_ok = NOW()" : ""}`,
+    [c.id, r.estado, r.fallos, resultado.latencia ?? null, resultado.ok ? null : (resultado.error || null)])
+    .catch((e) => console.error("[monitor] estado:", e.message));
+
+  if (!r.cambio) return;
+
+  const mensaje = monitoreo.textoEvento(activo, c, r.estado, resultado, c.umbral_fallos || 3, r.antes);
+  // La criticidad del activo manda sobre la severidad: que se caiga un equipo crítico no
+  // es lo mismo que se caiga una impresora, aunque el chequeo que falló sea el mismo.
+  const severidad = r.estado === "ok" ? "info"
+    : (c.criticidad === "critica" ? "critica" : c.criticidad === "alta" ? "alta" : "media");
+
+  await qRun(`INSERT INTO monitor_eventos
+                (id, activo_id, chequeo_id, origen, severidad, estado_nuevo, mensaje, notificado)
+              VALUES (?,?,?,?, 'propio', ?, ?, ?, ?)`,
+    [uuidv4(), c.activo_id, c.id, severidad, r.estado, mensaje, r.notificable ? 1 : 0])
+    .catch((e) => console.error("[monitor] evento:", e.message));
+
+  console.log(`[monitor] ${mensaje}`);
+  // El evento queda marcado como notificable, aunque acá no se mande nada: es el mismo dato
+  // que la edición Pro usa para avisar por correo, y dejarlo registrado permite migrar sin
+  // perder la distinción entre un cambio de estado y una medición fallida más.
+}
+
+
+/**
+ * ⚠️ **MySQL devuelve las columnas JSON como texto**, no como arreglo. Si eso llega crudo a
+ * la interfaz, cualquier `.map()` sobre el valor revienta el render y el usuario ve una
+ * pantalla 500 que no tiene nada que ver con el backend. Se normaliza acá, una sola vez.
+ */
+function conPuertos(a) {
+  if (!a) return a;
+  let p = a.puertos;
+  if (typeof p === "string") { try { p = JSON.parse(p); } catch { p = []; } }
+  return { ...a, puertos: Array.isArray(p) ? p : [] };
+}
+
+/**
+ * Los activos del inquilino, con el resumen de su estado.
+ *
+ * 🔑 El estado del activo es **el peor de sus chequeos**. Un servidor que responde al ping
+ * pero tiene el servicio caído está caído: quedarse con el mejor resultado daría una pantalla
+ * en verde mientras el cliente no puede trabajar.
+ */
+
+app.get("/api/monitoreo/activos", auth, async (req, res) => {
+  // Filtros. Se arman acá y no en el frontend para que la pantalla siga andando con
+  // muchos activos: filtrar 5000 filas en el navegador es traerlas todas primero.
+  const f = [], fp = [];
+  const q = String(req.query.q || "").trim();
+  if (q) { f.push("(a.nombre LIKE ? OR a.alias LIKE ? OR a.ip LIKE ? OR a.hostname LIKE ?)"); fp.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`); }
+  if (monitoreo.ORIGENES.includes(String(req.query.origen))) { f.push("a.origen = ?"); fp.push(req.query.origen); }
+  if (monitoreo.CRITICIDADES.includes(String(req.query.criticidad))) { f.push("a.criticidad = ?"); fp.push(req.query.criticidad); }
+  if (req.query.grupo) { f.push("a.grupo = ?"); fp.push(req.query.grupo); }
+  const filtros = f.length ? " AND " + f.join(" AND ") : "";
+
+  const activos = await qRows(
+    `SELECT a.id, a.nombre, a.alias, a.ip, a.hostname, a.grupo, a.origen, a.criticidad, a.monitoreado,
+            a.notas, a.so, a.so_pista, a.puertos, a.sondeado_at, a.visto_ultima, 
+            -- De quién es el activo. Sin esto, el staff de AllSafe ve los equipos de varios
+            -- clientes mezclados y con nombres repetidos, sin poder distinguirlos. Es el mismo
+            COUNT(c.id) AS chequeos,
+            SUM(e.estado = 'caido')     AS caidos,
+            SUM(e.estado = 'degradado') AS degradados,
+            SUM(e.estado = 'ok')        AS sanos,
+            MIN(e.medido_at)            AS medido_at
+       FROM monitor_activos a
+              LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
+       LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
+      WHERE 1=1${filtros}
+      GROUP BY a.id ORDER BY COALESCE(a.alias, a.nombre)`, fp);
+
+  const estadoPedido = String(req.query.estado || "");
+  let salida = activos.map(a => ({
+    ...conPuertos(a),
+    chequeos: Number(a.chequeos) || 0,
+    // Sin chequeos no se dice "ok": se dice que no se está midiendo, que es la verdad.
+    estado: !Number(a.chequeos) ? "sin_medir"
+          : Number(a.caidos)     ? "caido"
+          : Number(a.degradados) ? "degradado"
+          : Number(a.sanos)      ? "ok" : "desconocido",
+  }));
+  // El estado no es una columna: se calcula agregando los chequeos, así que se filtra acá.
+  if (estadoPedido) salida = salida.filter(a => a.estado === estadoPedido);
+
+  // Los grupos que existen, para poder ofrecerlos en el filtro sin una consulta aparte.
+  const grupos = [...new Set(activos.map(a => a.grupo).filter(Boolean))].sort();
+  res.json({ activos: salida, grupos });
+});
+
+/** Los chequeos de un activo, con su estado actual. */
+app.get("/api/monitoreo/activos/:id/chequeos", auth, async (req, res) => {
+  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  if (!a) return res.status(404).json({ error: "No encontrado" });
+  const chequeos = await qRows(`
+    SELECT c.*, e.estado, e.fallos_seguidos, e.latencia_ms, e.ultimo_ok, e.ultimo_error, e.medido_at
+      FROM monitor_chequeos c LEFT JOIN monitor_estado e ON e.chequeo_id = c.id
+     WHERE c.activo_id = ? ORDER BY c.tipo`, [req.params.id]);
+  res.json({ activo: conPuertos(a), chequeos });
+});
+
+app.post("/api/monitoreo/activos/:id/chequeos", auth, adminOnly, async (req, res) => {
+  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  if (!a) return res.status(404).json({ error: "No encontrado" });
+  const { tipo, destino, intervalo_seg, timeout_ms, umbral_fallos, esperado } = req.body || {};
+  if (!monitoreo.TIPOS_CHEQUEO.includes(tipo)) return res.status(400).json({ error: "Tipo de chequeo inválido" });
+  if (tipo === "tcp" && !destino) return res.status(400).json({ error: "Un chequeo TCP necesita un puerto" });
+
+  const id = uuidv4();
+  await qRun(`INSERT INTO monitor_chequeos (id, activo_id, tipo, destino, intervalo_seg, timeout_ms, umbral_fallos, esperado)
+              VALUES (?,?,?,?,?,?,?,?)`,
+    [id, a.id, tipo, destino || null,
+     Math.max(20, Number(intervalo_seg) || 60),      // menos de 20 s no tiene sentido: el ciclo del motor
+     Math.min(30000, Math.max(500, Number(timeout_ms) || 5000)),
+     Math.max(1, Number(umbral_fallos) || 3),
+     Number(esperado) || 0]);
+  // Cargar un chequeo implica querer medir: si el activo estaba sin monitorear, se prende.
+  if (!a.monitoreado) await qRun("UPDATE monitor_activos SET monitoreado = 1 WHERE id = ?", [a.id]);
+  await auditLog("MONITOR_CHECK_ADD", `Chequeo ${tipo} en ${a.nombre}`, req.user.username, req.user.role, "internal", "ok");
+  res.status(201).json({ id });
+});
+
+app.delete("/api/monitoreo/chequeos/:id", auth, adminOnly, async (req, res) => {
+  const c = await qRow(`SELECT c.id, a.nombre FROM monitor_chequeos c
+                          JOIN monitor_activos a ON a.id = c.activo_id WHERE c.id = ?`, [req.params.id]);
+  if (!c) return res.status(404).json({ error: "No encontrado" });
+  await qRun("DELETE FROM monitor_chequeos WHERE id = ?", [req.params.id]);
+  await auditLog("MONITOR_CHECK_DEL", `Chequeo quitado de ${c.nombre}`, req.user.username, req.user.role, "internal", "ok");
+  res.json({ ok: true });
+});
+
+/**
+ * Sondea un activo: estima el sistema operativo y busca puertos conocidos abiertos.
+ *
+ * ⚠️ Corre **bajo pedido**, nunca en el ciclo del motor. Es información que cambia de vez
+ * en cuando, y repetirla cada minuto contra toda la red del cliente sería ruido en su
+ * firewall sin ningún dato nuevo a cambio.
+ */
+app.post("/api/monitoreo/activos/:id/sondear", auth, adminOnly, async (req, res) => {
+  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  if (!a) return res.status(404).json({ error: "No encontrado" });
+  const destino = a.ip || a.hostname;
+  if (!destino) return res.status(400).json({ error: "El activo no tiene dirección" });
+
+  const r = await monitoreo.sondear(destino);
+  await qRun(`UPDATE monitor_activos SET so = ?, so_pista = ?, puertos = ?, sondeado_at = NOW() WHERE id = ?`,
+    [r.so, r.so_pista, JSON.stringify(r.puertos), a.id]);
+  await auditLog("MONITOR_PROBE", `Sondeo de ${a.alias || a.nombre}: ${r.puertos.length} puerto(s) abierto(s)`,
+    req.user.username, req.user.role, "internal", "ok");
+  res.json(r);
+});
+
+/** Alta de un activo. */
+app.post("/api/monitoreo/activos", auth, adminOnly, async (req, res) => {
+  const { nombre, alias, ip, hostname, grupo, criticidad, notas } = req.body || {};
+  if (!nombre) return res.status(400).json({ error: "Falta el nombre" });
+  if (!ip && !hostname) return res.status(400).json({ error: "Hace falta una dirección IP o un nombre de host" });
+  const id = uuidv4();
+  await qRun(`INSERT INTO monitor_activos (id, nombre, alias, ip, hostname, grupo, origen, criticidad, notas, created_by)
+              VALUES (?,?,?,?,?,?,?, 'propio', ?, ?, ?)`,
+    [id, nombre, alias || null, ip || null, hostname || null, grupo || null,
+     monitoreo.CRITICIDADES.includes(criticidad) ? criticidad : "media", notas || null, req.user.username]);
+  res.status(201).json({ id });
+});
+
+/** Cambios sobre un activo: criticidad, notas, y si se lo mide o no. */
+app.put("/api/monitoreo/activos/:id", auth, adminOnly, async (req, res) => {
+  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  if (!a) return res.status(404).json({ error: "No encontrado" });
+  const { criticidad, notas, monitoreado, nombre, alias, ip, hostname, grupo } = req.body || {};
+  // El alias se puede borrar mandando cadena vacía, y por eso no usa COALESCE: es la forma
+  // de volver al nombre del sistema cuando el personalizado dejó de servir.
+  await qRun(`UPDATE monitor_activos SET
+                nombre = COALESCE(?, nombre), ip = COALESCE(?, ip), hostname = COALESCE(?, hostname),
+                grupo = COALESCE(?, grupo),
+                alias = ${req.body?.alias === undefined ? "alias" : "?"},
+                criticidad = ?, notas = ?, monitoreado = ? WHERE id = ?`,
+    [nombre ?? null, ip ?? null, hostname ?? null, grupo ?? null,
+     ...(req.body?.alias === undefined ? [] : [String(alias || "").trim() || null]),
+     monitoreo.CRITICIDADES.includes(criticidad) ? criticidad : a.criticidad,
+     notas ?? a.notas, monitoreado === undefined ? a.monitoreado : (monitoreado ? 1 : 0), a.id]);
+  res.json({ ok: true });
+});
+
+app.delete("/api/monitoreo/activos/:id", auth, adminOnly, async (req, res) => {
+  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  if (!a) return res.status(404).json({ error: "No encontrado" });
+  await qRun("DELETE FROM monitor_activos WHERE id = ?", [a.id]);   // los chequeos caen con él
+  await auditLog("MONITOR_ASSET_DEL", `Activo quitado: ${a.nombre}`, req.user.username, req.user.role, "internal", "ok");
+  res.json({ ok: true });
+});
+
+/**
+ * Resumen del monitoreo: lo que hay que mirar primero.
+ *
+ * 🔑 El orden de las cifras es deliberado: **primero lo que está mal**. Un panel que
+ * arranca con "42 activos" y esconde abajo que tres están caídos invita a mirarlo y
+ * seguir de largo.
+ */
+app.get("/api/monitoreo/resumen", auth, async (req, res) => {
+
+  const porEstado = await qRows(`
+    SELECT a.id, a.criticidad, a.origen,
+           SUM(e.estado = 'caido')     AS caidos,
+           SUM(e.estado = 'degradado') AS degradados,
+           COUNT(c.id)                 AS chequeos
+      FROM monitor_activos a
+      LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
+      LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
+     WHERE 1=1 GROUP BY a.id`, []);
+
+  const estadoDe = (a) => !Number(a.chequeos) ? "sin_medir"
+    : Number(a.caidos) ? "caido" : Number(a.degradados) ? "degradado" : "ok";
+
+  const cuenta = { ok: 0, caido: 0, degradado: 0, sin_medir: 0 };
+  const porCriticidad = {};
+  const porOrigen = { propio: 0 };
+  for (const a of porEstado) {
+    const e = estadoDe(a);
+    cuenta[e] = (cuenta[e] || 0) + 1;
+    porOrigen[a.origen] = (porOrigen[a.origen] || 0) + 1;
+    porCriticidad[a.criticidad] ??= { total: 0, caidos: 0 };
+    porCriticidad[a.criticidad].total++;
+    if (e === "caido") porCriticidad[a.criticidad].caidos++;
+  }
+
+  // Lo que está mal AHORA, ordenado por criticidad y no por hora: un firewall caído hace
+  // media hora importa más que una impresora que se cayó recién.
+  const caidos = await qRows(`
+    SELECT a.id, COALESCE(a.alias, a.nombre) AS nombre, a.ip, a.criticidad, a.origen,
+           -- a quién llamar cuando algo se cae.
+           MIN(e.medido_at) AS desde, GROUP_CONCAT(DISTINCT c.tipo) AS tipos
+      FROM monitor_activos a
+            JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
+      JOIN monitor_estado   e ON e.chequeo_id = c.id AND e.estado = 'caido'
+     WHERE 1=1
+     GROUP BY a.id
+     ORDER BY FIELD(a.criticidad, 'critica', 'alta', 'media', 'baja'), nombre
+     LIMIT 20`, []);
+
+  const eventos = await qRows(`
+    SELECT e.id, e.origen, e.severidad, e.estado_nuevo, e.mensaje, e.ts,
+           COALESCE(a.alias, a.nombre) AS activo
+      FROM monitor_eventos e LEFT JOIN monitor_activos a ON a.id = e.activo_id
+     WHERE 1=1 ORDER BY e.ts DESC LIMIT 12`, []);
+
+  const [{ n: eventos24h } = { n: 0 }] = await qRows(
+    `SELECT COUNT(*) n FROM monitor_eventos e WHERE e.ts >= DATE_SUB(NOW(), INTERVAL 24 HOUR)`,
+    []);
+
+  // Los equipos EN VIVO, con lo último que se midió de cada uno. Es lo que hace del panel
+  // una pantalla de guardia y no un resumen: se ve equipo por equipo si responde o no.
+  const enVivo = await qRows(`
+    SELECT a.id, COALESCE(a.alias, a.nombre) AS nombre, a.nombre AS nombre_real, a.ip, a.hostname,
+           a.criticidad, a.origen,
+           COUNT(c.id)                 AS chequeos,
+           SUM(e.estado = 'caido')     AS caidos,
+           SUM(e.estado = 'degradado') AS degradados,
+           SUM(e.estado = 'ok')        AS sanos,
+           MAX(e.medido_at)            AS medido_at,
+           ROUND(AVG(e.latencia_ms))   AS latencia,
+           GROUP_CONCAT(DISTINCT c.tipo ORDER BY c.tipo) AS tipos,
+           MAX(e.ultimo_error)         AS error
+      FROM monitor_activos a
+            LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
+      LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
+     WHERE 1=1
+     GROUP BY a.id
+     ORDER BY (SUM(e.estado = 'caido') > 0) DESC,
+              FIELD(a.criticidad, 'critica', 'alta', 'media', 'baja'),
+              nombre`, []);
+
+  res.json({ cuenta, porCriticidad, porOrigen, caidos, eventos, eventos24h: Number(eventos24h) || 0,
+             total: porEstado.length,
+             enVivo: enVivo.map(x => ({
+               ...x,
+               chequeos: Number(x.chequeos) || 0,
+               estado: !Number(x.chequeos) ? "sin_medir"
+                     : Number(x.caidos)     ? "caido"
+                     : Number(x.degradados) ? "degradado"
+                     : Number(x.sanos)      ? "ok" : "desconocido",
+             })) });
+});
+
+/**
+ * Métricas del monitoreo, para el tablero.
+ *
+ * 🔑 La **disponibilidad** se calcula sobre el tiempo que cada chequeo pasó caído, no sobre
+ * cuántas veces falló. Contar fallos daría lo mismo para un equipo que se cayó una vez toda
+ * la noche que para uno que parpadeó diez veces en un minuto, y no son lo mismo ni de cerca.
+ */
+app.get("/api/monitoreo/metricas", auth, async (req, res) => {
+  const dias = Math.min(Math.max(Number(req.query.dias) || 7, 1), 30);
+
+  // Serie de eventos por día, separando caídas de recuperaciones: dos líneas que juntas
+  // cuentan si la infraestructura se está estabilizando o empeorando.
+  // ⚠️ `DATE()` devuelve un objeto Date, no un texto: recortarlo da "Mon Sep 0" y ninguna
+  // clave coincide. Se pide formateado, y del lado de JavaScript se arman las claves con la
+  // fecha LOCAL y no con `toISOString()`, que es UTC: a las 21 h de Argentina el día UTC ya
+  // es el siguiente y la serie quedaba entera en cero.
+  const serie = await qRows(`
+    SELECT DATE_FORMAT(e.ts, '%Y-%m-%d') AS dia,
+           SUM(e.estado_nuevo IN ('caido','problema')) AS caidas,
+           SUM(e.estado_nuevo = 'ok')                  AS recuperaciones
+      FROM monitor_eventos e
+     WHERE e.ts >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+     GROUP BY dia ORDER BY dia`, [dias - 1, ...[]]).catch(() => []);
+
+  // Se completan los días sin eventos: un hueco en el gráfico se lee como falta de datos.
+  const claveLocal = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const porDia = Object.fromEntries(serie.map(r => [String(r.dia), r]));
+  const dias_ = [];
+  for (let i = dias - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const k = claveLocal(d);
+    dias_.push({ dia: k,
+      caidas: Number(porDia[k]?.caidas) || 0,
+      recuperaciones: Number(porDia[k]?.recuperaciones) || 0 });
+  }
+
+  // Los que más molestaron: cuántas veces se cayó cada uno en el período.
+  const reincidentes = await qRows(`
+    SELECT COALESCE(a.alias, a.nombre) AS nombre, a.criticidad, COUNT(*) AS caidas
+      FROM monitor_eventos e JOIN monitor_activos a ON a.id = e.activo_id
+     WHERE e.estado_nuevo IN ('caido','problema')
+       AND e.ts >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+     GROUP BY a.id ORDER BY caidas DESC, nombre LIMIT 8`, [dias - 1, ...[]]).catch(() => []);
+
+  // Latencia media de los chequeos que responden: dice si algo se está poniendo lento
+  // antes de caerse del todo.
+  const latencia = await qRows(`
+    SELECT c.tipo, ROUND(AVG(e.latencia_ms)) AS media, COUNT(*) AS n
+      FROM monitor_estado e
+      JOIN monitor_chequeos c ON c.id = e.chequeo_id
+      JOIN monitor_activos  a ON a.id = c.activo_id
+     WHERE e.latencia_ms IS NOT NULL
+     GROUP BY c.tipo`, []).catch(() => []);
+
+  const porCriticidad = await qRows(`
+    SELECT a.criticidad,
+           COUNT(DISTINCT a.id) AS total,
+           COUNT(DISTINCT CASE WHEN e.estado = 'caido' THEN a.id END) AS caidos
+      FROM monitor_activos a
+      LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
+      LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
+     WHERE 1=1
+     GROUP BY a.criticidad`, []).catch(() => []);
+
+  res.json({ dias: dias_, reincidentes, latencia, porCriticidad });
+});
+
+/** La línea de tiempo: los cambios de estado de cada equipo. */
+app.get("/api/monitoreo/eventos", auth, async (req, res) => {
+  const limite = Math.min(Number(req.query.limite) || 100, 500);
+  const eventos = await qRows(
+    `SELECT e.id, e.origen, e.severidad, e.estado_nuevo, e.mensaje, e.resuelto_at, e.ts,
+            a.nombre AS activo
+       FROM monitor_eventos e
+       LEFT JOIN monitor_activos a ON a.id = e.activo_id
+      WHERE 1=1
+      ORDER BY e.ts DESC LIMIT ${limite}`, []);
+  res.json({ eventos });
+});
+
+/**
+ * Composición del parque de equipos.
+ *
+ * 🔑 Es una pregunta distinta de la del tablero de métricas. Aquel responde cómo VIENE la
+ * infraestructura (caídas, recuperaciones, latencia en el tiempo); este responde de QUÉ está
+ * hecha: cuántos Windows, cuántos Linux, cuántos responden y cuántos no, y de dónde salió
+ * cada dato.
+ *
+ * ⚠️ Los que no tienen sistema operativo declarado se cuentan aparte y no se reparten entre
+ * los demás: en un inventario, lo que no se sabe es tan informativo como lo que se sabe.
+ */
+app.get("/api/monitoreo/inventario/resumen", auth, async (req, res) => {
+  const filas = await qRows(
+    `SELECT a.id, a.so, a.so_pista, a.origen,
+            COUNT(c.id) AS chequeos,
+            SUM(e.estado = 'caido')     AS caidos,
+            SUM(e.estado = 'degradado') AS degradados,
+            SUM(e.estado = 'ok')        AS sanos
+       FROM monitor_activos a
+       LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
+       LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
+      WHERE 1=1
+      GROUP BY a.id`, []);
+
+  const cuenta = (lista) => lista.reduce((o, k) => (o[k] = (o[k] || 0) + 1, o), {});
+  const estadoDe = (a) => !Number(a.chequeos) ? "sin_medir"
+                        : Number(a.caidos)    ? "caido"
+                        : Number(a.degradados) ? "degradado" : "ok";
+
+  const sistemas = filas.map(a => monitoreo.familiaSO(a.so || a.so_pista));
+  const estados  = filas.map(estadoDe);
+
+  // Se devuelve solo lo que la pantalla muestra. Mandar agregados que nadie consume es la
+  // misma trampa que calcular las discrepancias y no enseñarlas nunca.
+  res.json({
+    total: filas.length,
+    sistemas: cuenta(sistemas),
+    // "En pie" agrupa lo que responde aunque sea con problemas: para un inventario la
+    // pregunta es si el equipo está o no está.
+    enPie:    estados.filter(x => x === "ok" || x === "degradado").length,
+    caidos:   estados.filter(x => x === "caido").length,
+    // 🔑 Los que nadie está midiendo, que es el número accionable. No es lo mismo que tener
+    // la medición apagada: un activo puede estar marcado como monitoreado y no tener ningún
+    // chequeo cargado, y en la práctica tampoco lo mira nadie.
+    sinMedir: estados.filter(x => x === "sin_medir").length,
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ACTIVOS QUE PODRÍAN SER EL MISMO EQUIPO
+//
+// La ingesta anota la sospecha cuando la coincidencia es débil. Acá se lee y se resuelve.
+// Sin esto, el sistema detecta el problema y se lo guarda para él solo.
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ── Bug Report ──────────────────────────────────────────────────────────────
 // Community edition: redirect to GitHub Issues
 app.post("/api/bug-report", auth, async (req, res) => {
@@ -2323,6 +2803,11 @@ if (require("fs").existsSync(DIST)) {
 async function start() {
   try {
     await initDB();
+    await monitoreo.crearTablas(qRun);
+    // El ciclo mira cada 20 segundos qué chequeo venció su intervalo. No es el intervalo de
+    // los chequeos: cada uno tiene el suyo y este solo despierta a los que toca.
+    setInterval(() => correrMonitoreo().catch(e => console.error("[monitor]", e.message)), 20 * 1000);
+    console.log("[Gjallar] monitoreo de infraestructura activo");
     app.listen(PORT, () => {
       console.log(`[Gjallar] API escuchando en puerto ${PORT}`);
     });
