@@ -89,7 +89,12 @@ function verifyTOTP(secret, token) {
     for (let i = 0; i + 8 <= bits.length; i += 8) key.push(parseInt(bits.slice(i, i + 8), 2));
     const crypto = require("crypto");
     const step   = Math.floor(Date.now() / 1000 / 30);
-    for (let i = -10; i <= 10; i++) {
+    // ⚠️ **La ventana de tolerancia es de ±2 pasos, o sea un minuto.** Estaba en ±10, que
+    // son diez minutos: un código visto por encima del hombro, o que quedó en una captura
+    // mandada por mensajería, seguía sirviendo diez minutos después, y en vez de haber un
+    // código válido por vez había veintiuno. Un minuto cubre de sobra un reloj de teléfono
+    // desincronizado, que es lo que se buscaba al abrirla.
+    for (let i = -2; i <= 2; i++) {
       const t   = step + i;
       const msg = Buffer.alloc(8);
       msg.writeUInt32BE(Math.floor(t / 0x100000000), 0);
