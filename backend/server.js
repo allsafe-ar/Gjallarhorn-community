@@ -77,6 +77,11 @@ const qRun  = (sql, p) => db.execute(sql, p || []);
 
 // ── TOTP ──────────────────────────────────────────────────────────────────────
 function verifyTOTP(secret, token) {
+  // ⚠️ Se valida la FORMA antes de tocar criptografía: exactamente seis dígitos, nada más.
+  // El campo de la pantalla ya filtra, pero un pedido armado a mano no pasa por la pantalla, y
+  // con una entrada que no fuera texto la verificación lanzaba una excepción en vez de devolver
+  // "código incorrecto", que es lo que corresponde.
+  if (typeof token !== "string" || !/^[0-9]{6}$/.test(token.trim())) return false;
   try {
     const B32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
     let bits = "";
