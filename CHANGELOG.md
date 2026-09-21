@@ -26,6 +26,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 > device as a single record across sources without duplicating it, reporting where two sources
 > disagree, email alerts on downtime, and an inventory wall display.
 
+- **Dynamic sandbox.** Send a sample to your own analysis engine from the case and read the verdict
+  where the case is, without leaving the platform or handing the file to a third party.
+- **A detonation opens a case, and counts as first-class evidence.** What the sandbox found stops
+  being a side note and becomes part of the record the case is built on.
+
+### Changed
+- **The case shows the evidence that originated it**, instead of making you go and look for it.
+- Interface help text moved to an impersonal register: it describes what something is and what it
+  requires, and stops advising the operator.
+
+## [1.3.0] - 2026-08-25
+
+> Community went from 1.0.1 straight to 1.3.0 to line the numbering up with the Pro edition.
+> 1.1.0 and 1.2.0 were never published here, so this entry gathers everything released since 1.0.1.
+
+### Added
+- **Contextual help (HelpTip)** throughout the interface, and the **running version visible** in the
+  app, so a bug report can say which build it came from.
+- **Google Safe Browsing** as a URL and domain source contributing to the IOC score.
+
+### Fixed
+- IOC sources that are unconfigured or failing now show as **"Not configured"** or as an error,
+  instead of reporting **"Clean"**. Reporting clean because a lookup never happened is a false
+  negative, which is the worst thing this screen can do.
+
 ## [1.0.1] - 2026-06-05
 
 ### Security
