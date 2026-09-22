@@ -19,12 +19,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - run: npm install
       - name: Syntax check
         run: node --check server.js
-      - name: Dependency audit (high+)
-        run: npm audit --omit=dev --audit-level=high || true
+      # ⚠️ Sin `|| true`: informaba y no frenaba nada. Los backends quedaron en cero el
+      # 2026-09-21, asi que a partir de ahora una dependencia vulnerable frena el build.
+      - name: Vulnerabilidades en dependencias de produccion (alta o critica)
+        run: npm audit --omit=dev --audit-level=high
 
   frontend:
     runs-on: ubuntu-latest
@@ -35,7 +37,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - run: npm install
-      - name: Build
+      # `build` corre `tsc -b` antes de vite, asi que esto tambien chequea tipos.
+      - name: Build con chequeo de tipos
         run: npm run build
