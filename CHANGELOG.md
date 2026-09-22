@@ -3,6 +3,14 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.4.1] - 2026-09-22
+
+### Security
+- Dependencies back to **0 known vulnerabilities**. `uuid` 9 → 11.1.1 and `express` 4.18.2 → 4.22.3, the first release that pins a `qs` outside the vulnerable range.
+
+### Removed
+- **`nodemailer`**, declared since email phishing campaigns moved to Pro in May and never imported since. It was the only high advisory left in the backend.
+
 ## [1.4.0] - 2026-09-09
 
 ### Added
