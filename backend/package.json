@@ -1,6 +1,6 @@
 {
   "name": "gjallar-backend",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Gjallar Blue Team Platform — API",
   "main": "server.js",
   "scripts": {

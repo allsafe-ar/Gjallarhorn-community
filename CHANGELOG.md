@@ -3,6 +3,17 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.4.2] - 2026-09-22
+
+### Fixed
+- **The monitoring screen would not open.** When this edition was split from Pro, the email-alerts button and its state were removed but the dialog markup stayed behind, referencing variables that no longer existed. That throws on render, so asset inventory and availability monitoring, the headline of 1.4.0, could not be reached at all.
+- **Account security was unusable.** `apiFetch` did not serialise object bodies in this edition, so five calls were sending a useless string instead of JSON: change password, enable two-factor, disable two-factor, create a TheHive case and create a Velociraptor hunt. It now serialises the same way the Pro edition does, and anything already passed as a string goes through untouched.
+- **The profile page showed an empty name.** The signed-in user was read from the wrong place in the store, so it always came back undefined: the profile header rendered blank and the two-factor enrolment URI was built without an account name, which leaves an unlabelled entry in your authenticator app. The same mistake hid the create buttons in the TheHive and Velociraptor views for every role, including admin.
+- The calendar's grid class was declared under `table`, which react-day-picker renamed to `month_grid` in 10, so it was silently ignored.
+
+### Changed
+- The frontend build now type-checks (`tsc -b && vite build`). It was running plain `vite build`, which is why none of the above was caught. 61 latent type errors are down to zero.
+
 ## [1.4.1] - 2026-09-22
 
 ### Security
