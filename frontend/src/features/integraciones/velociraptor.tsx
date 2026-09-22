@@ -79,7 +79,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
 
 export function VelociraptorView() {
   const { t } = useTranslation()
-  const user = useAuthStore(s => s.user)
+  const user = useAuthStore(s => s.auth.user)
   const [tab, setTab] = useState('clients')
   const [clients, setClients] = useState<VClient[]>([])
   const [hunts, setHunts] = useState<VHunt[]>([])
@@ -96,8 +96,8 @@ export function VelociraptorView() {
     setLoading(true); setError('')
     try {
       const [cr, hr] = await Promise.all([
-        apiFetch('/soc/velociraptor/clients?limit=200'),
-        apiFetch('/soc/velociraptor/hunts?limit=50'),
+        apiFetch<{ clients?: VClient[] }>('/soc/velociraptor/clients?limit=200'),
+        apiFetch<{ hunts?: VHunt[] }>('/soc/velociraptor/hunts?limit=50'),
       ])
       setClients(cr.clients || []); setHunts(hr.hunts || [])
     } catch (e: any) { setError(e.message) } finally { setLoading(false) }
@@ -108,7 +108,7 @@ export function VelociraptorView() {
   async function loadFlows(clientId: string) {
     setLoadingFlows(true); setSelClient(clientId)
     try {
-      const r = await apiFetch(`/soc/velociraptor/flows?clientId=${clientId}&limit=20`)
+      const r = await apiFetch<{ flows?: VFlow[] }>(`/soc/velociraptor/flows?clientId=${clientId}&limit=20`)
       setFlows(r.flows || []); setTab('flows')
     } catch (e: any) { toast.error(e.message) } finally { setLoadingFlows(false) }
   }
@@ -116,7 +116,7 @@ export function VelociraptorView() {
   async function submitHunt(e: React.FormEvent) {
     e.preventDefault(); setSaving(true)
     try {
-      const r = await apiFetch('/soc/velociraptor/hunts', { method: 'POST', body: form })
+      const r = await apiFetch<{ ok?: boolean; error?: string }>('/soc/velociraptor/hunts', { method: 'POST', body: form })
       if (r.ok) { toast.success(t('soc.velociraptor.huntCreated')); setModal(false); load() }
       else toast.error(r.error || t('common.error'))
     } catch (e: any) { toast.error(e.message) } finally { setSaving(false) }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Globe, Key, Loader2, RefreshCw, TrendingUp, Search, ShieldAlert, Brain } from 'lucide-react'
+import { Globe, Key, Loader2, RefreshCw, TrendingUp, Search, ShieldAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -76,12 +76,6 @@ export function InteligenciaView() {
     md5: 'MD5', sha1: 'SHA1', sha256: 'SHA256',
   }
 
-  const VERDICT_META: Record<string, { label: string; color: string }> = {
-    malicious:  { label: t('intel.index.verdict.malicious'),  color: '#ef4444' },
-    suspicious: { label: t('intel.index.verdict.suspicious'), color: '#f59e0b' },
-    clean:      { label: t('intel.index.verdict.clean'),      color: '#22c55e' },
-    unknown:    { label: t('intel.index.verdict.unknown'),     color: '#6b7280' },
-  }
 
   async function load() {
     setLoading(true)

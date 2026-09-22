@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, type TooltipProps,
+  ResponsiveContainer, type TooltipContentProps,
 } from 'recharts'
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Header } from '@/components/layout/header'
 import {
-  AlertTriangle, Activity, RefreshCw,
+  Activity, RefreshCw,
   CheckCircle2, XCircle, HelpCircle, Loader2,
   Ticket, Bell, Search, Bug, Key, ShieldAlert as ShieldAlertIcon,
   FolderOpen, AlertCircle, Clock, CheckCheck, Archive,
@@ -41,7 +41,6 @@ const API_KEY_SERVICES = [
   { key: 'safebrowsing',   label: 'Google Safe Browsing' },
 ]
 
-const FREE_INTEL_COUNT = 10
 
 type Platform = {
   platform: string; url?: string; enabled: boolean
@@ -57,7 +56,7 @@ type Summary = {
 }
 type ActivityDay = { date: string; ioc: number; file: number; email: number; cases: number }
 
-function ActivityTooltip({ active, payload, label }: TooltipProps<number, string>) {
+function ActivityTooltip({ active, payload, label }: TooltipContentProps) {
   const { t } = useTranslation()
   if (!active || !payload?.length) return null
   const items = [
@@ -347,7 +346,7 @@ export function Dashboard() {
                     axisLine={false} tickLine={false}
                     allowDecimals={false}
                   />
-                  <Tooltip content={<ActivityTooltip />} cursor={{ fill: '#ffffff08' }} />
+                  <Tooltip content={ActivityTooltip} cursor={{ fill: '#ffffff08' }} />
                   <Bar dataKey='ioc'   stackId='a' fill='#e8192c' radius={[0,0,0,0]} isAnimationActive />
                   <Bar dataKey='file'  stackId='a' fill='#22c55e' radius={[0,0,0,0]} isAnimationActive />
                   <Bar dataKey='email' stackId='a' fill='#f59e0b' radius={[0,0,0,0]} isAnimationActive />

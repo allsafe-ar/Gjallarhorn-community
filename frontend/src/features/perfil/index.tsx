@@ -27,7 +27,7 @@ function getOtpAuthUri(secret: string, username: string): string {
 }
 
 export function PerfilView() {
-  const user = useAuthStore(s => s.user)
+  const user = useAuthStore(s => s.auth.user)
   const { t, i18n } = useTranslation()
   const [has2FA, setHas2FA] = useState(false)
   const [passForm, setPassForm] = useState({ current: '', next: '', confirm: '' })

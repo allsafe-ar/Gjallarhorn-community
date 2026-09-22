@@ -84,8 +84,9 @@ export function WazuhView() {
     setLoading(true); setError('')
     try {
       const [ar, alr] = await Promise.all([
-        apiFetch('/soc/wazuh/agents?limit=500'),
-        apiFetch('/soc/wazuh/alerts?limit=50&hours=24').catch(() => ({ alerts: [], ok: false })),
+        apiFetch<{ agents?: Agent[] }>('/soc/wazuh/agents?limit=500'),
+        apiFetch<{ alerts?: Alert[]; total?: number; ok?: boolean }>('/soc/wazuh/alerts?limit=50&hours=24')
+          .catch(() => ({ alerts: [] as Alert[], total: 0, ok: false })),
       ])
       setAgents(ar.agents || [])
       setAlerts(alr.alerts || [])

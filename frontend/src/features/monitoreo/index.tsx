@@ -7,26 +7,20 @@
  *
  * ⚠️ El monitoreo solo sirve on-premise: el servidor tiene que estar dentro de la red que mide.
  */
-import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Server, Download, RefreshCw, Loader2, CircleAlert, BellRing, Merge, Boxes } from 'lucide-react'
-import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { HelpTip } from '@/components/help-tip'
 import { apiFetch } from '@/lib/api'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useAuthStore } from '@/stores/auth-store'
 import { DetalleActivo } from './detalle'
 import { ResumenActivos } from './resumen-activos'
 import { EstadoBadge } from './estado'
@@ -48,9 +42,6 @@ const CRIT: Record<string, string> = {
 
 export function MonitoreoView() {
   const { t } = useTranslation()
-  const { auth } = useAuthStore()
-  const qc = useQueryClient()
-  const esAdmin = auth.user?.role === 'admin'
   // Staff de AllSafe: inquilino nulo. Es el único que ve equipos de varias organizaciones.
   const [abierto, setAbierto] = useState<string | null>(null)
   const [q, setQ] = useState('')
@@ -199,36 +190,6 @@ export function MonitoreoView() {
         </div>
 
         <DetalleActivo id={abierto} onClose={() => setAbierto(null)} />
-
-        <Dialog open={config} onOpenChange={setConfig}>
-          <DialogContent className='sm:max-w-md'>
-            <DialogHeader>
-              <DialogTitle className='flex items-center gap-2'>
-                <BellRing className='size-4' />{t('monitoreo.avisosTitulo')}
-              </DialogTitle>
-              <DialogDescription>{t('monitoreo.avisosTexto')}</DialogDescription>
-            </DialogHeader>
-            <div className='space-y-1.5'>
-              <Label>{t('monitoreo.avisosPara')}</Label>
-              <Input
-                value={para}
-                onChange={(e) => setPara(e.target.value)}
-                placeholder='guardia@organizacion.com, soporte@organizacion.com'
-              />
-              <p className='text-xs text-muted-foreground'>{t('monitoreo.avisosAyuda')}</p>
-            </div>
-            <div className='flex justify-end gap-2'>
-              <Button variant='outline' onClick={() => setConfig(false)}>{t('common.cancel')}</Button>
-              <Button onClick={async () => {
-                try {
-                  await apiFetch('/monitoreo/alertas', { method: 'PUT', body: JSON.stringify({ para }) })
-                  toast.success(para ? t('monitoreo.avisosGuardados') : t('monitoreo.avisosApagados'))
-                  setConfig(false)
-                } catch (e) { toast.error((e as Error).message) }
-              }}>{t('common.save')}</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </Main>
     </>
   )

@@ -88,7 +88,7 @@ export function NessusView() {
 
   const load = useCallback(async () => {
     setLoading(true); setError('')
-    try { const r = await apiFetch('/soc/nessus/scans'); setScans(r.scans || []) }
+    try { const r = await apiFetch<{ scans?: NScan[] }>('/soc/nessus/scans'); setScans(r.scans || []) }
     catch (e: any) { setError(e.message) } finally { setLoading(false) }
   }, [])
 
@@ -97,7 +97,7 @@ export function NessusView() {
   async function loadVulns(scanId: number, scanName: string) {
     setLoadingV(true); setSelScan(scanName)
     try {
-      const r = await apiFetch(`/soc/nessus/scans/${scanId}/vulns`)
+      const r = await apiFetch<{ vulns?: NVuln[] }>(`/soc/nessus/scans/${scanId}/vulns`)
       setVulns(r.vulns || []); setTab('vulns')
     } catch (e: any) { toast.error(e.message) } finally { setLoadingV(false) }
   }

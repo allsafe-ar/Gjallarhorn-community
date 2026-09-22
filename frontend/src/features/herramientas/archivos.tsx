@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Upload, Loader2, Copy, Check, FileSearch } from 'lucide-react'
+import { Upload, Loader2, Copy } from 'lucide-react'
 import { PaginationBar } from '@/components/ui/pagination-bar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -61,7 +61,6 @@ export function ArchivosView() {
   const [tab, setTab] = useState('resumen')
   const [creatingCase, setCreatingCase] = useState(false)
   const [creatingInternal, setCreatingInt] = useState(false)
-  const [copied, setCopied] = useState(false)
   const [histPage, setHistPage] = useState(1)
   const [histPageSize, setHistPageSize] = useState(10)
   const fileInputRef = useRef<HTMLInputElement>(null)

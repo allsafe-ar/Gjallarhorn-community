@@ -99,7 +99,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, emptyMs
 
 export function TheHiveView() {
   const { t } = useTranslation()
-  const user = useAuthStore(s => s.user)
+  const user = useAuthStore(s => s.auth.user)
   const [cases, setCases] = useState<TheHiveCase[]>([])
   const [alerts, setAlerts] = useState<TheHiveAlert[]>([])
   const [loading, setLoading] = useState(true)
@@ -112,8 +112,8 @@ export function TheHiveView() {
     setLoading(true); setError('')
     try {
       const [cr, ar] = await Promise.all([
-        apiFetch('/soc/thehive/cases?limit=50'),
-        apiFetch('/soc/thehive/alerts?limit=50'),
+        apiFetch<{ cases?: TheHiveCase[] }>('/soc/thehive/cases?limit=50'),
+        apiFetch<{ alerts?: TheHiveAlert[] }>('/soc/thehive/alerts?limit=50'),
       ])
       setCases(cr.cases || []); setAlerts(ar.alerts || [])
     } catch (e: any) { setError(e.message) }
@@ -131,7 +131,7 @@ export function TheHiveView() {
         severity: Number(form.severity),
         tags: form.tags ? form.tags.split(',').map(tag => tag.trim()) : [],
       }
-      const r = await apiFetch('/soc/thehive/cases', { method: 'POST', body })
+      const r = await apiFetch<{ ok?: boolean; error?: string }>('/soc/thehive/cases', { method: 'POST', body })
       if (r.ok) { toast.success(t('soc.thehive.dialog.create')); setModal(false); load() }
       else toast.error(r.error || t('common.error'))
     } catch (e: any) { toast.error(e.message) } finally { setSaving(false) }

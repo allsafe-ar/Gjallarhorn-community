@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Mail, Upload, Loader2 } from 'lucide-react'
+import { Mail, Loader2 } from 'lucide-react'
 import { PaginationBar } from '@/components/ui/pagination-bar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'

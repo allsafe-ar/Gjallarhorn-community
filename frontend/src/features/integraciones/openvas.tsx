@@ -86,7 +86,7 @@ export function OpenVASView() {
   const load = useCallback(async () => {
     setLoading(true); setError('')
     try {
-      const r = await apiFetch('/soc/openvas/tasks?limit=50')
+      const r = await apiFetch<{ tasks?: OVTask[] }>('/soc/openvas/tasks?limit=50')
       setTasks(r.tasks || [])
     } catch (e: any) { setError(e.message) } finally { setLoading(false) }
   }, [])
@@ -96,7 +96,7 @@ export function OpenVASView() {
   async function loadResults(taskId: string) {
     setLoadingRes(true)
     try {
-      const r = await apiFetch(`/soc/openvas/results?taskId=${taskId}&limit=100`)
+      const r = await apiFetch<{ results?: OVResult[] }>(`/soc/openvas/results?taskId=${taskId}&limit=100`)
       setResults(r.results || []); setTab('results')
     } catch (e: any) { toast.error(e.message) } finally { setLoadingRes(false) }
   }

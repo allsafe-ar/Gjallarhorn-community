@@ -24,7 +24,6 @@ import {
 import { PaginationBar } from '@/components/ui/pagination-bar'
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
-import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 
 const SEV_COLORS: Record<string, string> = { critical: '#ef4444', high: '#f97316', medium: '#f59e0b', low: '#22c55e' }
@@ -54,7 +53,6 @@ function fmtDate(d: string) {
 
 export function CasosView() {
   const { t } = useTranslation()
-  const { auth } = useAuthStore()
   const [cases, setCases] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<any>(null)
@@ -271,7 +269,7 @@ export function CasosView() {
                               <div className='flex items-center gap-2.5'>
                                 <Icono className='h-4 w-4 shrink-0 text-muted-foreground' />
                                 <Badge variant='secondary' className='text-[10px] shrink-0'>
-                                  {t(`incidents.casos.evidence.type.${a.analysis_type}`, a.analysis_type)}
+                                  {t(`incidents.casos.evidence.type.${a.analysis_type}`, { defaultValue: a.analysis_type })}
                                 </Badge>
                                 <span className='font-mono text-xs flex-1 break-all'>{valor}</span>
                                 {a.detail?.verdict && (

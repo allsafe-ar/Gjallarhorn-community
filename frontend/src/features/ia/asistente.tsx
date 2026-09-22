@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Brain, Loader2, Zap } from 'lucide-react'
+import { Brain, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
-import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
