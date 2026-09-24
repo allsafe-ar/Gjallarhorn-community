@@ -76,42 +76,22 @@ const qRow  = async (sql, p) => { const r = await qRows(sql, p); return r[0] || 
 const qRun  = (sql, p) => db.execute(sql, p || []);
 
 // ── TOTP ──────────────────────────────────────────────────────────────────────
-function verifyTOTP(secret, token) {
-  // ⚠️ Se valida la FORMA antes de tocar criptografía: exactamente seis dígitos, nada más.
-  // El campo de la pantalla ya filtra, pero un pedido armado a mano no pasa por la pantalla, y
-  // con una entrada que no fuera texto la verificación lanzaba una excepción en vez de devolver
-  // "código incorrecto", que es lo que corresponde.
-  if (typeof token !== "string" || !/^[0-9]{6}$/.test(token.trim())) return false;
-  try {
-    const B32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-    let bits = "";
-    for (const ch of secret.toUpperCase().replace(/=+$/, "")) {
-      const idx = B32.indexOf(ch);
-      if (idx === -1) continue;
-      bits += idx.toString(2).padStart(5, "0");
-    }
-    const key = [];
-    for (let i = 0; i + 8 <= bits.length; i += 8) key.push(parseInt(bits.slice(i, i + 8), 2));
-    const crypto = require("crypto");
-    const step   = Math.floor(Date.now() / 1000 / 30);
-    // ⚠️ **La ventana de tolerancia es de ±2 pasos, o sea un minuto.** Estaba en ±10, que
-    // son diez minutos: un código visto por encima del hombro, o que quedó en una captura
-    // mandada por mensajería, seguía sirviendo diez minutos después, y en vez de haber un
-    // código válido por vez había veintiuno. Un minuto cubre de sobra un reloj de teléfono
-    // desincronizado, que es lo que se buscaba al abrirla.
-    for (let i = -2; i <= 2; i++) {
-      const t   = step + i;
-      const msg = Buffer.alloc(8);
-      msg.writeUInt32BE(Math.floor(t / 0x100000000), 0);
-      msg.writeUInt32BE(t & 0xffffffff, 4);
-      const hmac = crypto.createHmac("sha1", Buffer.from(key)).update(msg).digest();
-      const off  = hmac[19] & 0xf;
-      const code = ((hmac[off] & 0x7f) << 24 | hmac[off+1] << 16 | hmac[off+2] << 8 | hmac[off+3]) % 1000000;
-      if (code === parseInt(token, 10)) return true;
-    }
-    return false;
-  } catch { return false; }
-}
+// ── TOTP ──────────────────────────────────────────────────────────────────────
+// 🔑 Acá vivía una copia propia del algoritmo. Era una de NUEVE repartidas por los backends, y
+// cada copia envejece sola: la única forma de enterarse de que una quedó distinta es que alguien
+// no pueda entrar. Ahora se usa el módulo canónico, que es el mismo archivo en todos.
+//
+// ✅ Reemplazo sin efecto visible: `utiles/auth/pruebas/equivalencia.test.js` verificó que esta
+// copia aceptaba EXACTAMENTE los mismos códigos que el canónico, con tres secretos y trece
+// desfasajes cada uno. Nadie con doble factor queda afuera.
+// ⛔ Se llama `totpCanonico` y no `totp` porque el login destructura un campo `totp` del
+// cuerpo del pedido. Con el mismo nombre funcionaba solo por sombreado, y mover esas
+// líneas de lugar dejaba al módulo ocupando el lugar del código que manda el usuario.
+const totpCanonico = require("./totp");
+
+// Se mantienen los nombres viejos como alias, para no tocar los lugares que ya los llaman.
+const verifyTOTP = totpCanonico.verificar;
+
 
 // ── Audit log ─────────────────────────────────────────────────────────────────
 async function auditLog(action, detail, username, role, ip, result) {
