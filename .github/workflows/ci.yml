@@ -25,6 +25,26 @@ jobs:
         run: node --check server.js
       # ⚠️ Sin `|| true`: informaba y no frenaba nada. Los backends quedaron en cero el
       # 2026-09-21, asi que a partir de ahora una dependencia vulnerable frena el build.
+      # 🔐 El segundo factor sale del modulo canonico y de ningun otro lado.
+      #
+      # ⛔ Va aca y no solo en el repo `utiles` porque aquella prueba cruza repositorios y el
+      # checkout de este repo trae uno solo, asi que alli queda salteada. Este es el unico lugar
+      # donde el archivo de este sistema esta a mano.
+      #
+      # ⚠️ Sin `totp.js` el backend NO ARRANCA. Ya paso en una VM: se subio el server que lo pide
+      # y se olvido el modulo, y el proceso quedo caido mientras el anterior seguia respondiendo.
+      - name: El doble factor usa el modulo canonico
+        run: |
+          node -e '
+            const fs = require("fs");
+            const archivo = process.argv[1];
+            const src = fs.readFileSync(archivo, "utf8");
+            const propia = /function\s+\w*[Tt]otp\w*\s*\(|function\s+verif\w*[Tt]otp/.test(src);
+            if (propia) { console.error("❌ " + archivo + " volvio a tener su propia implementacion de TOTP"); process.exit(1); }
+            if (!/require\(["'"'"'`]\.\/totp["'"'"'`]\)/.test(src)) { console.error("❌ " + archivo + " no usa ./totp"); process.exit(1); }
+            if (!fs.existsSync("totp.js")) { console.error("❌ falta backend/totp.js: sin ese archivo el backend no arranca"); process.exit(1); }
+            console.log("✔ el doble factor viene del modulo canonico");
+          ' server.js
       - name: Vulnerabilidades en dependencias de produccion (alta o critica)
         run: npm audit --omit=dev --audit-level=high
 
