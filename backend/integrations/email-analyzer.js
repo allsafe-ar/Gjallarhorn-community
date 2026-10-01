@@ -2,6 +2,11 @@
 const crypto = require("crypto");
 const { simpleParser } = require("mailparser");
 
+// Tope de lo que se analiza de cada cuerpo del correo. Un correo legítimo no se acerca; uno
+// armado para colgar el análisis no pasa de acá.
+const MAX_CUERPO_ANALIZADO = 1024 * 1024;
+const acotar = (s) => (typeof s === "string" && s.length > MAX_CUERPO_ANALIZADO ? s.slice(0, MAX_CUERPO_ANALIZADO) : s);
+
 // ── Brand → Legitimate domains ────────────────────────────────────────────────
 const KNOWN_BRANDS = {
   microsoft: ["microsoft.com","office.com","outlook.com","live.com","hotmail.com","microsoftonline.com","office365.com"],
@@ -99,14 +104,48 @@ function parseReceivedChain(headersValue) {
 }
 
 // ── Link Extraction ───────────────────────────────────────────────────────────
+// ⛔ Nada de expresiones regulares que recorran el HTML entero desde cada `<a`: un correo
+// armado (miles de `<area href=...>` sin `</a>`) las volvía cuadráticas y un solo análisis
+// congelaba el servidor para todos. Las etiquetas se ubican con indexOf, cada una se mira con
+// un tope de largo, y el cuerpo que se analiza también tiene tope (MAX_CUERPO_ANALIZADO).
+const MAX_ETIQUETA = 4096;   // una etiqueta más larga que esto no es HTML legítimo
+const MAX_TEXTO_ENLACE = 2048;
+
+// Recorre las etiquetas `<nombre ...>` en tiempo lineal. Devuelve [inicio, fin] de cada una.
+function* etiquetas(html, lower, nombre) {
+  const abre = "<" + nombre;
+  let pos = 0;
+  while (pos < html.length) {
+    const ini = lower.indexOf(abre, pos);
+    if (ini < 0) return;
+    const fin = lower.indexOf(">", ini);
+    if (fin < 0) return;
+    pos = fin + 1;
+    const sig = lower.charCodeAt(ini + abre.length);
+    // solo la etiqueta exacta (`<a ` y no `<area`), seguida de espacio, tab o salto
+    if (sig !== 32 && sig !== 9 && sig !== 10 && sig !== 13) continue;
+    if (fin - ini > MAX_ETIQUETA) continue;
+    yield [ini, fin];
+  }
+}
+
 function extractLinks(html) {
   if (!html) return [];
+  html = acotar(html);
+  const lower = html.toLowerCase();
   const links = [];
-  const re = /<a[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
-  let m;
-  while ((m = re.exec(html)) !== null) {
-    const href = m[1].trim();
-    const visibleText = m[2].replace(/<[^>]+>/g, "").trim();
+  const vistos = new Set();
+  const agregar = (l) => { if (!vistos.has(l.href)) { vistos.add(l.href); links.push(l); } };
+
+  let cierre = 0; // posición del próximo `</a>`; -1 cuando ya no hay más
+  for (const [ini, fin] of etiquetas(html, lower, "a")) {
+    if (links.length >= 100) break;
+    if (cierre !== -1 && cierre <= fin) cierre = lower.indexOf("</a>", fin + 1);
+    if (cierre === -1) break; // sin `</a>` no hay enlace completo (igual que antes)
+    const hm = /\bhref\s*=\s*["']([^"']+)["']/i.exec(html.slice(ini, fin + 1));
+    if (!hm) continue;
+    const href = hm[1].trim();
+    const visibleText = html.slice(fin + 1, Math.min(cierre, fin + 1 + MAX_TEXTO_ENLACE)).replace(/<[^<>]{0,500}>/g, "").trim();
     if (!href.startsWith("http") && !href.startsWith("//")) continue;
     try {
       const url = href.startsWith("//") ? "https:" + href : href;
@@ -118,18 +157,29 @@ function extractLinks(html) {
         try { textDomain = new URL(visibleText.startsWith("http") ? visibleText : "https://" + visibleText).hostname; } catch {}
       }
       const mismatch = textDomain && textDomain !== parsed.hostname && !parsed.hostname.includes(textDomain) && !textDomain.includes(parsed.hostname);
-      links.push({ href: url, domain: parsed.hostname, visibleText: visibleText.slice(0, 100), isShortener, mismatch });
+      agregar({ href: url, domain: parsed.hostname, visibleText: visibleText.slice(0, 100), isShortener, mismatch });
     } catch {}
   }
   // Also plain URLs not in anchors
   const plainRe = /https?:\/\/[^\s"'<>]{6,200}/gi;
-  while ((m = plainRe.exec(html)) !== null) {
+  let m;
+  while (links.length < 100 && (m = plainRe.exec(html)) !== null) {
     const url = m[0].replace(/[.,;!?)]+$/, "");
-    if (!links.some(l => l.href === url)) {
-      try { links.push({ href: url, domain: new URL(url).hostname, visibleText: null, isShortener: URL_SHORTENERS.has(new URL(url).hostname), mismatch: false }); } catch {}
+    if (!vistos.has(url)) {
+      try { agregar({ href: url, domain: new URL(url).hostname, visibleText: null, isShortener: URL_SHORTENERS.has(new URL(url).hostname), mismatch: false }); } catch {}
     }
   }
-  return [...new Map(links.map(l => [l.href, l])).values()].slice(0, 100);
+  return links.slice(0, 100);
+}
+
+// Imagen de 1×1 con src remoto (tracking pixel), etiqueta por etiqueta.
+function tieneTrackingPixel(html) {
+  const lower = html.toLowerCase();
+  for (const [ini, fin] of etiquetas(html, lower, "img")) {
+    const tag = lower.slice(ini, fin + 1);
+    if (/\b(?:width|height)\s*=\s*["']?1(?![0-9])/.test(tag) && /\bsrc\s*=\s*["']https?:\/\//.test(tag)) return true;
+  }
+  return false;
 }
 
 // ── Phishing Detection ────────────────────────────────────────────────────────
@@ -225,7 +275,7 @@ function detectPhishing(subject, textBody, htmlBody, from, replyTo, links, auth)
   }
 
   // 11. Tracking pixel (1px image)
-  if (htmlBody && /<img[^>]+(?:width|height)\s*=\s*["']?1["']?[^>]*src\s*=\s*["']https?:\/\//i.test(htmlBody)) {
+  if (htmlBody && tieneTrackingPixel(htmlBody)) {
     indicators.push({ check: "Tracking pixel detectado", detail: "Imagen 1×1 para tracking de apertura", severity: "low" }); score += 5;
   }
 
@@ -308,7 +358,9 @@ function extractEmailIOCs(textBody, htmlBody, receivedChain, links) {
   const bodyIPs  = [...new Set((allText.match(/\b(\d{1,3}\.){3}\d{1,3}\b/g) || []).filter(ip => !isPrivateIP(ip)))];
   const urls     = [...new Set((allText.match(/https?:\/\/[^\s"'<>]{6,200}/gi) || []).map(u => u.replace(/[.,;!?)]+$/, "")))];
   const domains  = [...new Set(links.map(l => l.domain).filter(Boolean))];
-  const emails   = [...new Set((allText.match(/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/gi) || []))];
+  // Cuantificadores con tope (RFC 5321: 64 la parte local, 255 el dominio): sin tope, una
+  // línea larga de letras sin arroba tardaba minutos en recorrerse.
+  const emails   = [...new Set((allText.match(/[a-z0-9._%+\-]{1,64}@[a-z0-9.\-]{1,255}\.[a-z]{2,24}/gi) || []))];
 
   return {
     receivedIPs: [...new Set(receivedIPs)],
@@ -415,8 +467,9 @@ async function analyzeEmail(buffer) {
   const subject = parsed.subject || "";
   const date    = parsed.date;
   const messageId = parsed.messageId;
-  const textBody  = parsed.text || "";
-  const htmlBody  = parsed.html || "";
+  // El análisis mira como mucho MAX_CUERPO_ANALIZADO de cada cuerpo (ver acotar).
+  const textBody  = acotar(parsed.text || "");
+  const htmlBody  = acotar(parsed.html || "");
 
   // Authentication
   const authRaw    = parsed.headers.get("authentication-results");
@@ -461,4 +514,4 @@ async function analyzeEmail(buffer) {
   return { ...analysis, rules, score: combinedScore, verdict, isBEC, isPhishing };
 }
 
-module.exports = { analyzeEmail };
+module.exports = { analyzeEmail, extractLinks, MAX_CUERPO_ANALIZADO };

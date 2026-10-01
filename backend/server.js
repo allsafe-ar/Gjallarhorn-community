@@ -27,6 +27,8 @@ const fs       = require("fs");
 const wazuhInt        = require("./integrations/wazuh");
 const velociraptorInt = require("./integrations/velociraptor");
 const openvasInt      = require("./integrations/openvas");
+// Las tres rutas create-case lo usaban sin importarlo: con TheHive configurado daban 500.
+const theHive         = require("./integrations/thehive");
 
 // ── IOC Investigation ─────────────────────────────────────────────────────────
 const threatIntel  = require("./integrations/threat-intel");
@@ -55,9 +57,27 @@ const attachUpload = multer({
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const PORT       = process.env.PORT       || 3003;
-const JWT_SECRET = process.env.JWT_SECRET || "gjallar_jwt_secret_CHANGE_IN_PROD";
-if (!process.env.JWT_SECRET || JWT_SECRET === "gjallar_jwt_secret_CHANGE_IN_PROD" || JWT_SECRET.length < 16) {
-  console.error("[Gjallar] FATAL: JWT_SECRET no configurado o inseguro. Configurá uno aleatorio de >=32 caracteres en .env");
+const JWT_SECRET = process.env.JWT_SECRET || "";
+// 🔴 El secreto que firma las sesiones. Se rechaza vacío, corto (menos de 32) o igual a un
+// valor de ejemplo conocido: quien copia el .env.example sin cambiarlo arrancaba con un
+// secreto público, y cualquiera podía firmarse una sesión de administrador.
+const SECRETOS_DE_EJEMPLO = [
+  "CHANGE_IN_PRODUCTION",
+  "change_this_to_a_random_string_min_32_chars",
+  "gjallar_jwt_secret_CHANGE_IN_PROD",
+  "gjallar_jwt_secret_CHANGE_THIS_IN_PRODUCTION",
+  "gungnir_jwt_CHANGE_IN_PROD",
+  "cambiar_esto_por_un_secreto_de_al_menos_32_caracteres_random",
+];
+function motivoSecretoInseguro(s) {
+  if (!s) return "no está configurado";
+  if (s.length < 32) return "tiene menos de 32 caracteres";
+  if (SECRETOS_DE_EJEMPLO.includes(s) || /change[_-]?(this|me|in[_-]?prod)|cambiar[_-]?esto/i.test(s))
+    return "es un valor de ejemplo";
+  return null;
+}
+if (motivoSecretoInseguro(JWT_SECRET)) {
+  console.error(`[Gjallar] FATAL: JWT_SECRET ${motivoSecretoInseguro(JWT_SECRET)}. Generá uno con: openssl rand -hex 32`);
   process.exit(1);
 }
 
@@ -223,7 +243,12 @@ async function testPlatformConnection(platform, cfg) {
 
 // ── Express ───────────────────────────────────────────────────────────────────
 const app = express();
-app.set("trust proxy", 1);
+// Proxies de confianza para X-Forwarded-For: "loopback" (el nginx de install.sh) salvo que
+// TRUST_PROXY diga otra cosa. Con "1" fijo y el puerto publicado directo (docker-compose), el
+// cliente elegía la IP de la auditoría y del limitador con solo mandar la cabecera.
+const TRUST_PROXY = process.env.TRUST_PROXY || "loopback";
+app.set("trust proxy", TRUST_PROXY === "false" ? false : /^\d+$/.test(TRUST_PROXY) ? Number(TRUST_PROXY) : TRUST_PROXY);
+const ipDe = (req) => String(req.ip || req.socket.remoteAddress || "—").replace(/^::ffff:/, "");
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 app.use(cors({ origin: process.env.CORS_ORIGIN || false, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
@@ -273,7 +298,7 @@ app.get("/api/health", (req, res) => res.json({ ok: true, version: "1.0.0", plat
 // ─────────────────────────────────────────────────────────────────────────────
 app.post("/api/auth/login", authLimiter, async (req, res) => {
   const { username, password } = req.body;
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "—";
+  const ip = ipDe(req);
   if (!username || !password) return res.status(400).json({ error: "Credenciales requeridas" });
 
   const user = await qRow("SELECT * FROM users WHERE username = ?", [username]);
@@ -324,7 +349,7 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 
 app.post("/api/auth/verify-totp", authLimiter, async (req, res) => {
   const { desafio, userId, token: totpToken } = req.body || {};
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "—";
+  const ip = ipDe(req);
   if (!(desafio || userId) || !totpToken) return res.status(400).json({ error: "Datos requeridos" });
 
   // 🔴 Solo con el desafío que entrega el primer paso, nunca con un id o un nombre de usuario:
@@ -355,7 +380,7 @@ app.post("/api/auth/verify-totp", authLimiter, async (req, res) => {
 });
 
 app.post("/api/auth/logout", auth, async (req, res) => {
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "—";
+  const ip = ipDe(req);
   await auditLog("LOGOUT", "Sesión cerrada", req.user.username, req.user.role, ip, "ok");
   res.json({ ok: true });
 });
@@ -367,15 +392,17 @@ app.get("/api/auth/me", auth, async (req, res) => {
 });
 
 app.post("/api/auth/change-password", auth, async (req, res) => {
-  const { currentPassword, newPassword } = req.body;
-  if (!newPassword || newPassword.length < 8)
+  const { currentPassword, newPassword } = req.body || {};
+  // 🔴 La contraseña actual se exige siempre: antes era opcional, y con una sesión robada se
+  // cambiaba la contraseña y se dejaba afuera al dueño.
+  if (!currentPassword || typeof currentPassword !== "string")
+    return res.status(400).json({ error: "La contraseña actual es requerida" });
+  if (!newPassword || typeof newPassword !== "string" || newPassword.length < 8)
     return res.status(400).json({ error: "La nueva contraseña debe tener al menos 8 caracteres" });
   const user = await qRow("SELECT * FROM users WHERE id = ?", [req.user.id]);
   if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
-  if (currentPassword) {
-    const ok = await bcrypt.compare(currentPassword, user.password_hash);
-    if (!ok) return res.status(401).json({ error: "Contraseña actual incorrecta" });
-  }
+  const ok = await bcrypt.compare(currentPassword, user.password_hash);
+  if (!ok) return res.status(401).json({ error: "Contraseña actual incorrecta" });
   const hash = await bcrypt.hash(newPassword, 10);
   await qRun("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?", [hash, req.user.id]);
   await auditLog("PASS_CHANGE", "Contraseña cambiada", req.user.username, req.user.role, "internal", "ok");
@@ -436,16 +463,19 @@ app.put("/api/users/:id", auth, adminOnly, async (req, res) => {
   const { username, password, role, nombre, enabled } = req.body;
   if (role && !["admin", "analyst", "viewer"].includes(role))
     return res.status(400).json({ error: "Rol inválido" });
-  const user = await qRow("SELECT id FROM users WHERE id = ?", [req.params.id]);
+  const user = await qRow("SELECT id, role, enabled FROM users WHERE id = ?", [req.params.id]);
   if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+  // Si cambia el rol o se deshabilita, token_version sube igual que con la contraseña: una
+  // sesión abierta no conserva el rol (ni la cuenta habilitada) que ya no tiene.
+  const revocar = role !== user.role || (enabled ? 1 : 0) !== (user.enabled ? 1 : 0) ? 1 : 0;
   if (password) {
     if (password.length < 8) return res.status(400).json({ error: "La contraseña debe tener al menos 8 caracteres" });
     const hash = await bcrypt.hash(password, 10);
-    await qRun("UPDATE users SET username=?, password_hash=?, role=?, nombre=?, enabled=?, totp_secret=NULL WHERE id=?",
+    await qRun("UPDATE users SET username=?, password_hash=?, role=?, nombre=?, enabled=?, totp_secret=NULL, token_version = token_version + 1 WHERE id=?",
       [username, hash, role, nombre, enabled ? 1 : 0, req.params.id]);
   } else {
-    await qRun("UPDATE users SET username=?, role=?, nombre=?, enabled=? WHERE id=?",
-      [username, role, nombre, enabled ? 1 : 0, req.params.id]);
+    await qRun("UPDATE users SET username=?, role=?, nombre=?, enabled=?, token_version = token_version + ? WHERE id=?",
+      [username, role, nombre, enabled ? 1 : 0, revocar, req.params.id]);
   }
   await auditLog("USER_UPDATE", `Usuario actualizado: ${username}`, req.user.username, req.user.role, "internal", "ok");
   res.json({ ok: true });
@@ -491,7 +521,9 @@ app.put("/api/users/:id/toggle", auth, adminOnly, async (req, res) => {
 app.get("/api/platforms", auth, async (req, res) => {
   const rows = await qRows("SELECT * FROM platform_configs ORDER BY platform");
   if (req.user.role === "admin") {
-    return res.json({ platforms: rows });
+    // Las credenciales no vuelven nunca al navegador, tampoco al admin: solo si están cargadas.
+    // El formulario las deja vacías y PUT solo las pisa cuando llegan con valor.
+    return res.json({ platforms: rows.map(sinCredenciales) });
   }
   // Non-admins: status only, no credentials
   res.json({
@@ -543,7 +575,8 @@ app.post("/api/platforms/:platform/toggle", auth, adminOnly, async (req, res) =>
   res.json({ ok: true, enabled });
 });
 
-app.post("/api/platforms/:platform/test", auth, async (req, res) => {
+// El rol viewer no dispara conexiones salientes con las credenciales guardadas.
+app.post("/api/platforms/:platform/test", auth, analystOrAdmin, async (req, res) => {
   const { platform } = req.params;
   if (!VALID_PLATFORMS.includes(platform)) return res.status(400).json({ error: "Plataforma inválida" });
 
@@ -563,6 +596,16 @@ app.post("/api/platforms/:platform/test", auth, async (req, res) => {
   res.json(result);
 });
 
+function sinCredenciales(r) {
+  const { api_key, password, ...resto } = r;
+  let extra = resto.extra_config;
+  if (typeof extra === "string") { try { extra = JSON.parse(extra); } catch { extra = {}; } }
+  if (extra && typeof extra === "object") {
+    extra = Object.fromEntries(Object.entries(extra).filter(([k]) => !/secret|key|pass|token/i.test(k)));
+  }
+  return { ...resto, extra_config: extra ?? null, api_key_set: !!api_key, password_set: !!password };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // LOGS ROUTES
 // ─────────────────────────────────────────────────────────────────────────────
@@ -571,17 +614,9 @@ app.get("/api/logs", auth, analystOrAdmin, async (req, res) => {
   res.json({ logs });
 });
 
-app.post("/api/logs/add", auth, async (req, res) => {
-  const e = req.body;
-  if (!e?.action) return res.status(400).json({ error: "action requerido" });
-  try {
-    await db.execute(
-      "INSERT INTO audit_logs (id, ts, action, detail, username, nombre, role, result, ip, browser, os) VALUES (?,NOW(),?,?,?,?,?,?,?,?,?)",
-      [uuidv4(), e.action, e.detail || "", e.username || "—", e.nombre || "—", e.role || "—", e.result || "ok", e.ip || "—", e.browser || "—", e.os || "—"]
-    );
-    res.json({ ok: true });
-  } catch { res.json({ ok: true }); }
-});
+// ⛔ Acá estaba POST /api/logs/add, que insertaba en la auditoría acción, usuario, rol e IP
+// tomados del cuerpo del pedido: cualquier usuario escribía registros falsos (por ejemplo, un
+// LOGIN_OK de admin). El panel no la usaba; la auditoría la escribe solo el servidor (auditLog).
 
 app.delete("/api/logs/clear", auth, adminOnly, async (req, res) => {
   await qRun("DELETE FROM audit_logs");
@@ -1783,7 +1818,20 @@ app.get("/api/reports/:type/:id/json", auth, analystOrAdmin, async (req, res) =>
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Todo dato que entra al informe HTML pasa por acá (también las claves de los objetos): el
+// asunto, el remitente, los nombres de archivo y las notas los controla quien manda el correo
+// o carga el caso, y salían literales en el archivo descargado (XSS almacenado).
+const escHtml = (v) => String(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function escaparProfundo(v) {
+  if (typeof v === "string") return escHtml(v);
+  if (Array.isArray(v)) return v.map(escaparProfundo);
+  if (v && typeof v === "object" && !(v instanceof Date) && !Buffer.isBuffer(v))
+    return Object.fromEntries(Object.entries(v).map(([k, x]) => [escHtml(k), escaparProfundo(x)]));
+  return v;
+}
+
 function buildHtmlReport(type, row) {
+  row = escaparProfundo(row);
   if (type === "case") {
     const SEV  = { low: "#3fb950", medium: "#d29922", high: "#f97316", critical: "#f85149" };
     const STAT = { open: "#388bfd", investigating: "#d29922", resolved: "#3fb950", closed: "#6e7681" };

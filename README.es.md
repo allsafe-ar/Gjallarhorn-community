@@ -122,7 +122,7 @@ La seguridad es una característica de primer nivel - la misma base de hardening
 - **Control de acceso por rol** - `admin` / `analyst` / `viewer`
 - **Audit log** - acciones relevantes de seguridad registradas con usuario, IP y timestamp
 - **SQL 100% parametrizado** - sin queries armadas por concatenación, sin vectores de inyección (OWASP Top 10 2021)
-- **Arranque fail-fast** - el backend no inicia con un `JWT_SECRET` ausente o por defecto
+- **Arranque fail-fast** - el backend no inicia con un `JWT_SECRET` ausente, de ejemplo o de menos de 32 caracteres
 - **CORS** restringido al origen configurado (sin comodín)
 
 ---
