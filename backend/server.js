@@ -249,7 +249,27 @@ const app = express();
 const TRUST_PROXY = process.env.TRUST_PROXY || "loopback";
 app.set("trust proxy", TRUST_PROXY === "false" ? false : /^\d+$/.test(TRUST_PROXY) ? Number(TRUST_PROXY) : TRUST_PROXY);
 const ipDe = (req) => String(req.ip || req.socket.remoteAddress || "—").replace(/^::ffff:/, "");
-app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+// 🔴 G-11: la CSP estaba apagada. Esta es la que aguanta el panel compilado (sin scripts en
+// línea ni orígenes externos). upgrade-insecure-requests va apagada: helmet la agrega sola y
+// rompe en silencio una instalación servida por HTTP.
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: false,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      fontSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      frameAncestors: ["'none'"],
+      formAction: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(cors({ origin: process.env.CORS_ORIGIN || false, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
@@ -260,14 +280,18 @@ const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20,  standardHead
 app.use("/api/", apiLimiter);
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
+const RUTAS_CAMBIO_OBLIGATORIO = new Set(["/api/auth/change-password", "/api/auth/me", "/api/auth/logout"]);
 const auth = async (req, res, next) => {
   const h = req.headers.authorization;
   if (!h?.startsWith("Bearer ")) return res.status(401).json({ error: "Token requerido" });
   try {
     const decoded = jwt.verify(h.slice(7), JWT_SECRET);
-    const u = await qRow("SELECT token_version, enabled FROM users WHERE id = ?", [decoded.id]);
+    const u = await qRow("SELECT token_version, enabled, must_change_password FROM users WHERE id = ?", [decoded.id]);
     if (!u || !u.enabled || (u.token_version || 0) !== (decoded.tv || 0))
       return res.status(401).json({ error: "Token inválido" });
+    // 🔴 G-12: la cuenta creada con la contraseña inicial no hace otra cosa que cambiarla.
+    if (u.must_change_password && !RUTAS_CAMBIO_OBLIGATORIO.has(req.originalUrl.split("?")[0]))
+      return res.status(403).json({ error: "Tenés que cambiar la contraseña inicial antes de seguir.", mustChangePassword: true });
     req.user = decoded;
     next();
   } catch { res.status(401).json({ error: "Token inválido o expirado" }); }
@@ -344,7 +368,7 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
     JWT_SECRET, { expiresIn: "12h" }
   );
   await auditLog("LOGIN_OK", "Acceso exitoso", username, user.role, ip, "ok");
-  res.json({ token, user: { id: user.id, username: user.username, role: user.role, nombre: user.nombre } });
+  res.json({ token, user: { id: user.id, username: user.username, role: user.role, nombre: user.nombre, mustChangePassword: !!user.must_change_password } });
 });
 
 app.post("/api/auth/verify-totp", authLimiter, async (req, res) => {
@@ -376,7 +400,7 @@ app.post("/api/auth/verify-totp", authLimiter, async (req, res) => {
     JWT_SECRET, { expiresIn: "12h" }
   );
   await auditLog("TOTP_OK", "Acceso con 2FA exitoso", user.username, user.role, ip, "ok");
-  res.json({ token, user: { id: user.id, username: user.username, role: user.role, nombre: user.nombre } });
+  res.json({ token, user: { id: user.id, username: user.username, role: user.role, nombre: user.nombre, mustChangePassword: !!user.must_change_password } });
 });
 
 app.post("/api/auth/logout", auth, async (req, res) => {
@@ -386,9 +410,9 @@ app.post("/api/auth/logout", auth, async (req, res) => {
 });
 
 app.get("/api/auth/me", auth, async (req, res) => {
-  const user = await qRow("SELECT id, totp_secret FROM users WHERE id = ?", [req.user.id]);
+  const user = await qRow("SELECT id, totp_secret, must_change_password FROM users WHERE id = ?", [req.user.id]);
   if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
-  res.json({ has2FA: !!(user.totp_secret) });
+  res.json({ has2FA: !!(user.totp_secret), mustChangePassword: !!user.must_change_password });
 });
 
 app.post("/api/auth/change-password", auth, async (req, res) => {
@@ -404,14 +428,26 @@ app.post("/api/auth/change-password", auth, async (req, res) => {
   const ok = await bcrypt.compare(currentPassword, user.password_hash);
   if (!ok) return res.status(401).json({ error: "Contraseña actual incorrecta" });
   const hash = await bcrypt.hash(newPassword, 10);
-  await qRun("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?", [hash, req.user.id]);
+  if (newPassword === currentPassword) return res.status(400).json({ error: "La nueva contraseña tiene que ser distinta de la actual" });
+  await qRun("UPDATE users SET password_hash = ?, must_change_password = 0, token_version = token_version + 1 WHERE id = ?", [hash, req.user.id]);
   await auditLog("PASS_CHANGE", "Contraseña cambiada", req.user.username, req.user.role, "internal", "ok");
   res.json({ ok: true });
 });
 
+// 🔴 G-09: el alta del 2FA pedía solo la sesión. Con un token robado se ataba la cuenta a un
+// autenticador ajeno o se pisaba el del dueño. Ahora exige la contraseña, no reemplaza un 2FA
+// activo (para eso está remove-totp, que también la pide) y no acepta un secreto débil.
 app.post("/api/auth/setup-totp", auth, async (req, res) => {
-  const { totpSecret, totpToken } = req.body;
-  if (!totpSecret || !totpToken) return res.status(400).json({ error: "Secret y código requeridos" });
+  const { totpSecret, totpToken, password } = req.body || {};
+  if (typeof totpSecret !== "string" || typeof totpToken !== "string" || !totpSecret || !totpToken)
+    return res.status(400).json({ error: "Secret y código requeridos" });
+  if (typeof password !== "string" || !password)
+    return res.status(400).json({ error: "Contraseña requerida para activar 2FA" });
+  if (!/^[A-Z2-7]{16,64}$/.test(totpSecret)) return res.status(400).json({ error: "Secreto 2FA inválido" });
+  const actual = await qRow("SELECT password_hash, totp_secret FROM users WHERE id = ?", [req.user.id]);
+  if (!actual) return res.status(404).json({ error: "Usuario no encontrado" });
+  if (!(await bcrypt.compare(password, actual.password_hash))) return res.status(401).json({ error: "Contraseña incorrecta" });
+  if (actual.totp_secret) return res.status(409).json({ error: "El 2FA ya está activo. Deshabilitalo antes de configurar otro." });
   if (!verifyTOTP(totpSecret, totpToken))
     return res.status(401).json({ error: "Código incorrecto. Verificá el reloj de tu dispositivo." });
   await qRun("UPDATE users SET totp_secret = ? WHERE id = ?", [totpSecret, req.user.id]);
@@ -543,7 +579,8 @@ app.get("/api/platforms/:platform", auth, adminOnly, async (req, res) => {
   if (!VALID_PLATFORMS.includes(platform)) return res.status(400).json({ error: "Plataforma inválida" });
   const row = await qRow("SELECT * FROM platform_configs WHERE platform = ?", [platform]);
   if (!row) return res.status(404).json({ error: "No encontrado" });
-  res.json(row);
+  // 🔴 G-06: devolvía la fila entera (password, api_key y los secretos de extra_config en claro).
+  res.json(sinCredenciales(row));
 });
 
 app.put("/api/platforms/:platform", auth, adminOnly, async (req, res) => {
@@ -558,7 +595,23 @@ app.put("/api/platforms/:platform", auth, adminOnly, async (req, res) => {
 
   if (api_key !== undefined && api_key !== "") { sets.push("api_key = ?"); values.push(api_key); }
   if (password !== undefined && password !== "") { sets.push("password = ?"); values.push(password); }
-  if (extra_config !== undefined) { sets.push("extra_config = ?"); values.push(JSON.stringify(extra_config)); }
+  if (extra_config !== undefined) {
+    // 🔴 G-06: el navegador recibe extra_config sin sus secretos; si los pisáramos con lo que
+    // vuelve del formulario se borrarían. Los que no llegan (o llegan vacíos) se conservan.
+    let nuevo = extra_config;
+    if (nuevo && typeof nuevo === "object" && !Array.isArray(nuevo)) {
+      const actual = await qRow("SELECT extra_config FROM platform_configs WHERE platform = ?", [platform]);
+      let viejo = actual?.extra_config;
+      if (typeof viejo === "string") { try { viejo = JSON.parse(viejo); } catch { viejo = null; } }
+      if (viejo && typeof viejo === "object") {
+        nuevo = { ...nuevo };
+        for (const [k, v] of Object.entries(viejo)) {
+          if (CLAVE_SECRETA.test(k) && (nuevo[k] === undefined || nuevo[k] === "")) nuevo[k] = v;
+        }
+      }
+    }
+    sets.push("extra_config = ?"); values.push(JSON.stringify(nuevo));
+  }
 
   values.push(platform);
   await qRun(`UPDATE platform_configs SET ${sets.join(", ")} WHERE platform = ?`, values);
@@ -596,12 +649,13 @@ app.post("/api/platforms/:platform/test", auth, analystOrAdmin, async (req, res)
   res.json(result);
 });
 
+const CLAVE_SECRETA = /secret|key|pass|token/i;
 function sinCredenciales(r) {
   const { api_key, password, ...resto } = r;
   let extra = resto.extra_config;
   if (typeof extra === "string") { try { extra = JSON.parse(extra); } catch { extra = {}; } }
   if (extra && typeof extra === "object") {
-    extra = Object.fromEntries(Object.entries(extra).filter(([k]) => !/secret|key|pass|token/i.test(k)));
+    extra = Object.fromEntries(Object.entries(extra).filter(([k]) => !CLAVE_SECRETA.test(k)));
   }
   return { ...resto, extra_config: extra ?? null, api_key_set: !!api_key, password_set: !!password };
 }
@@ -2140,6 +2194,7 @@ async function initDB() {
     "ADD COLUMN token_version INT NOT NULL DEFAULT 0",
     "ADD COLUMN failed_attempts INT NOT NULL DEFAULT 0",
     "ADD COLUMN locked_until DATETIME NULL",
+    "ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0",
   ]) { await db.execute(`ALTER TABLE users ${col}`).catch(() => {}); }
 
   await db.execute(`CREATE TABLE IF NOT EXISTS audit_logs (
@@ -2351,14 +2406,21 @@ async function initDB() {
 
   // Seed admin user if no users exist
   const [cnt] = await db.execute("SELECT COUNT(*) as c FROM users");
-  if (cnt[0].c === 0) {
-    const hash = await bcrypt.hash("admin123", 10);
+  // 🔴 G-12: era admin/admin123 para toda instalación y nada obligaba a cambiarla. Ahora la
+  // inicial sale de ADMIN_PASSWORD_INICIAL o es aleatoria (se muestra una sola vez en el log), y
+  // el primer ingreso exige cambiarla. Las cuentas que ya existen no se tocan.
+  if (Number(cnt[0].c) === 0) {
+    const desdeEnv = process.env.ADMIN_PASSWORD_INICIAL;
+    const inicial = desdeEnv || require("crypto").randomBytes(12).toString("base64url");
+    const hash = await bcrypt.hash(inicial, 10);
     await db.execute(
-      "INSERT INTO users (id, username, password_hash, role, nombre) VALUES (?, 'admin', ?, 'admin', 'Administrador')",
+      "INSERT INTO users (id, username, password_hash, role, nombre, must_change_password) VALUES (?, 'admin', ?, 'admin', 'Administrador', 1)",
       [uuidv4(), hash]
     );
-    console.log("[Gjallar] Usuario admin creado: admin / admin123");
-    console.log("[Gjallar] IMPORTANTE: Cambia la contraseña inmediatamente en Perfil.");
+    console.log(desdeEnv
+      ? "[Gjallar] Usuario admin creado con la contraseña de ADMIN_PASSWORD_INICIAL."
+      : `[Gjallar] Usuario admin creado. Contraseña inicial (se muestra una sola vez): ${inicial}`);
+    console.log("[Gjallar] El primer ingreso obliga a cambiarla.");
   }
 }
 

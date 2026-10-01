@@ -36,6 +36,8 @@ export function PerfilView() {
   const [totpCode, setTotpCode] = useState('')
   const [totpSaving, setTotpSaving] = useState(false)
   const [totpError, setTotpError] = useState('')
+  // 🔴 G-09: el alta del 2FA pide la contraseña; con la sesión sola no alcanza.
+  const [totpPass, setTotpPass] = useState('')
   const [removePass, setRemovePass] = useState('')
   const [removing, setRemoving] = useState(false)
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'es')
@@ -65,15 +67,16 @@ export function PerfilView() {
   function startTOTP() {
     const s = generateTOTPSecret()
     setTotpSetup({ secret: s, uri: getOtpAuthUri(s, user?.username || '') })
-    setTotpCode(''); setTotpError('')
+    setTotpCode(''); setTotpError(''); setTotpPass('')
   }
 
   async function handleSaveTOTP() {
     if (totpCode.length !== 6) { setTotpError(t('perfil.2fa.enter6digits')); return }
+    if (!totpPass) { setTotpError(t('perfil.2fa.enterPass')); return }
     setTotpSaving(true); setTotpError('')
     try {
-      await apiFetch('/auth/setup-totp', { method: 'POST', body: { totpSecret: totpSetup!.secret, totpToken: totpCode } })
-      toast.success(t('perfil.2fa.activated')); setHas2FA(true); setTotpSetup(null)
+      await apiFetch('/auth/setup-totp', { method: 'POST', body: { totpSecret: totpSetup!.secret, totpToken: totpCode, password: totpPass } })
+      toast.success(t('perfil.2fa.activated')); setHas2FA(true); setTotpSetup(null); setTotpPass('')
     } catch (e: any) { setTotpError(e.message); setTotpCode('') } finally { setTotpSaving(false) }
   }
 
@@ -174,14 +177,18 @@ export function PerfilView() {
                     className='text-center text-xl tracking-widest font-mono w-36'
                   />
                 </div>
+                <div className='flex flex-col gap-1.5 mt-3'>
+                  <Label>{t('perfil.2fa.currentPass')}</Label>
+                  <Input type='password' value={totpPass} onChange={e => setTotpPass(e.target.value)} placeholder='••••••••' className='w-56' />
+                </div>
               </div>
             </div>
             {totpError && <p className='text-sm text-destructive mb-3'>{totpError}</p>}
             <div className='flex gap-2'>
-              <Button onClick={handleSaveTOTP} disabled={totpCode.length !== 6 || totpSaving} size='sm'>
+              <Button onClick={handleSaveTOTP} disabled={totpCode.length !== 6 || !totpPass || totpSaving} size='sm'>
                 {totpSaving ? t('perfil.2fa.verifying') : t('perfil.2fa.confirm')}
               </Button>
-              <Button variant='ghost' size='sm' onClick={() => { setTotpSetup(null); setTotpCode(''); setTotpError('') }}>
+              <Button variant='ghost' size='sm' onClick={() => { setTotpSetup(null); setTotpCode(''); setTotpError(''); setTotpPass('') }}>
                 {t('perfil.2fa.cancel')}
               </Button>
             </div>

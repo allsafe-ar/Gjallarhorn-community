@@ -84,6 +84,7 @@
   "auth.signin.forgotPassword": "Forgot your password?",
   "auth.signin.welcome": "Welcome, {{name}}",
   "auth.signin.loginError": "Sign in error",
+  "auth.signin.mustChangePassword": "For security, change the initial password before continuing.",
   "auth.signin.invalidCode": "Invalid code",
   "auth.signin.usernameLabel": "Username",
   "auth.signin.usernameHelper": "Your access username",

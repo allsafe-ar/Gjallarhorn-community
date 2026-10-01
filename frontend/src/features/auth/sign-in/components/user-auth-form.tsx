@@ -57,6 +57,12 @@ export function UserAuthForm({ className, redirectTo }: UserAuthFormProps) {
     auth.setAccessToken(token)
     auth.setUser(user)
     toast.success(t('auth.signin.welcome', { name: user.nombre || user.username }))
+    // 🔴 G-12: con la contraseña inicial el servidor solo deja cambiarla; se va directo al perfil.
+    if ((user as SgsiUser & { mustChangePassword?: boolean }).mustChangePassword) {
+      toast.warning(t('auth.signin.mustChangePassword'))
+      navigate({ to: '/perfil', replace: true })
+      return
+    }
     navigate({ to: redirectTo || '/', replace: true })
   }
 

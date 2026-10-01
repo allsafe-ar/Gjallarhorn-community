@@ -221,7 +221,7 @@ npm install
 npm run build   # Production build → dist/
 ```
 
-Default credentials (first run): `admin` / `admin123` - **change immediately**.
+Initial credentials (first run): user `admin`. There is no default password: it is taken from `ADMIN_PASSWORD_INICIAL` if set, otherwise a random one is generated and printed **once** in the backend log (`pm2 logs gjallarhorn` or `docker compose logs app`). The first login requires changing it. Existing accounts are never modified.
 
 ---
 

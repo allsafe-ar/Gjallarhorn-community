@@ -7,6 +7,19 @@ const { simpleParser } = require("mailparser");
 const MAX_CUERPO_ANALIZADO = 1024 * 1024;
 const acotar = (s) => (typeof s === "string" && s.length > MAX_CUERPO_ANALIZADO ? s.slice(0, MAX_CUERPO_ANALIZADO) : s);
 
+// 🔴 G-01: `new.*account.*details` es cúbica (24 KB de "new account" congelaban el proceso 13 s).
+// Esto da lo mismo que `a.*b.*c` (partes en orden dentro de una misma línea) en tiempo lineal.
+function enOrdenEnUnaLinea(texto, ...partes) {
+  for (const linea of texto.split(/[\n\r\u2028\u2029]/)) {
+    let i = 0;
+    for (const p of partes) { i = linea.indexOf(p, i); if (i < 0) break; i += p.length; }
+    if (i >= 0) return true;
+  }
+  return false;
+}
+// El asunto no pasaba por acotar: un encabezado plegado puede ser tan largo como el cuerpo.
+const MAX_ASUNTO = 4096;
+
 // ── Brand → Legitimate domains ────────────────────────────────────────────────
 const KNOWN_BRANDS = {
   microsoft: ["microsoft.com","office.com","outlook.com","live.com","hotmail.com","microsoftonline.com","office365.com"],
@@ -341,7 +354,7 @@ function detectBEC(subject, textBody, from, replyTo) {
   }
 
   // 7. Payroll / HR fraud patterns
-  if (/payroll|direct deposit|bank account change|update.*banking|new.*account.*details/i.test(allText)) {
+  if (/payroll|direct deposit|bank account change/.test(allText) || enOrdenEnUnaLinea(allText, "update", "banking") || enOrdenEnUnaLinea(allText, "new", "account", "details")) {
     indicators.push({ check: "Fraude de nómina / HR", detail: "Patrones de cambio de cuenta bancaria detectados", severity: "critical" }); score += 45;
   }
 
@@ -464,7 +477,7 @@ async function analyzeEmail(buffer) {
   const to      = parsed.to?.value || [];
   const cc      = parsed.cc?.value || [];
   const replyTo = parsed.replyTo?.value?.[0] || null;
-  const subject = parsed.subject || "";
+  const subject = String(parsed.subject || "").slice(0, MAX_ASUNTO);
   const date    = parsed.date;
   const messageId = parsed.messageId;
   // El análisis mira como mucho MAX_CUERPO_ANALIZADO de cada cuerpo (ver acotar).
@@ -514,4 +527,4 @@ async function analyzeEmail(buffer) {
   return { ...analysis, rules, score: combinedScore, verdict, isBEC, isPhishing };
 }
 
-module.exports = { analyzeEmail, extractLinks, MAX_CUERPO_ANALIZADO };
+module.exports = { analyzeEmail, extractLinks, MAX_CUERPO_ANALIZADO, enOrdenEnUnaLinea };
