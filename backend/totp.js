@@ -65,6 +65,9 @@ function codigoDe(secreto, contador) {
 function verificar(secreto, codigo, { ahora = Date.now() } = {}) {
   // ⚠️ La FORMA se valida antes de tocar criptografia: exactamente seis digitos, nada mas.
   if (typeof codigo !== "string" || !/^[0-9]{6}$/.test(codigo.trim())) return false;
+  // 🔴 Sin secreto no hay nada que verificar (01/10/2026): String(null) es "NULL", que es base32
+  // válido, y calculaba un código. Hoy cada llamador mira el secreto antes; esto no depende de eso.
+  if (typeof secreto !== "string" || !secreto.trim()) return false;
   const esperado = codigo.trim();
   try {
     const paso = Math.floor(ahora / 1000 / PASO_SEGUNDOS);
