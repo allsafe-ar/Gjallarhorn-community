@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const express  = require("express");
 const jwt      = require("jsonwebtoken");
+const desafio2fa = require("./desafio-2fa");
 const bcrypt   = require("bcryptjs");
 const cors     = require("cors");
 const helmet   = require("helmet");
@@ -304,7 +305,11 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 
   if (user.totp_secret) {
     await auditLog("LOGIN_2FA_REQUIRED", `2FA requerido: ${username}`, username, user.role, ip, "pending");
-    return res.json({ needs2fa: true, userId: user.id, nombre: user.nombre, role: user.role });
+    // 🔴 Se entrega un desafío firmado, no el id: el segundo paso solo acepta a quien pasó por
+    // este (ver desafio-2fa.js). Viaja como `userId` porque es el campo que la pantalla ya
+    // devuelve en el segundo paso.
+    const desafio = desafio2fa.emitir(user, JWT_SECRET);
+    return res.json({ needs2fa: true, desafio, userId: desafio, nombre: user.nombre, role: user.role });
   }
 
   const token = jwt.sign(
@@ -316,17 +321,26 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 });
 
 app.post("/api/auth/verify-totp", authLimiter, async (req, res) => {
-  const { userId, token: totpToken } = req.body;
+  const { desafio, userId, token: totpToken } = req.body || {};
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "—";
-  if (!userId || !totpToken) return res.status(400).json({ error: "Datos requeridos" });
+  if (!(desafio || userId) || !totpToken) return res.status(400).json({ error: "Datos requeridos" });
 
-  let user = await qRow("SELECT * FROM users WHERE id = ?", [userId]);
-  if (!user) user = await qRow("SELECT * FROM users WHERE username = ?", [userId]);
-  if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+  // 🔴 Solo con el desafío que entrega el primer paso, nunca con un id o un nombre de usuario:
+  // así nadie llega acá sin haber pasado por la contraseña. Ver desafio-2fa.js.
+  const user = await desafio2fa.usuario(qRow, desafio || userId, JWT_SECRET);
+  if (!user) return res.status(401).json({ error: desafio2fa.MENSAJE_VENCIDO });
+  if (user.locked_until && new Date() < new Date(user.locked_until))
+    return res.status(429).json({ error: "Cuenta bloqueada temporalmente por demasiados intentos fallidos", locked: true });
+  if (!user.enabled) return res.status(403).json({ error: "Tu cuenta está deshabilitada. Contactá al administrador." });
   if (!user.totp_secret) return res.status(400).json({ error: "2FA no configurado para este usuario" });
 
   if (!verifyTOTP(user.totp_secret, totpToken)) {
-    await auditLog("TOTP_FAIL", `Código 2FA incorrecto: ${user.username}`, user.username, user.role, ip, "fail");
+    // Un código incorrecto es un intento fallido, igual que una contraseña incorrecta.
+    const fails = (user.failed_attempts || 0) + 1;
+    const lock  = fails >= MAX_ATTEMPTS ? new Date(Date.now() + LOCK_MINUTES * 60000).toISOString().slice(0,19).replace("T"," ") : null;
+    await qRun("UPDATE users SET failed_attempts = ?, locked_until = ? WHERE id = ?", [fails, lock, user.id]);
+    await auditLog("TOTP_FAIL", `Código 2FA incorrecto: ${user.username} (${fails}/${MAX_ATTEMPTS})`, user.username, user.role, ip, "fail");
+    if (lock) return res.status(429).json({ error: `Cuenta bloqueada ${LOCK_MINUTES} min.`, locked: true, minutes: LOCK_MINUTES });
     return res.status(401).json({ error: "Código incorrecto o expirado" });
   }
 
