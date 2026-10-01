@@ -6,6 +6,8 @@
 require("dotenv").config();
 
 const express  = require("express");
+// Que ningún error de una ruta async pueda tirar el proceso (ver async-seguro.js).
+require("./async-seguro").instalar();
 const jwt      = require("jsonwebtoken");
 const desafio2fa = require("./desafio-2fa");
 const bcrypt   = require("bcryptjs");
@@ -2803,6 +2805,16 @@ if (require("fs").existsSync(DIST)) {
   app.use(express.static(DIST));
   app.get("*", (_, res) => res.sendFile(path.join(DIST, "index.html")));
 }
+
+// Manejador final de errores: con async-seguro, todo error de una ruta llega acá. Responde sin
+// exponer el detalle; sin este manejador, Express devuelve su página con la pila del error.
+app.use((err, req, res, _next) => {
+  if (err && (err.type === "entity.parse.failed" || err.type === "entity.too.large"))
+    return res.status(err.status || 400).json({ error: "Pedido inválido" });
+  console.error(`[Gjallar] ${req.method} ${req.path}:`, err && err.message);
+  if (res.headersSent) return;
+  res.status(500).json({ error: "Error interno del servidor" });
+});
 
 async function start() {
   try {
