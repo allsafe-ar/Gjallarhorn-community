@@ -385,7 +385,9 @@ app.post("/api/auth/verify-totp", authLimiter, async (req, res) => {
   if (!user.enabled) return res.status(403).json({ error: "Tu cuenta está deshabilitada. Contactá al administrador." });
   if (!user.totp_secret) return res.status(400).json({ error: "2FA no configurado para este usuario" });
 
-  if (!verifyTOTP(user.totp_secret, totpToken)) {
+  // Un solo uso: se rechaza un codigo cuyo paso de 30 s ya se consumio (pasoMinimo = ultimo + 1).
+  const paso2fa = totpCanonico.verificarPaso(user.totp_secret, totpToken, { pasoMinimo: (user.totp_ultimo_paso || 0) + 1 });
+  if (!paso2fa.ok) {
     // Un código incorrecto es un intento fallido, igual que una contraseña incorrecta.
     const fails = (user.failed_attempts || 0) + 1;
     const lock  = fails >= MAX_ATTEMPTS ? new Date(Date.now() + LOCK_MINUTES * 60000).toISOString().slice(0,19).replace("T"," ") : null;
@@ -395,6 +397,8 @@ app.post("/api/auth/verify-totp", authLimiter, async (req, res) => {
     return res.status(401).json({ error: "Código incorrecto o expirado" });
   }
 
+  // Un solo uso: se registra el paso que valido el codigo, para que no vuelva a entrar en ventana.
+  await qRun("UPDATE users SET totp_ultimo_paso = ? WHERE id = ?", [paso2fa.paso, user.id]);
   const token = jwt.sign(
     { id: user.id, username: user.username, role: user.role, nombre: user.nombre, tv: user.token_version || 0 },
     JWT_SECRET, { expiresIn: "12h" }
@@ -2195,6 +2199,7 @@ async function initDB() {
     "ADD COLUMN failed_attempts INT NOT NULL DEFAULT 0",
     "ADD COLUMN locked_until DATETIME NULL",
     "ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0",
+    "ADD COLUMN totp_ultimo_paso BIGINT NULL",
   ]) { await db.execute(`ALTER TABLE users ${col}`).catch(() => {}); }
 
   await db.execute(`CREATE TABLE IF NOT EXISTS audit_logs (

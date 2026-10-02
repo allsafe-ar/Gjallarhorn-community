@@ -58,16 +58,25 @@ function codigoDe(secreto, contador) {
 }
 
 /**
- * Verifica un codigo contra el secreto.
+ * Verifica un codigo y devuelve QUE paso de 30 s lo valido, para poder rechazar su reuso.
  *
- * `ahora` se puede pasar para probar, en milisegundos. En produccion no se pasa.
+ * 🔑 **Un solo uso (anti-replay), 01/10/2026.** Un codigo TOTP vale durante toda su ventana (hasta
+ * un minuto y medio con la tolerancia), asi que el mismo codigo visto por encima del hombro o
+ * quedado en una captura entra una segunda vez mientras no venza. Para cerrarlo, el que concede la
+ * sesion guarda el ultimo paso que uso cada usuario y pasa `pasoMinimo = ultimo + 1`: un codigo de
+ * un paso ya consumido queda por debajo y se rechaza, aunque todavia sea criptograficamente valido.
+ *
+ * Devuelve `{ ok, paso }`. `paso` es el contador de 30 s que valido (para guardarlo); en un fallo
+ * es 0. `pasoMinimo` por defecto 0 no rechaza nada, con lo que el comportamiento es el de siempre.
+ *
+ * `ahora` (ms) se puede pasar para probar. En produccion no se pasa.
  */
-function verificar(secreto, codigo, { ahora = Date.now() } = {}) {
+function verificarPaso(secreto, codigo, { ahora = Date.now(), pasoMinimo = 0 } = {}) {
   // ⚠️ La FORMA se valida antes de tocar criptografia: exactamente seis digitos, nada mas.
-  if (typeof codigo !== "string" || !/^[0-9]{6}$/.test(codigo.trim())) return false;
+  if (typeof codigo !== "string" || !/^[0-9]{6}$/.test(codigo.trim())) return { ok: false, paso: 0 };
   // 🔴 Sin secreto no hay nada que verificar (01/10/2026): String(null) es "NULL", que es base32
   // válido, y calculaba un código. Hoy cada llamador mira el secreto antes; esto no depende de eso.
-  if (typeof secreto !== "string" || !secreto.trim()) return false;
+  if (typeof secreto !== "string" || !secreto.trim()) return { ok: false, paso: 0 };
   const esperado = codigo.trim();
   try {
     const paso = Math.floor(ahora / 1000 / PASO_SEGUNDOS);
@@ -76,13 +85,27 @@ function verificar(secreto, codigo, { ahora = Date.now() } = {}) {
       // 🔑 Comparacion en tiempo constante: dos cadenas de seis digitos filtran poco, pero no
       // cuesta nada y evita que esto sea el ejemplo de manual que alguien cite despues.
       if (c && c.length === esperado.length &&
-          crypto.timingSafeEqual(Buffer.from(c), Buffer.from(esperado))) return true;
+          crypto.timingSafeEqual(Buffer.from(c), Buffer.from(esperado))) {
+        // El codigo es de este paso. Si el paso ya se consumio (<= el ultimo guardado), es un
+        // reuso y NO se acepta, aunque la ventana todavia lo de por valido.
+        return { ok: (paso + i) >= pasoMinimo, paso: paso + i };
+      }
     }
-    return false;
+    return { ok: false, paso: 0 };
   } catch {
     // Un secreto invalido o cualquier otra sorpresa es "codigo incorrecto", no una excepcion.
-    return false;
+    return { ok: false, paso: 0 };
   }
+}
+
+/**
+ * Verifica un codigo contra el secreto, sin control de reuso. Se mantiene para los usos donde el
+ * reuso no concede nada (confirmar el alta del 2FA, por ejemplo). El ingreso usa `verificarPaso`.
+ *
+ * `ahora` se puede pasar para probar, en milisegundos. En produccion no se pasa.
+ */
+function verificar(secreto, codigo, opciones = {}) {
+  return verificarPaso(secreto, codigo, { ...opciones, pasoMinimo: 0 }).ok;
 }
 
 /** Secreto nuevo en base32, de 32 caracteres, con aleatoriedad criptografica. */
@@ -105,5 +128,5 @@ function uriDeAlta(secreto, cuenta, emisor = "AllSafe") {
   return `otpauth://totp/${e}:${c}?secret=${secreto}&issuer=${e}&algorithm=SHA1&digits=6&period=${PASO_SEGUNDOS}`;
 }
 
-module.exports = { verificar, generarSecreto, uriDeAlta, codigoDe, base32ABytes,
+module.exports = { verificar, verificarPaso, generarSecreto, uriDeAlta, codigoDe, base32ABytes,
                    VENTANA_PASOS, PASO_SEGUNDOS };
