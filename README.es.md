@@ -165,6 +165,7 @@ Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo m�
 | **Multi-tenant / SaaS** (instancias aisladas por cliente, admin Clientes SaaS) | ❌ | ✅ |
 | **Licencias** (serial, plan, vencimiento; vencida/suspendida = solo lectura) | ❌ | ✅ |
 | **Config de integraciones y API keys de threat intel por cliente** | ❌ | ✅ |
+| **Gestión de WAF** - administrar ModSecurity/nginx desde el SOC (estado, métricas, modo, reglas del CRS, multi-WAF por cliente, mural) | ❌ | ✅ |
 
 > **Upgrade path**: Community es self-host de una sola organización. El esquema de Pro es superconjunto del de Community (agrega multi-tenant, licencias y config de integraciones por cliente). Actualizar Community → Pro = reemplazar archivos + `npm install` + `pm2 restart`; en el primer arranque, Pro migra tus datos a tu instancia AllSafe solo. Sin migración manual.
 

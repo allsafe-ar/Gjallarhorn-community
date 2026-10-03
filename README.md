@@ -165,6 +165,7 @@ Some capabilities are shared at the base and **deepened** in Pro. The clearest e
 | **Multi-tenant / SaaS** (isolated per-client instances, Clientes SaaS admin) | ❌ | ✅ |
 | **Licensing** (serial, plan, expiry; expired/suspended = read-only) | ❌ | ✅ |
 | **Per-client integrations config & threat-intel API keys** | ❌ | ✅ |
+| **WAF management** - manage ModSecurity/nginx from the SOC (status, metrics, mode, CRS rules, multi-WAF per client, wall display) | ❌ | ✅ |
 
 > **Upgrade path**: Community is a single-organization self-host. Pro's schema is a superset of Community's (it adds multi-tenant, licensing and per-client integration config). Upgrading Community → Pro = replace files + `npm install` + `pm2 restart`; Pro's first boot migrates your existing data into your AllSafe instance automatically. No manual migration.
 
