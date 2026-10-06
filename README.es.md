@@ -41,7 +41,9 @@ Gjallarhorn Community incluye:
 - **Inventario de activos y monitoreo de disponibilidad**: se le indican los equipos que importan y los mide por su cuenta, por ping, por puerto o por respuesta web. Estado por equipo, historial de caídas y recuperaciones, latencia, panel en vivo y tablero de métricas. Anda on-premise: el servidor tiene que estar dentro de la red que mide
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), lockout de cuenta, control de acceso por rol (`admin` / `analyst` / `viewer`)
 
-> ¿Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **campañas de phishing por email/WiFi**, **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA), el **módulo de IA** o el **SaaS multi-tenant con licencias por cliente**, o la **integración con Zabbix y GLPI** con unificación de activos entre fuentes? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> ¿Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA), el **módulo de IA** o el **SaaS multi-tenant con licencias por cliente**, o la **integración con Zabbix y GLPI** con unificación de activos entre fuentes? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
+>
+> La **simulación de phishing** (email y WiFi) y la **capacitación / concientización** ahora son un producto dedicado: **Kvasir**, la plataforma de Security Awareness Training de AllSafe ([allsafe.com.ar](https://www.allsafe.com.ar)).
 
 ---
 
@@ -156,8 +158,6 @@ Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo m�
 | Integraciones TheHive · Nessus | ❌ | ✅ |
 | **Circuito activo de correlación y respuesta** (de visor a respuesta) | ❌ | ✅ |
 | **Respuestas nativas automáticas** (aviso por mail + feed de bloqueo de IPs) | ❌ | ✅ |
-| Campañas de phishing por email | ❌ | ✅ |
-| Phishing WiFi / evil twin (Munin) · capacitaciones presenciales | ❌ | ✅ |
 | **Reporting ejecutivo** (PDF, heatmap de phishing, cobertura MITRE, scheduler) | ❌ | ✅ |
 | **Métricas del SOC** (SLA de casos, métricas por analista) | ❌ | ✅ |
 | **Re-chequeo programado de IOCs** · tuning de ruido del timeline | ❌ | ✅ |

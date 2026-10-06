@@ -41,7 +41,9 @@ Gjallarhorn Community includes:
 - **Asset inventory and availability monitoring**: point it at the devices you care about and it checks them itself by ping, port or web response - state per device, downtime and recovery history, latency, a live board and a metrics dashboard. Runs on-premise: the server has to sit inside the network it measures
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), account lockout, role-based access (`admin` / `analyst` / `viewer`)
 
-> Looking for **rule evaluation** (SIGMA/YARA testing), **Suricata (IDS) + Shuffle (SOAR)**, the **active correlation & response circuit** with **automatic responses** (email + IP block feed), **sandbox automation** (detonation verdicts feeding cases and responses), **email/WiFi phishing simulation**, **TheHive/Nessus**, **executive reporting** (PDF, MITRE coverage, SLA), the **AI module**, or **multi-tenant SaaS with per-client licensing**, or **Zabbix/GLPI integration** with cross-source asset deduplication? Those are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> Looking for **rule evaluation** (SIGMA/YARA testing), **Suricata (IDS) + Shuffle (SOAR)**, the **active correlation & response circuit** with **automatic responses** (email + IP block feed), **sandbox automation** (detonation verdicts feeding cases and responses), **TheHive/Nessus**, **executive reporting** (PDF, MITRE coverage, SLA), the **AI module**, or **multi-tenant SaaS with per-client licensing**, or **Zabbix/GLPI integration** with cross-source asset deduplication? Those are available in [Gjallarhorn Pro](https://www.allsafe.com.ar).
+>
+> **Phishing simulation** (email and WiFi) and **security awareness training** are now a dedicated product: **Kvasir**, AllSafe's Security Awareness Training platform ([allsafe.com.ar](https://www.allsafe.com.ar)).
 
 ---
 
@@ -156,8 +158,6 @@ Some capabilities are shared at the base and **deepened** in Pro. The clearest e
 | TheHive · Nessus integrations | ❌ | ✅ |
 | **Active correlation & response circuit** (sensor → response) | ❌ | ✅ |
 | **Automatic native responses** (email alert + IP block feed) | ❌ | ✅ |
-| Email phishing campaigns | ❌ | ✅ |
-| WiFi phishing / evil twin (Munin) · in-person training | ❌ | ✅ |
 | **Executive reporting** (PDF, phishing heatmap, MITRE coverage, scheduler) | ❌ | ✅ |
 | **SOC metrics** (case SLA, per-analyst metrics) | ❌ | ✅ |
 | **Scheduled IOC re-check** · timeline noise tuning | ❌ | ✅ |
