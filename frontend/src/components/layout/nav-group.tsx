@@ -35,7 +35,13 @@ import {
   type NavGroup as NavGroupProps,
 } from './types'
 
-export function NavGroup({ title, items, adminOnly, roles }: NavGroupProps) {
+// Títulos de grupo en dos tonos del color de acento del sistema, según el frente.
+const COLOR_FRENTE = {
+  1: 'font-semibold text-primary',
+  2: 'font-semibold text-primary/70',
+} as const
+
+export function NavGroup({ title, items, adminOnly, roles, frente }: NavGroupProps) {
   const { state, isMobile } = useSidebar()
   const href = useLocation({ select: (location) => location.href })
   const { auth } = useAuthStore()
@@ -43,9 +49,9 @@ export function NavGroup({ title, items, adminOnly, roles }: NavGroupProps) {
   if (adminOnly && auth.user?.role !== 'admin') return null
   if (roles && auth.user && !roles.includes(auth.user.role)) return null
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{t(title)}</SidebarGroupLabel>
-      <SidebarMenu>
+    <SidebarGroup className='py-0.5'>
+      <SidebarGroupLabel className={frente ? COLOR_FRENTE[frente] : undefined}>{t(title)}</SidebarGroupLabel>
+      <SidebarMenu className='gap-0'>
         {items.map((item) => {
           const key = `${item.title}-${item.url}`
 

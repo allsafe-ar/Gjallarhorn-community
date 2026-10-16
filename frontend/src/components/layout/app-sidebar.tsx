@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/sidebar'
 import { AppTitle } from './app-title'
 import { sidebarData } from './data/sidebar-data'
-import { NavGroup } from './nav-group'
+import { GruposMenu } from './grupos-menu'
 import { NavUser } from './nav-user'
 import { APP_VERSION } from '@/lib/version'
 import { type NavGroup as NavGroupType } from './types'
@@ -82,14 +82,10 @@ export function AppSidebar() {
       <SidebarHeader>
         <AppTitle />
       </SidebarHeader>
-      <SidebarContent>
-        {topGroups.map((props) => (
-          <NavGroup key={props.title} {...props} />
-        ))}
+      <SidebarContent className='gap-1'>
+        <GruposMenu grupos={topGroups} />
         <div className='mt-auto'>
-          {bottomGroups.map((props) => (
-            <NavGroup key={props.title} {...props} />
-          ))}
+          <GruposMenu grupos={bottomGroups} />
         </div>
       </SidebarContent>
       <SidebarFooter>

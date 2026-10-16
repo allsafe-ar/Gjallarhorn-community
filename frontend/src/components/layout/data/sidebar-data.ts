@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
+// Frentes del menú: el 1 en el acento intenso, el 2 en el apagado; los grupos sin frente son
+// generales. Ver grupos-menu.tsx.
 export const sidebarData: SidebarData = {
   user: { name: '', email: '', avatar: '' },
   teams: [],
@@ -32,6 +34,7 @@ export const sidebarData: SidebarData = {
     },
     {
       title: 'nav.soc',
+      frente: 1,
       roles: ['admin', 'analyst'],
       items: [
         { title: 'nav.wazuh',        url: '/soc/wazuh',        icon: Activity },
@@ -41,6 +44,7 @@ export const sidebarData: SidebarData = {
     },
     {
       title: 'nav.tools',
+      frente: 2,
       roles: ['admin', 'analyst'],
       items: [
         { title: 'nav.monitoreo', url: '/monitoreo',             icon: Gauge },
@@ -53,6 +57,7 @@ export const sidebarData: SidebarData = {
     },
     {
       title: 'nav.incidents',
+      frente: 2,
       roles: ['admin', 'analyst'],
       items: [
         { title: 'nav.casos',    url: '/incidentes/casos',    icon: AlertTriangle },
@@ -61,6 +66,7 @@ export const sidebarData: SidebarData = {
     },
     {
       title: 'nav.ai',
+      frente: 2,
       roles: ['admin', 'analyst'],
       items: [
         { title: 'nav.asistente', url: '/ia', icon: Bot },

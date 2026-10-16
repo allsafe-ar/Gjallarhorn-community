@@ -34,6 +34,9 @@ type NavGroup = {
   title: string
   items: NavItem[]
   adminOnly?: boolean
+  // Frente del menú: tiñe el título con el color de acento del sistema (1 intenso, 2 apagado) y el
+  // menú dibuja una línea donde cambia de frente. Sin frente, el grupo es general (título neutro).
+  frente?: 1 | 2
   roles?: string[]
 }
 
