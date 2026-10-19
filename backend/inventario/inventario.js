@@ -219,6 +219,7 @@ function montar(app, dep) {
                 a.serie, a.numero_inventario, a.fabricante, a.modelo, a.so, a.criticidad, a.clasificacion, a.propietario,
                 a.asignado_a, a.ubicacion, a.area, a.grupo, a.origen, a.visto_ultima, a.updated_at, a.expuesto_internet,
                 JSON_UNQUOTE(JSON_EXTRACT(a.atributos, '$.etiqueta_skuld')) AS etiqueta,
+                a.val_confidencialidad, a.val_integridad, a.val_disponibilidad,
                 (SELECT MIN(v.fecha) FROM activo_vencimientos v WHERE v.activo_id = a.id AND v.estado = 'vigente') AS prox_venc,
                 (SELECT COUNT(*) FROM activo_fuentes f WHERE f.activo_id = a.id) AS n_fuentes
            FROM activos a WHERE ${where} ORDER BY ${orden}, a.nombre LIMIT ${limite} OFFSET ${(pagina - 1) * limite}`, params);
