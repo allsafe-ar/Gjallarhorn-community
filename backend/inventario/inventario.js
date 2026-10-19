@@ -374,7 +374,9 @@ function montar(app, dep) {
         if (entrante.criticidad) entrante.criticidad = criticidadPorTexto(entrante.criticidad);
         if (entrante.clasificacion && !T.CLASIFICACION.includes(entrante.clasificacion)) delete entrante.clasificacion;
         const r = await ingresar(dep, {
-          tenant: a.tenant, fuente: "csv", externoId: f.serie || f.numero_inventario || null, entrante,
+          // Sin serie ni número de inventario, la fila se reconoce por su nombre (normalizado): así
+          // reimportar la misma planilla completa en vez de duplicar. Solo entre filas de planilla.
+          tenant: a.tenant, fuente: "csv", externoId: f.serie || f.numero_inventario || claveNombre(f.nombre || f.hostname || f.ip), entrante,
           usuario: usuario(req), agrupado: (f.cantidad || 1) > 1,
         });
         resumen[r.accion] = (resumen[r.accion] || 0) + 1;
@@ -698,6 +700,12 @@ function montar(app, dep) {
   });
 
   return { ingresar: (opciones) => ingresar(dep, opciones), sincronizarTodas: () => sync.sincronizarTodas(dep) };
+}
+
+/** Clave estable de una fila de planilla por su nombre: sin tildes, mayúsculas ni espacios de más. */
+function claveNombre(n) {
+  const k = String(n || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+  return k ? `nombre:${k}`.slice(0, 64) : null;
 }
 
 /** "AAAA-MM-DD HH:MM" en la zona del proceso (mysql2 devuelve DATETIME como Date local). */
