@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
-  AlertTriangle, CalendarClock, ChevronLeft, ChevronRight, Copy, Download, FileSpreadsheet, Loader2, Plus, Search, ShieldCheck, Upload,
+  AlertTriangle, CalendarClock, ChevronLeft, ChevronRight, Copy, Download, FileSpreadsheet, Link2, Loader2, Plus, Search, ShieldCheck, Upload,
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FichaActivo } from './ficha-activo'
+import { DialogoSincronizacion } from './sincronizacion'
 import {
   type Activo, type Asignacion, type Fetcher, type FilaActivo, type Taxonomia, type Vencimiento,
   CRITICIDAD, FUENTE, SEMAFORO, VERIFICADAS, cuandoVence, dinero, fecha, nombreTipo,
@@ -45,6 +46,8 @@ export interface InventarioProps {
   extraFichaTitulo?: string
   /** Si es false (Skuld sin cliente elegido) se muestra el aviso en vez de pedir datos. */
   listo?: boolean
+  /** Conexión con el otro sistema AllSafe. En false (Community) no se ofrece. */
+  sincronizacion?: boolean
 }
 
 interface Resumen {
@@ -64,7 +67,7 @@ interface Resumen {
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
 export function InventarioBase(props: InventarioProps) {
-  const { fetcher, alcance, puede, cabecera, listo = true } = props
+  const { fetcher, alcance, puede, cabecera, listo = true, sincronizacion = true } = props
   const qc = useQueryClient()
   const q = (p: string) => (alcance ? `${p}${p.includes('?') ? '&' : '?'}${alcance}` : p)
   const [tab, setTab] = useState('resumen')
@@ -72,6 +75,7 @@ export function InventarioBase(props: InventarioProps) {
   const [alta, setAlta] = useState(false)
   const [importar, setImportar] = useState(false)
   const [duplicados, setDuplicados] = useState(false)
+  const [conectar, setConectar] = useState(false)
   const [filtroVenc, setFiltroVenc] = useState<string>('')
 
   const { data: tx } = useQuery<Taxonomia>({ queryKey: ['inventario-taxonomia'], queryFn: () => fetcher<Taxonomia>('/inventario/taxonomia'), staleTime: Infinity })
@@ -89,6 +93,7 @@ export function InventarioBase(props: InventarioProps) {
           {listo && puede.administrar && resumen?.dudas ? (
             <Button variant='outline' onClick={() => setDuplicados(true)}><Copy className='mr-1 size-4' />Posibles duplicados <Badge className='ml-1'>{resumen.dudas}</Badge></Button>
           ) : null}
+          {listo && sincronizacion && puede.administrar ? <Button variant='outline' onClick={() => setConectar(true)}><Link2 className='mr-1 size-4' />Conectar</Button> : null}
           {listo ? <Button variant='outline' onClick={() => props.descargar(q('/inventario/exportar.csv'), 'inventario.csv').catch((e) => toast.error(e.message))}><Download className='mr-1 size-4' />Exportar</Button> : null}
           {listo && puede.administrar ? <Button variant='outline' onClick={() => setImportar(true)}><Upload className='mr-1 size-4' />Importar planilla</Button> : null}
           {listo && puede.editar ? <Button onClick={() => setAlta(true)}><Plus className='mr-1 size-4' />Nuevo activo</Button> : null}
@@ -126,6 +131,7 @@ export function InventarioBase(props: InventarioProps) {
         onCreado={(id) => { setAlta(false); qc.invalidateQueries({ queryKey: ['inventario'] }); setFicha(id) }} />
       <DialogoImportar abierto={importar} onClose={() => setImportar(false)} fetcher={fetcher} q={q}
         onListo={() => qc.invalidateQueries({ queryKey: ['inventario'] })} />
+      {sincronizacion && puede.administrar ? <DialogoSincronizacion abierto={conectar} onClose={() => setConectar(false)} fetcher={fetcher} q={q} sistema={props.sistema} /> : null}
       {puede.administrar ? <DialogoDuplicados abierto={duplicados} onClose={() => setDuplicados(false)} fetcher={fetcher} q={q}
         onCambio={() => qc.invalidateQueries({ queryKey: ['inventario'] })} /> : null}
     </div>

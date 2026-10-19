@@ -20,6 +20,7 @@ const alCrear = (fuente) => ({ monitoreado: ["propio", "sondeo", "manual"].inclu
 function montar(app, { auth, adminOnly, auditLog, qRow, qRows, qRun, uuidv4 }) {
   inventario.montar(app, {
     qRow, qRows, qRun, uuidv4, sistema: "Gjallarhorn",
+    sincronizacion: false,   // la sincronización con Skuld es de la edición Pro
     mw: { leer: [auth], editar: [auth, adminOnly], borrar: [auth, adminOnly], administrar: [auth, adminOnly] },
     alcance: () => ({ tenant: null, clause: "", params: [] }),
     permite: () => true,

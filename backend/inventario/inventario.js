@@ -31,6 +31,7 @@ const fusion = require("./fusion");
 const { discrepancias } = require("./identidad");
 const V = require("./vencimientos");
 const csv = require("./csv");
+const sync = require("./sync");
 
 const MAX_LISTA = 500;
 const MAX_IMPORTACION = 5000;
@@ -135,6 +136,87 @@ function montar(app, dep) {
     try { res.json(dep.personas && !a.todos ? (await dep.personas(a.tenant)) || [] : []); }
     catch (e) { fallo(res, e, "personas"); }
   });
+
+  // ── Sincronización con otro sistema AllSafe (opcional; `sincronizacion: false` la apaga) ──────
+  if (dep.sincronizacion !== false) {
+  // Exportar: con token de conector, sin sesión. Es lectura de UNA organización, nada más.
+  app.get("/api/inventario/export", async (req, res) => {
+    try {
+      const t = await sync.tenantDelToken(dep, req);
+      if (!t) return res.status(401).json({ error: "Token de conector inválido o revocado." });
+      res.json({ sistema: dep.sistema, generado: new Date().toISOString(), activos: await sync.exportar(dep, t.tenant) });
+    } catch (e) { fallo(res, e, "export"); }
+  });
+
+  app.get("/api/inventario/conectores", ...mw.administrar, async (req, res) => {
+    const a = alcanceO403(req, res, { editar: true }); if (!a) return;
+    try { res.json(await qRows("SELECT id, nombre, creado_por, ultimo_uso, activo, created_at FROM activo_conectores WHERE tenant_id <=> ? ORDER BY created_at DESC", [a.tenant])); }
+    catch (e) { fallo(res, e, "conectores"); }
+  });
+
+  /** Emite un token. Se muestra UNA vez: después solo queda su hash. */
+  app.post("/api/inventario/conectores", ...mw.administrar, async (req, res) => {
+    const a = alcanceO403(req, res, { editar: true }); if (!a) return;
+    try {
+      const r = await sync.emitirToken(dep, { tenant: a.tenant, nombre: req.body?.nombre, usuario: usuario(req) });
+      auditar(req, "INVENTARIO_CONECTOR_ALTA", String(req.body?.nombre || "Conector"));
+      res.status(201).json(r);
+    } catch (e) { fallo(res, e, "alta de conector"); }
+  });
+
+  app.delete("/api/inventario/conectores/:cid", ...mw.administrar, async (req, res) => {
+    const a = alcanceO403(req, res, { editar: true }); if (!a) return;
+    try {
+      const r = await qRun("UPDATE activo_conectores SET activo = 0 WHERE id = ? AND tenant_id <=> ?", [req.params.cid, a.tenant]);
+      if (!sync.afectadas(r)) return res.status(404).json({ error: "Conector no encontrado." });
+      auditar(req, "INVENTARIO_CONECTOR_BAJA", req.params.cid);
+      res.json({ ok: true });
+    } catch (e) { fallo(res, e, "baja de conector"); }
+  });
+
+  // Importar: solo si el sistema sabe hacer el pedido HTTP con su control de destinos.
+  if (dep.pedir) {
+    app.get("/api/inventario/sincronizacion", ...mw.administrar, async (req, res) => {
+      const a = alcanceO403(req, res, { editar: true }); if (!a) return;
+      try {
+        const c = await qRow("SELECT url, habilitada, ultimo_intento, ultimo_ok, resultado FROM activo_sincronizaciones WHERE tenant_id <=> ?", [a.tenant]);
+        if (c && typeof c.resultado === "string") { try { c.resultado = JSON.parse(c.resultado); } catch { /* texto */ } }
+        res.json(c || null);
+      } catch (e) { fallo(res, e, "sincronización"); }
+    });
+
+    app.put("/api/inventario/sincronizacion", ...mw.administrar, async (req, res) => {
+      const a = alcanceO403(req, res, { editar: true }); if (!a) return;
+      try {
+        if (req.body?.borrar) {
+          await qRun("DELETE FROM activo_sincronizaciones WHERE tenant_id <=> ?", [a.tenant]);
+          auditar(req, "INVENTARIO_SYNC_BAJA", "");
+          return res.json({ ok: true });
+        }
+        const url = String(req.body?.url || "").trim();
+        if (!/^https?:\/\/[^\s/]+/i.test(url) || url.length > 500) return res.status(400).json({ error: "Indicá la dirección del sistema (https://...)." });
+        if (dep.urlPermitida) { const v = await dep.urlPermitida(url, req); if (!v.permitida) return res.status(400).json({ error: v.motivo || "Esa dirección no está permitida." }); }
+        const previa = await qRow("SELECT id, token FROM activo_sincronizaciones WHERE tenant_id <=> ?", [a.tenant]);
+        const token = String(req.body?.token || "").trim() || previa?.token;
+        if (!token) return res.status(400).json({ error: "Pegá el token del conector." });
+        const habilitada = req.body?.habilitada === false ? 0 : 1;
+        if (previa) await qRun("UPDATE activo_sincronizaciones SET url = ?, token = ?, habilitada = ?, updated_by = ? WHERE id = ?", [url, token, habilitada, usuario(req), previa.id]);
+        else await qRun("INSERT INTO activo_sincronizaciones (id, tenant_id, url, token, habilitada, updated_by) VALUES (?,?,?,?,?,?)", [uuidv4(), a.tenant, url, token, habilitada, usuario(req)]);
+        auditar(req, "INVENTARIO_SYNC_CONFIG", url);
+        res.json({ ok: true });
+      } catch (e) { fallo(res, e, "configurar sincronización"); }
+    });
+
+    app.post("/api/inventario/sincronizacion/ahora", ...mw.administrar, async (req, res) => {
+      const a = alcanceO403(req, res, { editar: true }); if (!a) return;
+      try {
+        const r = await sync.sincronizar(dep, { tenant: a.tenant, usuario: usuario(req) });
+        auditar(req, "INVENTARIO_SYNC", JSON.stringify(r.resumen || r.error || {}));
+        res.status(r.ok ? 200 : 502).json(r);
+      } catch (e) { fallo(res, e, "sincronizar"); }
+    });
+  }
+  }
 
   // ── Resumen: lo que se ve primero al entrar ──────────────────────────────────────────────────
   app.get("/api/inventario/resumen", ...mw.leer, async (req, res) => {
@@ -615,7 +697,7 @@ function montar(app, dep) {
     } catch (e) { fallo(res, e, "entrega"); }
   });
 
-  return { ingresar: (opciones) => ingresar(dep, opciones) };
+  return { ingresar: (opciones) => ingresar(dep, opciones), sincronizarTodas: () => sync.sincronizarTodas(dep) };
 }
 
 /** "AAAA-MM-DD HH:MM" en la zona del proceso (mysql2 devuelve DATETIME como Date local). */

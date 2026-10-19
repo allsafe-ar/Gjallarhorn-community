@@ -264,6 +264,36 @@ async function crearTablas(dep, opciones = {}) {
     CONSTRAINT fk_as_activo FOREIGN KEY (activo_id) REFERENCES activos(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
 
+  // Sincronización entre sistemas AllSafe (opcional). El que exporta emite un token de solo lectura del
+  // inventario de UNA organización; se guarda solo su hash.
+  await qRun(`CREATE TABLE IF NOT EXISTS activo_conectores (
+    id            VARCHAR(36) PRIMARY KEY,
+    tenant_id     VARCHAR(36) NULL,
+    nombre        VARCHAR(120) NOT NULL,
+    token_hash    CHAR(64) NOT NULL,
+    creado_por    VARCHAR(120) NULL,
+    ultimo_uso    DATETIME NULL,
+    activo        TINYINT(1) NOT NULL DEFAULT 1,
+    created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_ac_hash (token_hash),
+    INDEX idx_ac_tenant (tenant_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+
+  // El que importa guarda a dónde ir y con qué token. Una fila por organización.
+  await qRun(`CREATE TABLE IF NOT EXISTS activo_sincronizaciones (
+    id            VARCHAR(36) PRIMARY KEY,
+    tenant_id     VARCHAR(36) NULL,
+    url           VARCHAR(500) NOT NULL,
+    token         VARCHAR(200) NOT NULL,
+    habilitada    TINYINT(1) NOT NULL DEFAULT 1,
+    ultimo_intento DATETIME NULL,
+    ultimo_ok     DATETIME NULL,
+    resultado     TEXT NULL,
+    updated_by    VARCHAR(120) NULL,
+    updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_as_tenant (tenant_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+
   return { columnas: await columnasDe(qRows, "activos"), indices: await indicesDe(qRows, "activos") };
 }
 

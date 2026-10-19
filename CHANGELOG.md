@@ -3,6 +3,11 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.5.1] - 2026-10-19
+
+### Changed
+- Shared asset module updated (risk valuation in the list, safer internal code). Inventory sync with Skuld GRC stays a Pro feature and is not mounted here.
+
 ## [1.5.0] - 2026-10-19
 
 ### Added

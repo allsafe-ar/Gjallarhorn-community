@@ -52,6 +52,7 @@ export function ActivosView() {
           alcance=''
           puede={puede}
           sistema='Gjallarhorn'
+          sincronizacion={false}
           extraFicha={(a) => (a.categoria === 'hardware' || a.tipo === 'expuesto' ? <CuerpoMonitoreo id={a.id} /> : (
             <p className='text-muted-foreground text-sm'>Este tipo de activo no se monitorea por red.</p>
           ))}
