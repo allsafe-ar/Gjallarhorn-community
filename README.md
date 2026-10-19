@@ -144,6 +144,8 @@ Some capabilities are shared at the base and **deepened** in Pro. The clearest e
 | Detection rule **generation** (KQL / SPL / SIGMA / YARA) | ✅ | ✅ |
 | STIX 2.1 export | ✅ | ✅ |
 | **Asset inventory & availability monitoring** (own ICMP/TCP/HTTP checks, states, history) | ✅ | ✅ |
+| **Asset lifecycle & expiration tracking** - owner, classification, warranty / support / EOL / license / contract dates, traffic-light view, 12-month renewal forecast, handover & return, CSV import/export, field-level history | ✅ | ✅ |
+| **Expiration email alerts** (90/60/30/7/0 days to the owner) · automatic TLS certificate expiry · sync with Skuld GRC | ❌ | ✅ |
 | **Zabbix & GLPI integration** - assets and problems from the client's own tools | ❌ | ✅ |
 | **Cross-source deduplication & disagreement report** (one device, several sources) | ❌ | ✅ |
 | **Availability email alerts** · asset wall display | ❌ | ✅ |

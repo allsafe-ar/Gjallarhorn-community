@@ -16,6 +16,7 @@ const helmet   = require("helmet");
 const rateLimit = require("express-rate-limit");
 const mysql    = require("mysql2/promise");
 const { v4: uuidv4 } = require("uuid");
+const inventarioCommunity = require("./inventario-community");
 const sandbox      = require("./sandbox");
 const monitoreo    = require("./monitoreo");
 const https    = require("https");
@@ -315,7 +316,9 @@ const LOCK_MINUTES = 15;
 // ─────────────────────────────────────────────────────────────────────────────
 // HEALTH
 // ─────────────────────────────────────────────────────────────────────────────
-app.get("/api/health", (req, res) => res.json({ ok: true, version: "1.0.0", platform: "Gjallar" }));
+// La versión sale del package.json: cada cambio que llega a una instalación sube la versión visible.
+const VERSION = require("./package.json").version;
+app.get("/api/health", (req, res) => res.json({ ok: true, version: VERSION, platform: "Gjallar" }));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AUTH ROUTES
@@ -2463,9 +2466,9 @@ async function correrMonitoreo() {
              a.ip, a.hostname,  a.criticidad,
              e.estado, e.fallos_seguidos, e.medido_at
         FROM monitor_chequeos c
-        JOIN monitor_activos  a ON a.id = c.activo_id
+        JOIN activos  a ON a.id = c.activo_id
         LEFT JOIN monitor_estado e ON e.chequeo_id = c.id
-       WHERE c.habilitado = 1 AND a.monitoreado = 1
+       WHERE c.habilitado = 1 AND a.monitoreado = 1 AND a.eliminado_at IS NULL AND a.estado <> 'baja'
          AND (e.medido_at IS NULL OR e.medido_at <= DATE_SUB(NOW(), INTERVAL c.intervalo_seg SECOND))`);
   } catch (err) {
     return console.error("[monitor]", err.message);
@@ -2533,6 +2536,9 @@ function conPuertos(a) {
  * en verde mientras el cliente no puede trabajar.
  */
 
+// Inventario único de activos (el mismo módulo que Gjallarhorn Pro y Skuld): vive en inventario/.
+inventarioCommunity.montar(app, { auth, adminOnly, auditLog, qRow, qRows, qRun, uuidv4 });
+
 app.get("/api/monitoreo/activos", auth, async (req, res) => {
   // Filtros. Se arman acá y no en el frontend para que la pantalla siga andando con
   // muchos activos: filtrar 5000 filas en el navegador es traerlas todas primero.
@@ -2554,10 +2560,10 @@ app.get("/api/monitoreo/activos", auth, async (req, res) => {
             SUM(e.estado = 'degradado') AS degradados,
             SUM(e.estado = 'ok')        AS sanos,
             MIN(e.medido_at)            AS medido_at
-       FROM monitor_activos a
+       FROM activos a
               LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
        LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
-      WHERE 1=1${filtros}
+      WHERE a.eliminado_at IS NULL AND a.estado <> 'baja'${filtros}
       GROUP BY a.id ORDER BY COALESCE(a.alias, a.nombre)`, fp);
 
   const estadoPedido = String(req.query.estado || "");
@@ -2580,7 +2586,7 @@ app.get("/api/monitoreo/activos", auth, async (req, res) => {
 
 /** Los chequeos de un activo, con su estado actual. */
 app.get("/api/monitoreo/activos/:id/chequeos", auth, async (req, res) => {
-  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  const a = await qRow("SELECT * FROM activos WHERE id = ? AND eliminado_at IS NULL", [req.params.id]);
   if (!a) return res.status(404).json({ error: "No encontrado" });
   const chequeos = await qRows(`
     SELECT c.*, e.estado, e.fallos_seguidos, e.latencia_ms, e.ultimo_ok, e.ultimo_error, e.medido_at
@@ -2590,7 +2596,7 @@ app.get("/api/monitoreo/activos/:id/chequeos", auth, async (req, res) => {
 });
 
 app.post("/api/monitoreo/activos/:id/chequeos", auth, adminOnly, async (req, res) => {
-  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  const a = await qRow("SELECT * FROM activos WHERE id = ? AND eliminado_at IS NULL", [req.params.id]);
   if (!a) return res.status(404).json({ error: "No encontrado" });
   const { tipo, destino, intervalo_seg, timeout_ms, umbral_fallos, esperado } = req.body || {};
   if (!monitoreo.TIPOS_CHEQUEO.includes(tipo)) return res.status(400).json({ error: "Tipo de chequeo inválido" });
@@ -2605,14 +2611,14 @@ app.post("/api/monitoreo/activos/:id/chequeos", auth, adminOnly, async (req, res
      Math.max(1, Number(umbral_fallos) || 3),
      Number(esperado) || 0]);
   // Cargar un chequeo implica querer medir: si el activo estaba sin monitorear, se prende.
-  if (!a.monitoreado) await qRun("UPDATE monitor_activos SET monitoreado = 1 WHERE id = ?", [a.id]);
+  if (!a.monitoreado) await qRun("UPDATE activos SET monitoreado = 1 WHERE id = ?", [a.id]);
   await auditLog("MONITOR_CHECK_ADD", `Chequeo ${tipo} en ${a.nombre}`, req.user.username, req.user.role, "internal", "ok");
   res.status(201).json({ id });
 });
 
 app.delete("/api/monitoreo/chequeos/:id", auth, adminOnly, async (req, res) => {
   const c = await qRow(`SELECT c.id, a.nombre FROM monitor_chequeos c
-                          JOIN monitor_activos a ON a.id = c.activo_id WHERE c.id = ?`, [req.params.id]);
+                          JOIN activos a ON a.id = c.activo_id WHERE c.id = ?`, [req.params.id]);
   if (!c) return res.status(404).json({ error: "No encontrado" });
   await qRun("DELETE FROM monitor_chequeos WHERE id = ?", [req.params.id]);
   await auditLog("MONITOR_CHECK_DEL", `Chequeo quitado de ${c.nombre}`, req.user.username, req.user.role, "internal", "ok");
@@ -2627,13 +2633,13 @@ app.delete("/api/monitoreo/chequeos/:id", auth, adminOnly, async (req, res) => {
  * firewall sin ningún dato nuevo a cambio.
  */
 app.post("/api/monitoreo/activos/:id/sondear", auth, adminOnly, async (req, res) => {
-  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  const a = await qRow("SELECT * FROM activos WHERE id = ? AND eliminado_at IS NULL", [req.params.id]);
   if (!a) return res.status(404).json({ error: "No encontrado" });
   const destino = a.ip || a.hostname;
   if (!destino) return res.status(400).json({ error: "El activo no tiene dirección" });
 
   const r = await monitoreo.sondear(destino);
-  await qRun(`UPDATE monitor_activos SET so = ?, so_pista = ?, puertos = ?, sondeado_at = NOW() WHERE id = ?`,
+  await qRun(`UPDATE activos SET so = ?, so_pista = ?, puertos = ?, sondeado_at = NOW() WHERE id = ?`,
     [r.so, r.so_pista, JSON.stringify(r.puertos), a.id]);
   await auditLog("MONITOR_PROBE", `Sondeo de ${a.alias || a.nombre}: ${r.puertos.length} puerto(s) abierto(s)`,
     req.user.username, req.user.role, "internal", "ok");
@@ -2646,8 +2652,8 @@ app.post("/api/monitoreo/activos", auth, adminOnly, async (req, res) => {
   if (!nombre) return res.status(400).json({ error: "Falta el nombre" });
   if (!ip && !hostname) return res.status(400).json({ error: "Hace falta una dirección IP o un nombre de host" });
   const id = uuidv4();
-  await qRun(`INSERT INTO monitor_activos (id, nombre, alias, ip, hostname, grupo, origen, criticidad, notas, created_by)
-              VALUES (?,?,?,?,?,?, 'propio', ?, ?, ?)`,
+  await qRun(`INSERT INTO activos (id, categoria, tipo, nombre, alias, ip, hostname, grupo, origen, criticidad, notas, created_by)
+              VALUES (?, 'hardware', 'servidor', ?,?,?,?,?, 'propio', ?, ?, ?)`,
     [id, nombre, alias || null, ip || null, hostname || null, grupo || null,
      monitoreo.CRITICIDADES.includes(criticidad) ? criticidad : "media", notas || null, req.user.username]);
   res.status(201).json({ id });
@@ -2655,12 +2661,12 @@ app.post("/api/monitoreo/activos", auth, adminOnly, async (req, res) => {
 
 /** Cambios sobre un activo: criticidad, notas, y si se lo mide o no. */
 app.put("/api/monitoreo/activos/:id", auth, adminOnly, async (req, res) => {
-  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  const a = await qRow("SELECT * FROM activos WHERE id = ? AND eliminado_at IS NULL", [req.params.id]);
   if (!a) return res.status(404).json({ error: "No encontrado" });
   const { criticidad, notas, monitoreado, nombre, alias, ip, hostname, grupo } = req.body || {};
   // El alias se puede borrar mandando cadena vacía, y por eso no usa COALESCE: es la forma
   // de volver al nombre del sistema cuando el personalizado dejó de servir.
-  await qRun(`UPDATE monitor_activos SET
+  await qRun(`UPDATE activos SET
                 nombre = COALESCE(?, nombre), ip = COALESCE(?, ip), hostname = COALESCE(?, hostname),
                 grupo = COALESCE(?, grupo),
                 alias = ${req.body?.alias === undefined ? "alias" : "?"},
@@ -2673,9 +2679,11 @@ app.put("/api/monitoreo/activos/:id", auth, adminOnly, async (req, res) => {
 });
 
 app.delete("/api/monitoreo/activos/:id", auth, adminOnly, async (req, res) => {
-  const a = await qRow("SELECT * FROM monitor_activos WHERE id = ?", [req.params.id]);
+  const a = await qRow("SELECT * FROM activos WHERE id = ? AND eliminado_at IS NULL", [req.params.id]);
   if (!a) return res.status(404).json({ error: "No encontrado" });
-  await qRun("DELETE FROM monitor_activos WHERE id = ?", [a.id]);   // los chequeos caen con él
+  // Borrado lógico, como en el inventario único: deja de medirse y queda en el historial.
+  await qRun("UPDATE activos SET eliminado_at = NOW() WHERE id = ?", [a.id]);
+  await qRun("UPDATE monitor_chequeos SET habilitado = 0 WHERE activo_id = ?", [a.id]);
   await auditLog("MONITOR_ASSET_DEL", `Activo quitado: ${a.nombre}`, req.user.username, req.user.role, "internal", "ok");
   res.json({ ok: true });
 });
@@ -2694,10 +2702,10 @@ app.get("/api/monitoreo/resumen", auth, async (req, res) => {
            SUM(e.estado = 'caido')     AS caidos,
            SUM(e.estado = 'degradado') AS degradados,
            COUNT(c.id)                 AS chequeos
-      FROM monitor_activos a
+      FROM activos a
       LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
       LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
-     WHERE 1=1 GROUP BY a.id`, []);
+     WHERE a.eliminado_at IS NULL AND a.estado <> 'baja' GROUP BY a.id`, []);
 
   const estadoDe = (a) => !Number(a.chequeos) ? "sin_medir"
     : Number(a.caidos) ? "caido" : Number(a.degradados) ? "degradado" : "ok";
@@ -2720,10 +2728,10 @@ app.get("/api/monitoreo/resumen", auth, async (req, res) => {
     SELECT a.id, COALESCE(a.alias, a.nombre) AS nombre, a.ip, a.criticidad, a.origen,
            -- a quién llamar cuando algo se cae.
            MIN(e.medido_at) AS desde, GROUP_CONCAT(DISTINCT c.tipo) AS tipos
-      FROM monitor_activos a
+      FROM activos a
             JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
       JOIN monitor_estado   e ON e.chequeo_id = c.id AND e.estado = 'caido'
-     WHERE 1=1
+     WHERE a.eliminado_at IS NULL AND a.estado <> 'baja'
      GROUP BY a.id
      ORDER BY FIELD(a.criticidad, 'critica', 'alta', 'media', 'baja'), nombre
      LIMIT 20`, []);
@@ -2731,8 +2739,8 @@ app.get("/api/monitoreo/resumen", auth, async (req, res) => {
   const eventos = await qRows(`
     SELECT e.id, e.origen, e.severidad, e.estado_nuevo, e.mensaje, e.ts,
            COALESCE(a.alias, a.nombre) AS activo
-      FROM monitor_eventos e LEFT JOIN monitor_activos a ON a.id = e.activo_id
-     WHERE 1=1 ORDER BY e.ts DESC LIMIT 12`, []);
+      FROM monitor_eventos e LEFT JOIN activos a ON a.id = e.activo_id
+     WHERE (a.id IS NULL OR (a.eliminado_at IS NULL AND a.estado <> 'baja')) ORDER BY e.ts DESC LIMIT 12`, []);
 
   const [{ n: eventos24h } = { n: 0 }] = await qRows(
     `SELECT COUNT(*) n FROM monitor_eventos e WHERE e.ts >= DATE_SUB(NOW(), INTERVAL 24 HOUR)`,
@@ -2751,10 +2759,10 @@ app.get("/api/monitoreo/resumen", auth, async (req, res) => {
            ROUND(AVG(e.latencia_ms))   AS latencia,
            GROUP_CONCAT(DISTINCT c.tipo ORDER BY c.tipo) AS tipos,
            MAX(e.ultimo_error)         AS error
-      FROM monitor_activos a
+      FROM activos a
             LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
       LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
-     WHERE 1=1
+     WHERE a.eliminado_at IS NULL AND a.estado <> 'baja'
      GROUP BY a.id
      ORDER BY (SUM(e.estado = 'caido') > 0) DESC,
               FIELD(a.criticidad, 'critica', 'alta', 'media', 'baja'),
@@ -2812,7 +2820,7 @@ app.get("/api/monitoreo/metricas", auth, async (req, res) => {
   // Los que más molestaron: cuántas veces se cayó cada uno en el período.
   const reincidentes = await qRows(`
     SELECT COALESCE(a.alias, a.nombre) AS nombre, a.criticidad, COUNT(*) AS caidas
-      FROM monitor_eventos e JOIN monitor_activos a ON a.id = e.activo_id
+      FROM monitor_eventos e JOIN activos a ON a.id = e.activo_id
      WHERE e.estado_nuevo IN ('caido','problema')
        AND e.ts >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
      GROUP BY a.id ORDER BY caidas DESC, nombre LIMIT 8`, [dias - 1, ...[]]).catch(() => []);
@@ -2823,7 +2831,7 @@ app.get("/api/monitoreo/metricas", auth, async (req, res) => {
     SELECT c.tipo, ROUND(AVG(e.latencia_ms)) AS media, COUNT(*) AS n
       FROM monitor_estado e
       JOIN monitor_chequeos c ON c.id = e.chequeo_id
-      JOIN monitor_activos  a ON a.id = c.activo_id
+      JOIN activos  a ON a.id = c.activo_id
      WHERE e.latencia_ms IS NOT NULL
      GROUP BY c.tipo`, []).catch(() => []);
 
@@ -2831,10 +2839,10 @@ app.get("/api/monitoreo/metricas", auth, async (req, res) => {
     SELECT a.criticidad,
            COUNT(DISTINCT a.id) AS total,
            COUNT(DISTINCT CASE WHEN e.estado = 'caido' THEN a.id END) AS caidos
-      FROM monitor_activos a
+      FROM activos a
       LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
       LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
-     WHERE 1=1
+     WHERE a.eliminado_at IS NULL AND a.estado <> 'baja'
      GROUP BY a.criticidad`, []).catch(() => []);
 
   res.json({ dias: dias_, reincidentes, latencia, porCriticidad });
@@ -2847,8 +2855,8 @@ app.get("/api/monitoreo/eventos", auth, async (req, res) => {
     `SELECT e.id, e.origen, e.severidad, e.estado_nuevo, e.mensaje, e.resuelto_at, e.ts,
             a.nombre AS activo
        FROM monitor_eventos e
-       LEFT JOIN monitor_activos a ON a.id = e.activo_id
-      WHERE 1=1
+       LEFT JOIN activos a ON a.id = e.activo_id
+      WHERE (a.id IS NULL OR (a.eliminado_at IS NULL AND a.estado <> 'baja'))
       ORDER BY e.ts DESC LIMIT ${limite}`, []);
   res.json({ eventos });
 });
@@ -2871,10 +2879,10 @@ app.get("/api/monitoreo/inventario/resumen", auth, async (req, res) => {
             SUM(e.estado = 'caido')     AS caidos,
             SUM(e.estado = 'degradado') AS degradados,
             SUM(e.estado = 'ok')        AS sanos
-       FROM monitor_activos a
+       FROM activos a
        LEFT JOIN monitor_chequeos c ON c.activo_id = a.id AND c.habilitado = 1
        LEFT JOIN monitor_estado   e ON e.chequeo_id = c.id
-      WHERE 1=1
+      WHERE a.eliminado_at IS NULL AND a.estado <> 'baja'
       GROUP BY a.id`, []);
 
   const cuenta = (lista) => lista.reduce((o, k) => (o[k] = (o[k] || 0) + 1, o), {});
@@ -2934,6 +2942,8 @@ app.use((err, req, res, _next) => {
 async function start() {
   try {
     await initDB();
+    // ⚠️ Antes que el monitoreo: sus chequeos cuelgan de `activos`. Migra monitor_activos una sola vez.
+    await inventarioCommunity.prepararEsquema({ qRow, qRows, qRun });
     await monitoreo.crearTablas(qRun);
     // El ciclo mira cada 20 segundos qué chequeo venció su intervalo. No es el intervalo de
     // los chequeos: cada uno tiene el suyo y este solo despierta a los que toca.

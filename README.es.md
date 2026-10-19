@@ -144,6 +144,8 @@ Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo m�
 | **Generación** de reglas (KQL / SPL / SIGMA / YARA) | ✅ | ✅ |
 | Exportación STIX 2.1 | ✅ | ✅ |
 | **Inventario de activos y monitoreo de disponibilidad** (chequeos propios ICMP/TCP/HTTP, estados, historial) | ✅ | ✅ |
+| **Ciclo de vida y vencimientos de activos**: propietario, clasificación, fechas de garantía, soporte, fin de vida, licencia y contrato, semáforo, proyección de renovaciones a 12 meses, entregas y devoluciones, importación y exportación CSV, historial por campo | ✅ | ✅ |
+| **Avisos de vencimiento por correo** (90/60/30/7/0 días al propietario) · lectura automática del certificado TLS · sincronización con Skuld GRC | ❌ | ✅ |
 | **Integración con Zabbix y GLPI** - activos y problemas desde las herramientas del cliente | ❌ | ✅ |
 | **Unificación entre fuentes y reporte de discrepancias** (un equipo, varias fuentes) | ❌ | ✅ |
 | **Avisos de caída por correo** · mural de activos | ❌ | ✅ |

@@ -1,4 +1,5 @@
 import {
+  HardDrive,
   ChartColumn,
   Gauge,
   Boxes,
@@ -47,6 +48,7 @@ export const sidebarData: SidebarData = {
       frente: 2,
       roles: ['admin', 'analyst'],
       items: [
+        { title: 'nav.activos',   url: '/activos',               icon: HardDrive },
         { title: 'nav.monitoreo', url: '/monitoreo',             icon: Gauge },
         { title: 'nav.monitoreo_panel', url: '/monitoreo/panel', icon: Activity },
         { title: 'nav.ioc',   url: '/herramientas/ioc',      icon: Search },

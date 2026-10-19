@@ -1104,6 +1104,9 @@
       "sinMedir": "Not measured"
     }
   },
+  "nav.activos": "Assets",
+  "monitoreo.tituloActivos": "Asset management",
+  "monitoreo.subtituloActivos": "The full inventory: what you have, who owns it, when each thing expires and how it is doing.",
   "nav.monitoreo": "Monitoring",
   "nav.monitoreo_panel": "Monitoring board",
   "nav.monitoreo_tablero": "Monitoring metrics",

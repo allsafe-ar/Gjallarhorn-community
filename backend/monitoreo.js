@@ -19,32 +19,9 @@ const ESTADOS = ["ok", "degradado", "caido", "desconocido"];
 const CRITICIDADES = ["baja", "media", "alta", "critica"];
 
 async function crearTablas(qRun) {
-  // Lo que se monitorea.
-  await qRun(`CREATE TABLE IF NOT EXISTS monitor_activos (
-    id            VARCHAR(36) PRIMARY KEY,
-    nombre        VARCHAR(200) NOT NULL,
-    -- 🔑 El nombre con el que el cliente lo llama, que casi nunca es el del sistema. Un host
-    -- puede llamarse srv-db01 y ser "el servidor de facturacion" para quien lo usa.
-    alias         VARCHAR(200) NULL,
-    ip            VARCHAR(45)  NULL,
-    hostname      VARCHAR(255) NULL,
-    grupo         VARCHAR(200) NULL,
-    origen        ENUM('propio') NOT NULL DEFAULT 'propio',
-    criticidad    ENUM('baja','media','alta','critica') NOT NULL DEFAULT 'media',
-    monitoreado   TINYINT(1) NOT NULL DEFAULT 1,
-    notas         TEXT NULL,
-    -- Lo que se averigua sondeando, no lo que alguien declaró. Por eso va junto a la fecha
-    -- en que se averiguó: un sistema operativo de hace seis meses no dice nada de hoy.
-    so            VARCHAR(120) NULL,
-    so_pista      VARCHAR(80)  NULL,
-    puertos       JSON NULL,
-    sondeado_at   DATETIME NULL,
-    visto_ultima  DATETIME NULL,
-    created_by    VARCHAR(120) NULL,
-    created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_origen (origen)
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+  // 🔑 Lo que se monitorea vive en `activos`, el inventario único que comparten Gjallarhorn Pro y
+  // Skuld (canónico en utiles/activos). Lo crea `inventario-community.prepararEsquema`, que corre
+  // ANTES que esto y migró una vez la tabla vieja `monitor_activos` (queda como respaldo).
 
   // Qué se le mide a cada activo.
   await qRun(`CREATE TABLE IF NOT EXISTS monitor_chequeos (
@@ -63,7 +40,7 @@ async function crearTablas(qRun) {
     habilitado   TINYINT(1) NOT NULL DEFAULT 1,
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_activo (activo_id),
-    CONSTRAINT fk_chq_activo FOREIGN KEY (activo_id) REFERENCES monitor_activos(id) ON DELETE CASCADE
+    CONSTRAINT fk_chq_activo FOREIGN KEY (activo_id) REFERENCES activos(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
 
   // Estado actual de cada chequeo. Una fila por chequeo, se pisa: el histórico son los eventos.
@@ -94,38 +71,7 @@ async function crearTablas(qRun) {
     INDEX idx_activo (activo_id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
 
-  /**
-   * Qué fuente reportó cada activo, y qué dijo.
-   *
-   * 🔑 Un activo es UNA fila en monitor_activos. Acá va una fila por cada fuente que lo vio,
-   * con el identificador que esa fuente usa. Es lo que permite reimportar sin duplicar y, de
-   * paso, mostrar en qué se contradicen: si GLPI dice Windows 10 y el sondeo dice Windows 11,
-   * el inventario del cliente está desactualizado, y eso es un hallazgo.
-   */
-  // ⚠️ La edición Pro agrega acá dos tablas más, para cruzar el mismo equipo entre varias
-  // herramientas (Zabbix, GLPI) sin duplicarlo. Community mide por su cuenta y tiene una sola
-  // procedencia, así que no las necesita. El esquema queda como subconjunto del de Pro: un
-  // cliente puede empezar acá y migrar sin perder nada.
-
-  // Instalaciones que ya tenían la tabla creada: se agregan las columnas nuevas de a una.
-  // ⚠️ ADD COLUMN IF NOT EXISTS es sintaxis de MariaDB y en MySQL falla, así que se intenta
-  // y se ignora el error de columna duplicada. Es idempotente igual.
-  for (const col of [
-    "alias VARCHAR(200) NULL",
-    "so VARCHAR(120) NULL",
-    "so_pista VARCHAR(80) NULL",
-    "puertos JSON NULL",
-    "sondeado_at DATETIME NULL",
-    // Datos de identidad: son los que permiten reconocer el mismo equipo entre fuentes.
-    "mac VARCHAR(32) NULL",
-    "serie VARCHAR(80) NULL",
-    "modelo VARCHAR(120) NULL",
-    "fabricante VARCHAR(120) NULL",
-    "ubicacion VARCHAR(200) NULL",
-    "responsable VARCHAR(200) NULL",
-  ]) {
-    try { await qRun("ALTER TABLE monitor_activos ADD COLUMN " + col); } catch (_) {}
-  }
+  // Las columnas de identidad, las procedencias y las dudas de duplicado son del inventario único.
 }
 
 /**

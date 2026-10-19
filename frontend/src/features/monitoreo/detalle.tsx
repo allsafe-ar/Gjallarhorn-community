@@ -37,7 +37,8 @@ type Activo = {
 
 const VACIO = { tipo: 'icmp' as const, destino: '', intervalo_seg: 60, timeout_ms: 5000, umbral_fallos: 3, esperado: 0 }
 
-export function DetalleActivo({ id, onClose }: { id: string | null; onClose: () => void }) {
+/** Lo que se le mide a un activo: panel lateral del monitoreo y pestaña "Monitoreo" de la ficha del inventario. */
+export function CuerpoMonitoreo({ id }: { id: string | null }) {
   const { t } = useTranslation()
   const { auth } = useAuthStore()
   const qc = useQueryClient()
@@ -98,16 +99,6 @@ export function DetalleActivo({ id, onClose }: { id: string | null; onClose: () 
   const a = data?.activo
 
   return (
-    <Sheet open={!!id} onOpenChange={(o) => { if (!o) onClose() }}>
-      <SheetContent className='w-full sm:max-w-lg overflow-y-auto'>
-        <SheetHeader>
-          <SheetTitle>{a ? (a.alias || a.nombre) : '...'}</SheetTitle>
-          <SheetDescription>
-            {a ? [a.ip || a.hostname, a.origen === 'zabbix' ? 'Zabbix' : t('monitoreo.origenPropio')]
-              .filter(Boolean).join(' · ') : ''}
-          </SheetDescription>
-        </SheetHeader>
-
         <div className='px-4 pb-6 space-y-5'>
           {/* Un activo de Zabbix llega con la medición propia apagada: el aviso explica por qué. */}
           {a && esAdmin && (
@@ -298,6 +289,29 @@ export function DetalleActivo({ id, onClose }: { id: string | null; onClose: () 
             )}
           </div>
         </div>
+  )
+}
+
+/** Panel lateral de la vista de monitoreo: el mismo cuerpo con su encabezado. */
+export function DetalleActivo({ id, onClose }: { id: string | null; onClose: () => void }) {
+  const { t } = useTranslation()
+  const { data } = useQuery<{ activo: Activo; chequeos: Chequeo[] }>({
+    queryKey: ['monitor-chequeos', id],
+    queryFn: () => apiFetch(`/monitoreo/activos/${id}/chequeos`),
+    enabled: !!id,
+  })
+  const a = data?.activo
+  return (
+    <Sheet open={!!id} onOpenChange={(o) => { if (!o) onClose() }}>
+      <SheetContent className='w-full sm:max-w-lg overflow-y-auto'>
+        <SheetHeader>
+          <SheetTitle>{a ? (a.alias || a.nombre) : '...'}</SheetTitle>
+          <SheetDescription>
+            {a ? [a.ip || a.hostname, a.origen === 'zabbix' ? 'Zabbix' : t('monitoreo.origenPropio')]
+              .filter(Boolean).join(' · ') : ''}
+          </SheetDescription>
+        </SheetHeader>
+        <CuerpoMonitoreo id={id} />
       </SheetContent>
     </Sheet>
   )

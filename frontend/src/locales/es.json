@@ -1104,6 +1104,9 @@
       "sinMedir": "Sin medir"
     }
   },
+  "nav.activos": "Activos",
+  "monitoreo.tituloActivos": "Gestión de activos",
+  "monitoreo.subtituloActivos": "El inventario completo: qué hay, de quién es, cuándo vence cada cosa y cómo está.",
   "nav.monitoreo": "Monitoreo",
   "nav.monitoreo_panel": "Panel de monitoreo",
   "nav.monitoreo_tablero": "Métricas de monitoreo",

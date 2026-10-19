@@ -23,6 +23,7 @@ import { Route as AuthenticatedMonitoreoIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedInteligenciaIndexRouteImport } from './routes/_authenticated/inteligencia/index'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
+import { Route as AuthenticatedActivosIndexRouteImport } from './routes/_authenticated/activos/index'
 import { Route as AuthenticatedSocWazuhRouteImport } from './routes/_authenticated/soc/wazuh'
 import { Route as AuthenticatedSocVelociraptorRouteImport } from './routes/_authenticated/soc/velociraptor'
 import { Route as AuthenticatedSocThehiveRouteImport } from './routes/_authenticated/soc/thehive'
@@ -116,6 +117,12 @@ const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/dashboard/',
     path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedActivosIndexRoute =
+  AuthenticatedActivosIndexRouteImport.update({
+    id: '/activos/',
+    path: '/activos/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSocWazuhRoute = AuthenticatedSocWazuhRouteImport.update({
@@ -270,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/soc/thehive': typeof AuthenticatedSocThehiveRoute
   '/soc/velociraptor': typeof AuthenticatedSocVelociraptorRoute
   '/soc/wazuh': typeof AuthenticatedSocWazuhRoute
+  '/activos/': typeof AuthenticatedActivosIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/inteligencia/': typeof AuthenticatedInteligenciaIndexRoute
@@ -306,6 +314,7 @@ export interface FileRoutesByTo {
   '/soc/thehive': typeof AuthenticatedSocThehiveRoute
   '/soc/velociraptor': typeof AuthenticatedSocVelociraptorRoute
   '/soc/wazuh': typeof AuthenticatedSocWazuhRoute
+  '/activos': typeof AuthenticatedActivosIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/inteligencia': typeof AuthenticatedInteligenciaIndexRoute
@@ -344,6 +353,7 @@ export interface FileRoutesById {
   '/_authenticated/soc/thehive': typeof AuthenticatedSocThehiveRoute
   '/_authenticated/soc/velociraptor': typeof AuthenticatedSocVelociraptorRoute
   '/_authenticated/soc/wazuh': typeof AuthenticatedSocWazuhRoute
+  '/_authenticated/activos/': typeof AuthenticatedActivosIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/_authenticated/inteligencia/': typeof AuthenticatedInteligenciaIndexRoute
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/soc/thehive'
     | '/soc/velociraptor'
     | '/soc/wazuh'
+    | '/activos/'
     | '/dashboard/'
     | '/ia/'
     | '/inteligencia/'
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/soc/thehive'
     | '/soc/velociraptor'
     | '/soc/wazuh'
+    | '/activos'
     | '/dashboard'
     | '/ia'
     | '/inteligencia'
@@ -455,6 +467,7 @@ export interface FileRouteTypes {
     | '/_authenticated/soc/thehive'
     | '/_authenticated/soc/velociraptor'
     | '/_authenticated/soc/wazuh'
+    | '/_authenticated/activos/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/ia/'
     | '/_authenticated/inteligencia/'
@@ -571,6 +584,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/activos/': {
+      id: '/_authenticated/activos/'
+      path: '/activos'
+      fullPath: '/activos/'
+      preLoaderRoute: typeof AuthenticatedActivosIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/soc/wazuh': {
@@ -746,6 +766,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSocThehiveRoute: typeof AuthenticatedSocThehiveRoute
   AuthenticatedSocVelociraptorRoute: typeof AuthenticatedSocVelociraptorRoute
   AuthenticatedSocWazuhRoute: typeof AuthenticatedSocWazuhRoute
+  AuthenticatedActivosIndexRoute: typeof AuthenticatedActivosIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedIaIndexRoute: typeof AuthenticatedIaIndexRoute
   AuthenticatedInteligenciaIndexRoute: typeof AuthenticatedInteligenciaIndexRoute
@@ -777,6 +798,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSocThehiveRoute: AuthenticatedSocThehiveRoute,
   AuthenticatedSocVelociraptorRoute: AuthenticatedSocVelociraptorRoute,
   AuthenticatedSocWazuhRoute: AuthenticatedSocWazuhRoute,
+  AuthenticatedActivosIndexRoute: AuthenticatedActivosIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedIaIndexRoute: AuthenticatedIaIndexRoute,
   AuthenticatedInteligenciaIndexRoute: AuthenticatedInteligenciaIndexRoute,

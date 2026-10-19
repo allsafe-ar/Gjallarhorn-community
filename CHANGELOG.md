@@ -3,6 +3,16 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.5.0] - 2026-10-19
+
+### Added
+- **Asset inventory with lifecycle and expiration tracking**, the same module as Gjallarhorn Pro and Skuld GRC: full taxonomy, owner and custodian, classification, warranty / support / EOL / license / contract dates with a traffic-light view and a 12-month renewal forecast, handover and return, CSV import (Spanish and English column names) and export, field-level history, decommissioning with disposal method.
+- Each device's monitoring is now a tab in its asset record.
+
+### Changed
+- `monitor_activos` is migrated once into the shared `activos` table (same ids); checks and events hang from it. The old table is kept as a backup. Removing a device is now a soft delete.
+- `/api/health` reports the real version.
+
 ## [1.4.2] - 2026-09-22
 
 ### Fixed
