@@ -3,6 +3,21 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.5.3] - 2026-10-24
+
+### Security
+- **Node.js 24 LTS.** The Docker image moves from `node:20-alpine` to `node:24-alpine` and the install script sets up Node.js 24. Node.js 20 reached end of life and did not get the October 2026 security fixes (among them a remote code execution in the Brotli decoder). `engines` now asks for 24.22.1 or later.
+- **MySQL 8.4 LTS** in `docker-compose.yml` (was 8.0, end of life). An existing data volume is upgraded in place on first start.
+- Dependencies back to **0 known vulnerabilities** (backend and frontend): `body-parser`, `proxy-addr`, `multer`, `mailparser`, `nodemailer`, `dompurify`, `follow-redirects`, `seroval`, `zod`, `vite`, `source-map-js` and the TanStack router tooling.
+
+### Changed
+- README (EN/ES): requirements section, stack versions (Node.js 24, React 19, MySQL 8.4) and version badge brought up to date.
+
+## [1.5.2] - 2026-10-19
+
+### Changed
+- Asset spreadsheet import recognises the serial number and, without an identifier, matches the row by name, so re-importing does not duplicate.
+
 ## [1.5.1] - 2026-10-19
 
 ### Changed

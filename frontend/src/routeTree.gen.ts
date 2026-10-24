@@ -10,79 +10,44 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as errors503RouteImport } from './routes/(errors)/503'
-import { Route as errors500RouteImport } from './routes/(errors)/500'
-import { Route as errors404RouteImport } from './routes/(errors)/404'
-import { Route as errors403RouteImport } from './routes/(errors)/403'
-import { Route as errors401RouteImport } from './routes/(errors)/401'
-import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authOtpRouteImport } from './routes/(auth)/otp'
-import { Route as AuthenticatedPerfilIndexRouteImport } from './routes/_authenticated/perfil/index'
-import { Route as AuthenticatedMonitoreoIndexRouteImport } from './routes/_authenticated/monitoreo/index'
-import { Route as AuthenticatedInteligenciaIndexRouteImport } from './routes/_authenticated/inteligencia/index'
-import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia/index'
-import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
+import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as errors401RouteImport } from './routes/(errors)/401'
+import { Route as errors403RouteImport } from './routes/(errors)/403'
+import { Route as errors404RouteImport } from './routes/(errors)/404'
+import { Route as errors500RouteImport } from './routes/(errors)/500'
+import { Route as errors503RouteImport } from './routes/(errors)/503'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedActivosIndexRouteImport } from './routes/_authenticated/activos/index'
-import { Route as AuthenticatedSocWazuhRouteImport } from './routes/_authenticated/soc/wazuh'
-import { Route as AuthenticatedSocVelociraptorRouteImport } from './routes/_authenticated/soc/velociraptor'
-import { Route as AuthenticatedSocThehiveRouteImport } from './routes/_authenticated/soc/thehive'
-import { Route as AuthenticatedSocOpenvasRouteImport } from './routes/_authenticated/soc/openvas'
-import { Route as AuthenticatedSocNessusRouteImport } from './routes/_authenticated/soc/nessus'
-import { Route as AuthenticatedMonitoreoTableroRouteImport } from './routes/_authenticated/monitoreo/tablero'
-import { Route as AuthenticatedMonitoreoPanelRouteImport } from './routes/_authenticated/monitoreo/panel'
-import { Route as AuthenticatedInteligenciaThreatRouteImport } from './routes/_authenticated/inteligencia/threat'
-import { Route as AuthenticatedInteligenciaApisRouteImport } from './routes/_authenticated/inteligencia/apis'
-import { Route as AuthenticatedIncidentesTimelineRouteImport } from './routes/_authenticated/incidentes/timeline'
-import { Route as AuthenticatedIncidentesPlaybooksRouteImport } from './routes/_authenticated/incidentes/playbooks'
-import { Route as AuthenticatedIncidentesCasosRouteImport } from './routes/_authenticated/incidentes/casos'
-import { Route as AuthenticatedHerramientasSandboxRouteImport } from './routes/_authenticated/herramientas/sandbox'
-import { Route as AuthenticatedHerramientasIocRouteImport } from './routes/_authenticated/herramientas/ioc'
-import { Route as AuthenticatedHerramientasEmailRouteImport } from './routes/_authenticated/herramientas/email'
-import { Route as AuthenticatedHerramientasArchivosRouteImport } from './routes/_authenticated/herramientas/archivos'
-import { Route as AuthenticatedConfigUsuariosRouteImport } from './routes/_authenticated/config/usuarios'
-import { Route as AuthenticatedConfigPlatformsRouteImport } from './routes/_authenticated/config/platforms'
-import { Route as AuthenticatedConfigIaRouteImport } from './routes/_authenticated/config/ia'
-import { Route as AuthenticatedConfigAuditoriaRouteImport } from './routes/_authenticated/config/auditoria'
 import { Route as AuthenticatedConfigApikeysRouteImport } from './routes/_authenticated/config/apikeys'
+import { Route as AuthenticatedConfigAuditoriaRouteImport } from './routes/_authenticated/config/auditoria'
+import { Route as AuthenticatedConfigIaRouteImport } from './routes/_authenticated/config/ia'
+import { Route as AuthenticatedConfigPlatformsRouteImport } from './routes/_authenticated/config/platforms'
+import { Route as AuthenticatedConfigUsuariosRouteImport } from './routes/_authenticated/config/usuarios'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
+import { Route as AuthenticatedHerramientasArchivosRouteImport } from './routes/_authenticated/herramientas/archivos'
+import { Route as AuthenticatedHerramientasEmailRouteImport } from './routes/_authenticated/herramientas/email'
+import { Route as AuthenticatedHerramientasIocRouteImport } from './routes/_authenticated/herramientas/ioc'
+import { Route as AuthenticatedHerramientasSandboxRouteImport } from './routes/_authenticated/herramientas/sandbox'
+import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia/index'
+import { Route as AuthenticatedIncidentesCasosRouteImport } from './routes/_authenticated/incidentes/casos'
+import { Route as AuthenticatedIncidentesPlaybooksRouteImport } from './routes/_authenticated/incidentes/playbooks'
+import { Route as AuthenticatedIncidentesTimelineRouteImport } from './routes/_authenticated/incidentes/timeline'
+import { Route as AuthenticatedInteligenciaIndexRouteImport } from './routes/_authenticated/inteligencia/index'
+import { Route as AuthenticatedInteligenciaApisRouteImport } from './routes/_authenticated/inteligencia/apis'
+import { Route as AuthenticatedInteligenciaThreatRouteImport } from './routes/_authenticated/inteligencia/threat'
+import { Route as AuthenticatedMonitoreoIndexRouteImport } from './routes/_authenticated/monitoreo/index'
+import { Route as AuthenticatedMonitoreoPanelRouteImport } from './routes/_authenticated/monitoreo/panel'
+import { Route as AuthenticatedMonitoreoTableroRouteImport } from './routes/_authenticated/monitoreo/tablero'
+import { Route as AuthenticatedPerfilIndexRouteImport } from './routes/_authenticated/perfil/index'
+import { Route as AuthenticatedSocNessusRouteImport } from './routes/_authenticated/soc/nessus'
+import { Route as AuthenticatedSocOpenvasRouteImport } from './routes/_authenticated/soc/openvas'
+import { Route as AuthenticatedSocThehiveRouteImport } from './routes/_authenticated/soc/thehive'
+import { Route as AuthenticatedSocVelociraptorRouteImport } from './routes/_authenticated/soc/velociraptor'
+import { Route as AuthenticatedSocWazuhRouteImport } from './routes/_authenticated/soc/wazuh'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const errors503Route = errors503RouteImport.update({
-  id: '/(errors)/503',
-  path: '/503',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const errors500Route = errors500RouteImport.update({
-  id: '/(errors)/500',
-  path: '/500',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const errors404Route = errors404RouteImport.update({
-  id: '/(errors)/404',
-  path: '/404',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const errors403Route = errors403RouteImport.update({
-  id: '/(errors)/403',
-  path: '/403',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const errors401Route = errors401RouteImport.update({
-  id: '/(errors)/401',
-  path: '/401',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const authSignInRoute = authSignInRouteImport.update({
-  id: '/(auth)/sign-in',
-  path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authOtpRoute = authOtpRouteImport.update({
@@ -90,154 +55,45 @@ const authOtpRoute = authOtpRouteImport.update({
   path: '/otp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedPerfilIndexRoute =
-  AuthenticatedPerfilIndexRouteImport.update({
-    id: '/perfil/',
-    path: '/perfil/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedMonitoreoIndexRoute =
-  AuthenticatedMonitoreoIndexRouteImport.update({
-    id: '/monitoreo/',
-    path: '/monitoreo/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedInteligenciaIndexRoute =
-  AuthenticatedInteligenciaIndexRouteImport.update({
-    id: '/inteligencia/',
-    path: '/inteligencia/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
-  id: '/ia/',
-  path: '/ia/',
+const authSignInRoute = authSignInRouteImport.update({
+  id: '/(auth)/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors401Route = errors401RouteImport.update({
+  id: '/(errors)/401',
+  path: '/401',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors403Route = errors403RouteImport.update({
+  id: '/(errors)/403',
+  path: '/403',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors404Route = errors404RouteImport.update({
+  id: '/(errors)/404',
+  path: '/404',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors500Route = errors500RouteImport.update({
+  id: '/(errors)/500',
+  path: '/500',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors503Route = errors503RouteImport.update({
+  id: '/(errors)/503',
+  path: '/503',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDashboardIndexRoute =
-  AuthenticatedDashboardIndexRouteImport.update({
-    id: '/dashboard/',
-    path: '/dashboard/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedActivosIndexRoute =
   AuthenticatedActivosIndexRouteImport.update({
     id: '/activos/',
     path: '/activos/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSocWazuhRoute = AuthenticatedSocWazuhRouteImport.update({
-  id: '/soc/wazuh',
-  path: '/soc/wazuh',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSocVelociraptorRoute =
-  AuthenticatedSocVelociraptorRouteImport.update({
-    id: '/soc/velociraptor',
-    path: '/soc/velociraptor',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSocThehiveRoute = AuthenticatedSocThehiveRouteImport.update({
-  id: '/soc/thehive',
-  path: '/soc/thehive',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSocOpenvasRoute = AuthenticatedSocOpenvasRouteImport.update({
-  id: '/soc/openvas',
-  path: '/soc/openvas',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSocNessusRoute = AuthenticatedSocNessusRouteImport.update({
-  id: '/soc/nessus',
-  path: '/soc/nessus',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedMonitoreoTableroRoute =
-  AuthenticatedMonitoreoTableroRouteImport.update({
-    id: '/monitoreo/tablero',
-    path: '/monitoreo/tablero',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedMonitoreoPanelRoute =
-  AuthenticatedMonitoreoPanelRouteImport.update({
-    id: '/monitoreo/panel',
-    path: '/monitoreo/panel',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedInteligenciaThreatRoute =
-  AuthenticatedInteligenciaThreatRouteImport.update({
-    id: '/inteligencia/threat',
-    path: '/inteligencia/threat',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedInteligenciaApisRoute =
-  AuthenticatedInteligenciaApisRouteImport.update({
-    id: '/inteligencia/apis',
-    path: '/inteligencia/apis',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedIncidentesTimelineRoute =
-  AuthenticatedIncidentesTimelineRouteImport.update({
-    id: '/incidentes/timeline',
-    path: '/incidentes/timeline',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedIncidentesPlaybooksRoute =
-  AuthenticatedIncidentesPlaybooksRouteImport.update({
-    id: '/incidentes/playbooks',
-    path: '/incidentes/playbooks',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedIncidentesCasosRoute =
-  AuthenticatedIncidentesCasosRouteImport.update({
-    id: '/incidentes/casos',
-    path: '/incidentes/casos',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedHerramientasSandboxRoute =
-  AuthenticatedHerramientasSandboxRouteImport.update({
-    id: '/herramientas/sandbox',
-    path: '/herramientas/sandbox',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedHerramientasIocRoute =
-  AuthenticatedHerramientasIocRouteImport.update({
-    id: '/herramientas/ioc',
-    path: '/herramientas/ioc',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedHerramientasEmailRoute =
-  AuthenticatedHerramientasEmailRouteImport.update({
-    id: '/herramientas/email',
-    path: '/herramientas/email',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedHerramientasArchivosRoute =
-  AuthenticatedHerramientasArchivosRouteImport.update({
-    id: '/herramientas/archivos',
-    path: '/herramientas/archivos',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedConfigUsuariosRoute =
-  AuthenticatedConfigUsuariosRouteImport.update({
-    id: '/config/usuarios',
-    path: '/config/usuarios',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedConfigPlatformsRoute =
-  AuthenticatedConfigPlatformsRouteImport.update({
-    id: '/config/platforms',
-    path: '/config/platforms',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedConfigIaRoute = AuthenticatedConfigIaRouteImport.update({
-  id: '/config/ia',
-  path: '/config/ia',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedConfigAuditoriaRoute =
-  AuthenticatedConfigAuditoriaRouteImport.update({
-    id: '/config/auditoria',
-    path: '/config/auditoria',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedConfigApikeysRoute =
@@ -246,6 +102,150 @@ const AuthenticatedConfigApikeysRoute =
     path: '/config/apikeys',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedConfigAuditoriaRoute =
+  AuthenticatedConfigAuditoriaRouteImport.update({
+    id: '/config/auditoria',
+    path: '/config/auditoria',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedConfigIaRoute = AuthenticatedConfigIaRouteImport.update({
+  id: '/config/ia',
+  path: '/config/ia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConfigPlatformsRoute =
+  AuthenticatedConfigPlatformsRouteImport.update({
+    id: '/config/platforms',
+    path: '/config/platforms',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedConfigUsuariosRoute =
+  AuthenticatedConfigUsuariosRouteImport.update({
+    id: '/config/usuarios',
+    path: '/config/usuarios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHerramientasArchivosRoute =
+  AuthenticatedHerramientasArchivosRouteImport.update({
+    id: '/herramientas/archivos',
+    path: '/herramientas/archivos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHerramientasEmailRoute =
+  AuthenticatedHerramientasEmailRouteImport.update({
+    id: '/herramientas/email',
+    path: '/herramientas/email',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHerramientasIocRoute =
+  AuthenticatedHerramientasIocRouteImport.update({
+    id: '/herramientas/ioc',
+    path: '/herramientas/ioc',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHerramientasSandboxRoute =
+  AuthenticatedHerramientasSandboxRouteImport.update({
+    id: '/herramientas/sandbox',
+    path: '/herramientas/sandbox',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
+  id: '/ia/',
+  path: '/ia/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedIncidentesCasosRoute =
+  AuthenticatedIncidentesCasosRouteImport.update({
+    id: '/incidentes/casos',
+    path: '/incidentes/casos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedIncidentesPlaybooksRoute =
+  AuthenticatedIncidentesPlaybooksRouteImport.update({
+    id: '/incidentes/playbooks',
+    path: '/incidentes/playbooks',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedIncidentesTimelineRoute =
+  AuthenticatedIncidentesTimelineRouteImport.update({
+    id: '/incidentes/timeline',
+    path: '/incidentes/timeline',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInteligenciaIndexRoute =
+  AuthenticatedInteligenciaIndexRouteImport.update({
+    id: '/inteligencia/',
+    path: '/inteligencia/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInteligenciaApisRoute =
+  AuthenticatedInteligenciaApisRouteImport.update({
+    id: '/inteligencia/apis',
+    path: '/inteligencia/apis',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInteligenciaThreatRoute =
+  AuthenticatedInteligenciaThreatRouteImport.update({
+    id: '/inteligencia/threat',
+    path: '/inteligencia/threat',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMonitoreoIndexRoute =
+  AuthenticatedMonitoreoIndexRouteImport.update({
+    id: '/monitoreo/',
+    path: '/monitoreo/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMonitoreoPanelRoute =
+  AuthenticatedMonitoreoPanelRouteImport.update({
+    id: '/monitoreo/panel',
+    path: '/monitoreo/panel',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMonitoreoTableroRoute =
+  AuthenticatedMonitoreoTableroRouteImport.update({
+    id: '/monitoreo/tablero',
+    path: '/monitoreo/tablero',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPerfilIndexRoute =
+  AuthenticatedPerfilIndexRouteImport.update({
+    id: '/perfil/',
+    path: '/perfil/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSocNessusRoute = AuthenticatedSocNessusRouteImport.update({
+  id: '/soc/nessus',
+  path: '/soc/nessus',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSocOpenvasRoute = AuthenticatedSocOpenvasRouteImport.update({
+  id: '/soc/openvas',
+  path: '/soc/openvas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSocThehiveRoute = AuthenticatedSocThehiveRouteImport.update({
+  id: '/soc/thehive',
+  path: '/soc/thehive',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSocVelociraptorRoute =
+  AuthenticatedSocVelociraptorRouteImport.update({
+    id: '/soc/velociraptor',
+    path: '/soc/velociraptor',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSocWazuhRoute = AuthenticatedSocWazuhRouteImport.update({
+  id: '/soc/wazuh',
+  path: '/soc/wazuh',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -495,46 +495,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/(errors)/503': {
-      id: '/(errors)/503'
-      path: '/503'
-      fullPath: '/503'
-      preLoaderRoute: typeof errors503RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(errors)/500': {
-      id: '/(errors)/500'
-      path: '/500'
-      fullPath: '/500'
-      preLoaderRoute: typeof errors500RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(errors)/404': {
-      id: '/(errors)/404'
-      path: '/404'
-      fullPath: '/404'
-      preLoaderRoute: typeof errors404RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(errors)/403': {
-      id: '/(errors)/403'
-      path: '/403'
-      fullPath: '/403'
-      preLoaderRoute: typeof errors403RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(errors)/401': {
-      id: '/(errors)/401'
-      path: '/401'
-      fullPath: '/401'
-      preLoaderRoute: typeof errors401RouteImport
+    '/(auth)/otp': {
+      id: '/(auth)/otp'
+      path: '/otp'
+      fullPath: '/otp'
+      preLoaderRoute: typeof authOtpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/sign-in': {
@@ -544,46 +509,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(auth)/otp': {
-      id: '/(auth)/otp'
-      path: '/otp'
-      fullPath: '/otp'
-      preLoaderRoute: typeof authOtpRouteImport
+    '/(errors)/401': {
+      id: '/(errors)/401'
+      path: '/401'
+      fullPath: '/401'
+      preLoaderRoute: typeof errors401RouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/perfil/': {
-      id: '/_authenticated/perfil/'
-      path: '/perfil'
-      fullPath: '/perfil/'
-      preLoaderRoute: typeof AuthenticatedPerfilIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/(errors)/403': {
+      id: '/(errors)/403'
+      path: '/403'
+      fullPath: '/403'
+      preLoaderRoute: typeof errors403RouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/monitoreo/': {
-      id: '/_authenticated/monitoreo/'
-      path: '/monitoreo'
-      fullPath: '/monitoreo/'
-      preLoaderRoute: typeof AuthenticatedMonitoreoIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/(errors)/404': {
+      id: '/(errors)/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof errors404RouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/inteligencia/': {
-      id: '/_authenticated/inteligencia/'
-      path: '/inteligencia'
-      fullPath: '/inteligencia/'
-      preLoaderRoute: typeof AuthenticatedInteligenciaIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/(errors)/500': {
+      id: '/(errors)/500'
+      path: '/500'
+      fullPath: '/500'
+      preLoaderRoute: typeof errors500RouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/ia/': {
-      id: '/_authenticated/ia/'
-      path: '/ia'
-      fullPath: '/ia/'
-      preLoaderRoute: typeof AuthenticatedIaIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/(errors)/503': {
+      id: '/(errors)/503'
+      path: '/503'
+      fullPath: '/503'
+      preLoaderRoute: typeof errors503RouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dashboard/': {
-      id: '/_authenticated/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/activos/': {
@@ -593,137 +558,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActivosIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/soc/wazuh': {
-      id: '/_authenticated/soc/wazuh'
-      path: '/soc/wazuh'
-      fullPath: '/soc/wazuh'
-      preLoaderRoute: typeof AuthenticatedSocWazuhRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/soc/velociraptor': {
-      id: '/_authenticated/soc/velociraptor'
-      path: '/soc/velociraptor'
-      fullPath: '/soc/velociraptor'
-      preLoaderRoute: typeof AuthenticatedSocVelociraptorRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/soc/thehive': {
-      id: '/_authenticated/soc/thehive'
-      path: '/soc/thehive'
-      fullPath: '/soc/thehive'
-      preLoaderRoute: typeof AuthenticatedSocThehiveRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/soc/openvas': {
-      id: '/_authenticated/soc/openvas'
-      path: '/soc/openvas'
-      fullPath: '/soc/openvas'
-      preLoaderRoute: typeof AuthenticatedSocOpenvasRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/soc/nessus': {
-      id: '/_authenticated/soc/nessus'
-      path: '/soc/nessus'
-      fullPath: '/soc/nessus'
-      preLoaderRoute: typeof AuthenticatedSocNessusRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/monitoreo/tablero': {
-      id: '/_authenticated/monitoreo/tablero'
-      path: '/monitoreo/tablero'
-      fullPath: '/monitoreo/tablero'
-      preLoaderRoute: typeof AuthenticatedMonitoreoTableroRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/monitoreo/panel': {
-      id: '/_authenticated/monitoreo/panel'
-      path: '/monitoreo/panel'
-      fullPath: '/monitoreo/panel'
-      preLoaderRoute: typeof AuthenticatedMonitoreoPanelRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/inteligencia/threat': {
-      id: '/_authenticated/inteligencia/threat'
-      path: '/inteligencia/threat'
-      fullPath: '/inteligencia/threat'
-      preLoaderRoute: typeof AuthenticatedInteligenciaThreatRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/inteligencia/apis': {
-      id: '/_authenticated/inteligencia/apis'
-      path: '/inteligencia/apis'
-      fullPath: '/inteligencia/apis'
-      preLoaderRoute: typeof AuthenticatedInteligenciaApisRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/incidentes/timeline': {
-      id: '/_authenticated/incidentes/timeline'
-      path: '/incidentes/timeline'
-      fullPath: '/incidentes/timeline'
-      preLoaderRoute: typeof AuthenticatedIncidentesTimelineRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/incidentes/playbooks': {
-      id: '/_authenticated/incidentes/playbooks'
-      path: '/incidentes/playbooks'
-      fullPath: '/incidentes/playbooks'
-      preLoaderRoute: typeof AuthenticatedIncidentesPlaybooksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/incidentes/casos': {
-      id: '/_authenticated/incidentes/casos'
-      path: '/incidentes/casos'
-      fullPath: '/incidentes/casos'
-      preLoaderRoute: typeof AuthenticatedIncidentesCasosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/herramientas/sandbox': {
-      id: '/_authenticated/herramientas/sandbox'
-      path: '/herramientas/sandbox'
-      fullPath: '/herramientas/sandbox'
-      preLoaderRoute: typeof AuthenticatedHerramientasSandboxRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/herramientas/ioc': {
-      id: '/_authenticated/herramientas/ioc'
-      path: '/herramientas/ioc'
-      fullPath: '/herramientas/ioc'
-      preLoaderRoute: typeof AuthenticatedHerramientasIocRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/herramientas/email': {
-      id: '/_authenticated/herramientas/email'
-      path: '/herramientas/email'
-      fullPath: '/herramientas/email'
-      preLoaderRoute: typeof AuthenticatedHerramientasEmailRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/herramientas/archivos': {
-      id: '/_authenticated/herramientas/archivos'
-      path: '/herramientas/archivos'
-      fullPath: '/herramientas/archivos'
-      preLoaderRoute: typeof AuthenticatedHerramientasArchivosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/config/usuarios': {
-      id: '/_authenticated/config/usuarios'
-      path: '/config/usuarios'
-      fullPath: '/config/usuarios'
-      preLoaderRoute: typeof AuthenticatedConfigUsuariosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/config/platforms': {
-      id: '/_authenticated/config/platforms'
-      path: '/config/platforms'
-      fullPath: '/config/platforms'
-      preLoaderRoute: typeof AuthenticatedConfigPlatformsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/config/ia': {
-      id: '/_authenticated/config/ia'
-      path: '/config/ia'
-      fullPath: '/config/ia'
-      preLoaderRoute: typeof AuthenticatedConfigIaRouteImport
+    '/_authenticated/config/apikeys': {
+      id: '/_authenticated/config/apikeys'
+      path: '/config/apikeys'
+      fullPath: '/config/apikeys'
+      preLoaderRoute: typeof AuthenticatedConfigApikeysRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/config/auditoria': {
@@ -733,11 +572,172 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfigAuditoriaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/config/apikeys': {
-      id: '/_authenticated/config/apikeys'
-      path: '/config/apikeys'
-      fullPath: '/config/apikeys'
-      preLoaderRoute: typeof AuthenticatedConfigApikeysRouteImport
+    '/_authenticated/config/ia': {
+      id: '/_authenticated/config/ia'
+      path: '/config/ia'
+      fullPath: '/config/ia'
+      preLoaderRoute: typeof AuthenticatedConfigIaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/config/platforms': {
+      id: '/_authenticated/config/platforms'
+      path: '/config/platforms'
+      fullPath: '/config/platforms'
+      preLoaderRoute: typeof AuthenticatedConfigPlatformsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/config/usuarios': {
+      id: '/_authenticated/config/usuarios'
+      path: '/config/usuarios'
+      fullPath: '/config/usuarios'
+      preLoaderRoute: typeof AuthenticatedConfigUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/herramientas/archivos': {
+      id: '/_authenticated/herramientas/archivos'
+      path: '/herramientas/archivos'
+      fullPath: '/herramientas/archivos'
+      preLoaderRoute: typeof AuthenticatedHerramientasArchivosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/herramientas/email': {
+      id: '/_authenticated/herramientas/email'
+      path: '/herramientas/email'
+      fullPath: '/herramientas/email'
+      preLoaderRoute: typeof AuthenticatedHerramientasEmailRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/herramientas/ioc': {
+      id: '/_authenticated/herramientas/ioc'
+      path: '/herramientas/ioc'
+      fullPath: '/herramientas/ioc'
+      preLoaderRoute: typeof AuthenticatedHerramientasIocRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/herramientas/sandbox': {
+      id: '/_authenticated/herramientas/sandbox'
+      path: '/herramientas/sandbox'
+      fullPath: '/herramientas/sandbox'
+      preLoaderRoute: typeof AuthenticatedHerramientasSandboxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ia/': {
+      id: '/_authenticated/ia/'
+      path: '/ia'
+      fullPath: '/ia/'
+      preLoaderRoute: typeof AuthenticatedIaIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/incidentes/casos': {
+      id: '/_authenticated/incidentes/casos'
+      path: '/incidentes/casos'
+      fullPath: '/incidentes/casos'
+      preLoaderRoute: typeof AuthenticatedIncidentesCasosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/incidentes/playbooks': {
+      id: '/_authenticated/incidentes/playbooks'
+      path: '/incidentes/playbooks'
+      fullPath: '/incidentes/playbooks'
+      preLoaderRoute: typeof AuthenticatedIncidentesPlaybooksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/incidentes/timeline': {
+      id: '/_authenticated/incidentes/timeline'
+      path: '/incidentes/timeline'
+      fullPath: '/incidentes/timeline'
+      preLoaderRoute: typeof AuthenticatedIncidentesTimelineRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inteligencia/': {
+      id: '/_authenticated/inteligencia/'
+      path: '/inteligencia'
+      fullPath: '/inteligencia/'
+      preLoaderRoute: typeof AuthenticatedInteligenciaIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inteligencia/apis': {
+      id: '/_authenticated/inteligencia/apis'
+      path: '/inteligencia/apis'
+      fullPath: '/inteligencia/apis'
+      preLoaderRoute: typeof AuthenticatedInteligenciaApisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inteligencia/threat': {
+      id: '/_authenticated/inteligencia/threat'
+      path: '/inteligencia/threat'
+      fullPath: '/inteligencia/threat'
+      preLoaderRoute: typeof AuthenticatedInteligenciaThreatRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/monitoreo/': {
+      id: '/_authenticated/monitoreo/'
+      path: '/monitoreo'
+      fullPath: '/monitoreo/'
+      preLoaderRoute: typeof AuthenticatedMonitoreoIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/monitoreo/panel': {
+      id: '/_authenticated/monitoreo/panel'
+      path: '/monitoreo/panel'
+      fullPath: '/monitoreo/panel'
+      preLoaderRoute: typeof AuthenticatedMonitoreoPanelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/monitoreo/tablero': {
+      id: '/_authenticated/monitoreo/tablero'
+      path: '/monitoreo/tablero'
+      fullPath: '/monitoreo/tablero'
+      preLoaderRoute: typeof AuthenticatedMonitoreoTableroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/perfil/': {
+      id: '/_authenticated/perfil/'
+      path: '/perfil'
+      fullPath: '/perfil/'
+      preLoaderRoute: typeof AuthenticatedPerfilIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/soc/nessus': {
+      id: '/_authenticated/soc/nessus'
+      path: '/soc/nessus'
+      fullPath: '/soc/nessus'
+      preLoaderRoute: typeof AuthenticatedSocNessusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/soc/openvas': {
+      id: '/_authenticated/soc/openvas'
+      path: '/soc/openvas'
+      fullPath: '/soc/openvas'
+      preLoaderRoute: typeof AuthenticatedSocOpenvasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/soc/thehive': {
+      id: '/_authenticated/soc/thehive'
+      path: '/soc/thehive'
+      fullPath: '/soc/thehive'
+      preLoaderRoute: typeof AuthenticatedSocThehiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/soc/velociraptor': {
+      id: '/_authenticated/soc/velociraptor'
+      path: '/soc/velociraptor'
+      fullPath: '/soc/velociraptor'
+      preLoaderRoute: typeof AuthenticatedSocVelociraptorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/soc/wazuh': {
+      id: '/_authenticated/soc/wazuh'
+      path: '/soc/wazuh'
+      fullPath: '/soc/wazuh'
+      preLoaderRoute: typeof AuthenticatedSocWazuhRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }

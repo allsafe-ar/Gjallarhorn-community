@@ -9,11 +9,11 @@
 
   *Powered by [AllSafe Security Solutions](https://www.allsafe.com.ar)*
 
-  ![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=flat-square&logo=node.js&logoColor=white)
-  ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
-  ![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=flat-square&logo=mysql&logoColor=white)
+  ![Node.js](https://img.shields.io/badge/Node.js-24_LTS-339933?style=flat-square&logo=node.js&logoColor=white)
+  ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
+  ![MySQL](https://img.shields.io/badge/MySQL-8.4_LTS-4479A1?style=flat-square&logo=mysql&logoColor=white)
   ![License](https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square)
-  ![Version](https://img.shields.io/badge/Version-1.4.0-blue?style=flat-square)
+  ![Version](https://img.shields.io/badge/Version-1.5.3-blue?style=flat-square)
 
   [![Sitio web](https://img.shields.io/badge/Sitio_web-allsafe.com.ar%2Fgjallarhorn--community-6ab4ff?style=for-the-badge&labelColor=1e324d)](https://allsafe.com.ar/gjallarhorn-community/)
 </div>
@@ -26,7 +26,7 @@ Gjallarhorn Community es una plataforma SOC gratuita y open-source para operacio
 
 ---
 
-## ¿Qué es Gjallarhorn Community?
+## Qué es Gjallarhorn Community?
 
 Gjallarhorn Community incluye:
 
@@ -41,7 +41,7 @@ Gjallarhorn Community incluye:
 - **Inventario de activos y monitoreo de disponibilidad**: se le indican los equipos que importan y los mide por su cuenta, por ping, por puerto o por respuesta web. Estado por equipo, historial de caídas y recuperaciones, latencia, panel en vivo y tablero de métricas. Anda on-premise: el servidor tiene que estar dentro de la red que mide
 - **Auth**: JWT (12h), TOTP 2FA (RFC 6238), lockout de cuenta, control de acceso por rol (`admin` / `analyst` / `viewer`)
 
-> ¿Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA), el **módulo de IA** o el **SaaS multi-tenant con licencias por cliente**, o la **integración con Zabbix y GLPI** con unificación de activos entre fuentes? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
+> Buscás la **evaluación de reglas** (prueba de SIGMA/YARA), **Suricata (IDS) + Shuffle (SOAR)**, el **circuito activo de correlación y respuesta** con **respuestas automáticas** (mail + feed de bloqueo de IPs), la **automatización del sandbox** (los veredictos de detonación alimentando casos y respuestas), **TheHive/Nessus**, el **reporting ejecutivo** (PDF, cobertura MITRE, SLA), el **módulo de IA** o el **SaaS multi-tenant con licencias por cliente**, o la **integración con Zabbix y GLPI** con unificación de activos entre fuentes? Están disponibles en [Gjallarhorn Pro](https://www.allsafe.com.ar).
 >
 > La **simulación de phishing** (email y WiFi) y la **capacitación / concientización** ahora son un producto dedicado: **Kvasir**, la plataforma de Security Awareness Training de AllSafe ([allsafe.com.ar](https://www.allsafe.com.ar)).
 
@@ -177,14 +177,25 @@ Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo m�
 
 | Capa | Tecnología |
 |---|---|
-| Backend | Node.js 20 + Express |
-| Frontend | React 18 + Vite |
-| Base de datos | MySQL 8.0+ o MariaDB 10.6+ |
+| Backend | Node.js 24 LTS + Express |
+| Frontend | React 19 + Vite |
+| Base de datos | MySQL 8.4 LTS (8.0+) o MariaDB 10.11+ |
 | Auth | JWT (12h) + TOTP 2FA |
 | Servidor web | Nginx |
 | Process manager | PM2 |
 
 ---
+
+## Requisitos
+
+| Componente | Versión |
+|---|---|
+| Node.js | **24 LTS, 24.22.1 o posterior**. Esa versión trae los parches de seguridad de octubre de 2026. Node.js 20 está fuera de soporte y ya no recibe parches, por eso no se admite |
+| MySQL | 8.4 LTS recomendada (funciona desde 8.0). También MariaDB 10.11 o posterior |
+| Docker (opción B) | Docker Engine 24 o posterior con Compose v2. Las imágenes son `node:24-alpine` y `mysql:8.4` |
+| Sistema operativo (opción A) | Ubuntu 22.04 / 24.04 o Debian 12, con las actualizaciones de seguridad al día |
+
+Cada versión se revisa con `npm audit` en backend y frontend y sale con **0 vulnerabilidades conocidas** en sus dependencias. Mantené Node.js en el último parche de la 24 y reconstruí la imagen de Docker (`docker compose build --pull`) cuando salga uno nuevo.
 
 ## Instalación
 
@@ -302,7 +313,7 @@ Si modificás y desplegás Gjallarhorn Community como servicio, debés publicar 
 
 ## Seguridad
 
-¿Encontraste una vulnerabilidad? Por favor reportala de forma privada - ver [SECURITY.md](SECURITY.md).
+Encontraste una vulnerabilidad? Por favor reportala de forma privada - ver [SECURITY.md](SECURITY.md).
 
 ---
 

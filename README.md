@@ -9,11 +9,11 @@
 
   *Powered by [AllSafe Security Solutions](https://www.allsafe.com.ar)*
 
-  ![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=flat-square&logo=node.js&logoColor=white)
-  ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
-  ![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=flat-square&logo=mysql&logoColor=white)
+  ![Node.js](https://img.shields.io/badge/Node.js-24_LTS-339933?style=flat-square&logo=node.js&logoColor=white)
+  ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
+  ![MySQL](https://img.shields.io/badge/MySQL-8.4_LTS-4479A1?style=flat-square&logo=mysql&logoColor=white)
   ![License](https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square)
-  ![Version](https://img.shields.io/badge/Version-1.4.0-blue?style=flat-square)
+  ![Version](https://img.shields.io/badge/Version-1.5.3-blue?style=flat-square)
 
   [![Website](https://img.shields.io/badge/Website-allsafe.com.ar%2Fen%2Fgjallarhorn--community-6ab4ff?style=for-the-badge&labelColor=1e324d)](https://allsafe.com.ar/en/gjallarhorn-community/)
 </div>
@@ -177,14 +177,25 @@ Some capabilities are shared at the base and **deepened** in Pro. The clearest e
 
 | Layer | Technology |
 |---|---|
-| Backend | Node.js 20 + Express |
-| Frontend | React 18 + Vite |
-| Database | MySQL 8.0+ or MariaDB 10.6+ |
+| Backend | Node.js 24 LTS + Express |
+| Frontend | React 19 + Vite |
+| Database | MySQL 8.4 LTS (8.0+) or MariaDB 10.11+ |
 | Auth | JWT (12h) + TOTP 2FA |
 | Web server | Nginx |
 | Process manager | PM2 |
 
 ---
+
+## Requirements
+
+| Component | Version |
+|---|---|
+| Node.js | **24 LTS, 24.22.1 or later**. That release carries the October 2026 security fixes. Node.js 20 reached end of life and no longer gets patches, so it is not supported |
+| MySQL | 8.4 LTS recommended (8.0 or later works). MariaDB 10.11+ is also supported |
+| Docker (option B) | Docker Engine 24+ with Compose v2. The images are `node:24-alpine` and `mysql:8.4` |
+| Operating system (option A) | Ubuntu 22.04 / 24.04 or Debian 12, with security updates applied |
+
+Every release is checked with `npm audit` on backend and frontend, and ships with **0 known vulnerabilities** in its dependencies. Keep Node.js on the latest 24.x patch and rebuild the Docker image (`docker compose build --pull`) when a new one comes out.
 
 ## Installation
 

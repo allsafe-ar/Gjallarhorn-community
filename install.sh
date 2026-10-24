@@ -61,9 +61,9 @@ read -rsp "$(echo -e ${CYAN}New DB password for user '$DB_USER': ${NC})" DB_PASS
 info "Updating package lists..."
 apt-get update -qq
 
-if ! command -v node &>/dev/null || [[ $(node -v | cut -d. -f1 | tr -d v) -lt 20 ]]; then
+if ! command -v node &>/dev/null || [[ $(node -v | cut -d. -f1 | tr -d v) -lt 24 ]]; then
   info "Installing Node.js 20..."
-  curl -fsSL https://deb.nodesource.com/setup_20.x | bash - &>/dev/null
+  curl -fsSL https://deb.nodesource.com/setup_24.x | bash - &>/dev/null
   apt-get install -y nodejs &>/dev/null
 fi
 success "Node.js $(node -v)"
