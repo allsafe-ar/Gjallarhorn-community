@@ -10,6 +10,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 - `install.sh` now requires **Node.js 24.22.1 or later**, the same as the README and `engines`. Before, any 24.x passed the check, including releases without the Brotli fix (CVE-2026-111497). If the installed Node.js is older, it upgrades it from NodeSource and stops with a clear message if it still cannot meet the minimum.
 
 ### Fixed
+- **Reinstalling with `install.sh` left the app without database access.** If the database user already existed, it kept its old password and the backend could not connect. The installer now sets the new password on the existing user.
+- `install.sh` is committed as executable.
 - **Docker: first start no longer restarts the app.** The database healthcheck now checks over TCP. Over the socket it passed while MySQL was still on its temporary first-run server, and the app connected too early and restarted until the real server came up.
 
 ## [1.5.3] - 2026-10-24

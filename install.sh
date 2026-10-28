@@ -96,6 +96,8 @@ MYSQL_ARGS=(); [ -n "$MYSQL_ROOT_PASS" ] && MYSQL_ARGS=(-p"$MYSQL_ROOT_PASS")
 mysql -uroot "${MYSQL_ARGS[@]}" <<SQL 2>/dev/null || warn "DB may already exist"
 CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASS}';
+-- Si el usuario ya existía (instalación anterior), toma la contraseña nueva: si no, la app no entra.
+ALTER USER '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASS}';
 GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
 FLUSH PRIVILEGES;
 SQL
