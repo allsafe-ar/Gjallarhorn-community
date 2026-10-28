@@ -13,10 +13,13 @@ services:
     volumes:
       - gjallarhorn_db:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      # Por TCP y no por socket: en el primer arranque MySQL levanta un servidor temporal sin red
+      # que ya responde por socket, y la app se conectaba antes de tiempo y se reiniciaba.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 40s
 
   app:
     build: .

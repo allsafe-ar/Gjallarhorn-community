@@ -1,6 +1,6 @@
 {
   "name": "gjallar-backend",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "engines": { "node": ">=24.22.1" },
   "description": "Gjallar Blue Team Platform — API",
   "main": "server.js",

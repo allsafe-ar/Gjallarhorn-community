@@ -61,11 +61,16 @@ read -rsp "$(echo -e ${CYAN}New DB password for user '$DB_USER': ${NC})" DB_PASS
 info "Updating package lists..."
 apt-get update -qq
 
-if ! command -v node &>/dev/null || [[ $(node -v | cut -d. -f1 | tr -d v) -lt 24 ]]; then
-  info "Installing Node.js 20..."
+# Node.js 24 LTS, 24.22.1 or later (October 2026 security fixes, Brotli CVE-2026-111497)
+NODE_MIN="24.22.1"
+node_ok() { command -v node &>/dev/null || return 1; local v; v=$(node -v | tr -d v)
+  [[ ${v%%.*} -ge 24 ]] && [[ $(printf '%s\n' "$NODE_MIN" "$v" | sort -V | head -1) == "$NODE_MIN" ]]; }
+if ! node_ok; then
+  info "Installing Node.js 24 LTS..."
   curl -fsSL https://deb.nodesource.com/setup_24.x | bash - &>/dev/null
   apt-get install -y nodejs &>/dev/null
 fi
+node_ok || error "Node.js $NODE_MIN or later is required (found $(node -v 2>/dev/null || echo none))"
 success "Node.js $(node -v)"
 
 if ! command -v mysql &>/dev/null; then

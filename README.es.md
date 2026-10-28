@@ -13,7 +13,7 @@
   ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
   ![MySQL](https://img.shields.io/badge/MySQL-8.4_LTS-4479A1?style=flat-square&logo=mysql&logoColor=white)
   ![License](https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square)
-  ![Version](https://img.shields.io/badge/Version-1.5.3-blue?style=flat-square)
+  ![Version](https://img.shields.io/badge/Version-1.5.4-blue?style=flat-square)
 
   [![Sitio web](https://img.shields.io/badge/Sitio_web-allsafe.com.ar%2Fgjallarhorn--community-6ab4ff?style=for-the-badge&labelColor=1e324d)](https://allsafe.com.ar/gjallarhorn-community/)
 </div>
