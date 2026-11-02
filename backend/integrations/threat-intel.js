@@ -117,7 +117,7 @@ async function queryGreyNoise(ip, apiKey) {
     if (r.status === 404) return { source: "GreyNoise", found: false, classification: "not_seen", score_contribution: 0 };
     if (r.status !== 200) return { source: "GreyNoise", skipped: false, error: `HTTP ${r.status}` };
     const d = parseJSON(r.data);
-    return { source: "GreyNoise", found: d?.noise === true, classification: d?.classification || "unknown", noise: d?.noise, riot: d?.riot, score_contribution: d?.classification === "malicious" ? 40 : 0 };
+    return { source: "GreyNoise", found: d?.noise === true && d?.classification !== "benign", classification: d?.classification || "unknown", noise: d?.noise, riot: d?.riot, score_contribution: d?.classification === "malicious" ? 40 : 0 };
   } catch (e) {
     return { source: "GreyNoise", skipped: false, error: e.message };
   }
@@ -230,7 +230,7 @@ async function queryThreatFox(ioc, authKey = "") {
     const d = parseJSON(r.data);
     // Filter to exact matches only — ThreatFox does substring search internally
     const exactMatches = Array.isArray(d?.data)
-      ? d.data.filter(item => item?.ioc?.toLowerCase() === ioc.toLowerCase())
+      ? d.data.filter(item => { const v = item?.ioc?.toLowerCase() || ""; return v === ioc.toLowerCase() || v.startsWith(ioc.toLowerCase() + ":"); })
       : [];
     const found = d?.query_status === "ok" && exactMatches.length > 0;
     const first = found ? exactMatches[0] : {};
@@ -250,7 +250,11 @@ async function queryFeodoTracker(ip) {
     }
     if (!feodoCache) return { source: "FeodoTracker", skipped: false, error: "No data" };
     const entry = feodoCache.find(e => e.ip_address === ip);
-    return { source: "FeodoTracker", found: !!entry, malware: entry?.malware, status: entry?.status, score_contribution: entry ? 70 : 0 };
+    // La lista trae también C2 fuera de línea con fechas viejas: activo = 70, visto en los últimos 30 días = 25, más viejo = no suma
+    const diasOffline = entry?.last_online ? Math.floor((Date.now() - new Date(entry.last_online).getTime()) / 86400000) : null;
+    const online = entry?.status === "online";
+    const reciente = !online && diasOffline != null && diasOffline <= 30;
+    return { source: "FeodoTracker", found: online || reciente, listed: !!entry, malware: entry?.malware, status: entry?.status, last_online: entry?.last_online, score_contribution: online ? 70 : reciente ? 25 : 0 };
   } catch (e) {
     return { source: "FeodoTracker", skipped: false, error: e.message };
   }
@@ -281,7 +285,7 @@ let openPhishCache = null, openPhishCacheTs = 0;
 async function queryOpenPhish(url) {
   try {
     if (!openPhishCache || Date.now() - openPhishCacheTs > 3600000) {
-      const r = await httpRequest("https://openphish.com/feed.txt", { timeout: 15000 });
+      const r = await httpRequest("https://raw.githubusercontent.com/openphish/public_feed/refs/heads/main/feed.txt", { timeout: 15000 });
       if (r.status === 200) { openPhishCache = new Set(r.data.split("\n").map(l => l.trim()).filter(Boolean)); openPhishCacheTs = Date.now(); }
     }
     if (!openPhishCache) return { source: "OpenPhish", skipped: false, error: "No data" };
@@ -292,30 +296,37 @@ async function queryOpenPhish(url) {
   }
 }
 
-// ── C2 Tracker feeds (GitHub, IPs — cached 1h) ───────────────────────────────
+// ── C2 feeds (C2IntelFeeds en GitHub, últimos 30 días, IPs y dominios — cached 1h) ─────
+// montysecurity/C2-Tracker quedó archivado en 2026 y sus archivos dan 404.
 const C2_FEED_URLS = [
-  "https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/Cobalt%20Strike%20C2%20IPs.txt",
-  "https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/Metasploit%20Framework%20C2%20IPs.txt",
-  "https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/Sliver%20C2%20IPs.txt",
-  "https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/Havoc%20C2%20IPs.txt",
-  "https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/Brute%20Ratel%20C2%20IPs.txt",
+  "https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s-30day.csv",
+  "https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/domainC2s-30day-filter-abused.csv",
 ];
 let c2Cache = null, c2CacheTs = 0;
 async function queryC2Trackers(ioc) {
   try {
     if (!c2Cache || Date.now() - c2CacheTs > 3600000) {
       const results = await Promise.allSettled(C2_FEED_URLS.map(u => httpRequest(u, { timeout: 15000 })));
-      const all = new Set();
+      const all = new Map();
+      let leidos = 0;
       for (const r of results) {
         if (r.status === "fulfilled" && r.value.status === 200) {
-          r.value.data.split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("#")).forEach(i => all.add(i));
+          leidos++;
+          for (const l of r.value.data.split("\n")) {
+            const linea = l.trim();
+            if (!linea || linea.startsWith("#")) continue;
+            const [valor, desc] = linea.split(",");
+            if (valor) all.set(valor.trim().toLowerCase(), (desc || "").trim());
+          }
         }
       }
-      c2Cache = all; c2CacheTs = Date.now();
+      // Sin ninguna lista leída no hay con qué comparar: es un error, no un "no encontrado"
+      if (leidos > 0) { c2Cache = all; c2CacheTs = Date.now(); }
     }
     if (!c2Cache) return { source: "C2 Trackers", skipped: false, error: "No data" };
-    const found = c2Cache.has(ioc);
-    return { source: "C2 Trackers", found, score_contribution: found ? 65 : 0 };
+    const clave = String(ioc).toLowerCase();
+    const found = c2Cache.has(clave);
+    return { source: "C2 Trackers", found, description: found ? c2Cache.get(clave) : undefined, score_contribution: found ? 65 : 0 };
   } catch (e) {
     return { source: "C2 Trackers", skipped: false, error: e.message };
   }
@@ -391,7 +402,10 @@ async function queryAll(ioc, iocType, apiKeys = {}) {
     tasks.push(queryURLScan(ioc, iocType, apiKeys.urlscan));
     tasks.push(queryOpenPhish(ioc));
     tasks.push(queryGoogleSafeBrowsing(ioc, iocType, apiKeys.safebrowsing));
-    tasks.push(queryC2Trackers(ioc));
+    // Las listas de C2 tienen dominios e IPs, no URLs completas
+    let host = ioc;
+    try { host = new URL(ioc).hostname; } catch {}
+    tasks.push(queryC2Trackers(host));
   }
 
   // Domain-specific

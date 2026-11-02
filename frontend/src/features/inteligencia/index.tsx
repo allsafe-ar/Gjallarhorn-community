@@ -31,14 +31,13 @@ const API_KEY_SERVICES = [
   { key: 'criminalip',      label: 'Criminal IP',          color: '#f97316' },
   { key: 'ipqualityscore',  label: 'IPQualityScore',       color: '#ec4899' },
   { key: 'threatfox',       label: 'Abuse.ch (ThreatFox)', color: '#a855f7' },
-  { key: 'hybrid',          label: 'Hybrid Analysis',      color: '#14b8a6' },
   { key: 'safebrowsing',    label: 'Google Safe Browsing', color: '#4285f4' },
 ]
 
 const FREE_INTEL = [
   'URLhaus (Abuse.ch)', 'MalwareBazaar (Abuse.ch)', 'ThreatFox (Abuse.ch)',
   'FeodoTracker (Abuse.ch)', 'C2 Trackers (GitHub)', 'Tor Exit Nodes',
-  'OpenPhish', 'ThreatCrowd', 'CIRCL MISP', 'Malpedia',
+  'OpenPhish',
 ]
 
 function KpiCard({ label, value, color, icon: Icon }: {

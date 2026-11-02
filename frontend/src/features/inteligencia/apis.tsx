@@ -25,7 +25,6 @@ const API_KEY_SERVICES = [
   { key: 'criminalip',      label: 'Criminal IP',          url: 'criminalip.io',       paid: false },
   { key: 'ipqualityscore',  label: 'IPQualityScore',       url: 'ipqualityscore.com',  paid: false },
   { key: 'threatfox',       label: 'Abuse.ch (ThreatFox)', url: 'threatfox.abuse.ch',  paid: false },
-  { key: 'hybrid',          label: 'Hybrid Analysis',      url: 'hybrid-analysis.com', paid: false },
 ]
 
 const FREE_INTEL = [
@@ -33,12 +32,9 @@ const FREE_INTEL = [
   { label: 'MalwareBazaar (Abuse.ch)', url: 'bazaar.abuse.ch' },
   { label: 'ThreatFox (Abuse.ch)',     url: 'threatfox.abuse.ch' },
   { label: 'FeodoTracker (Abuse.ch)',  url: 'feodotracker.abuse.ch' },
-  { label: 'C2 Trackers (GitHub)',     url: 'github.com/montysecurity' },
+  { label: 'C2 Trackers (GitHub)',     url: 'github.com/drb-ra/C2IntelFeeds' },
   { label: 'Tor Exit Nodes',           url: 'check.torproject.org' },
   { label: 'OpenPhish',                url: 'openphish.com' },
-  { label: 'ThreatCrowd',              url: 'threatcrowd.org' },
-  { label: 'CIRCL MISP',              url: 'www.circl.lu' },
-  { label: 'Malpedia',                 url: 'malpedia.caad.fkie.fraunhofer.de' },
 ]
 
 export function ApisView() {

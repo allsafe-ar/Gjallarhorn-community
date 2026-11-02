@@ -271,7 +271,8 @@ export function IocView() {
                       const skipped = !!f.skipped
                       const errored = !skipped && !!f.error
                       const clean = !skipped && !errored && !f.found
-                      const mal = !skipped && !errored && f.found && (f.detections > 0 || f.maliciousCount > 0)
+                      // Detectado = la fuente pesa fuerte en el puntaje; lo que aparece con poco peso queda como sospechoso
+                      const mal = !skipped && !errored && f.found && (f.score_contribution ?? 0) >= 40
                       const borderCls = skipped ? 'border-muted-foreground/20' : errored ? 'border-amber-400/40' : clean ? 'border-emerald-500/50' : mal ? 'border-destructive/60' : 'border-amber-400/50'
                       const barColor  = skipped ? '#6b7280' : errored ? '#f59e0b' : clean ? '#22c55e' : mal ? '#ef4444' : '#f59e0b'
                       const badgeCls  = skipped
@@ -292,15 +293,15 @@ export function IocView() {
                               {badgeText}
                             </span>
                           </div>
-                          {f.detections != null && (
-                            <div className='text-xs' style={{ color: f.detections > 0 ? '#ef4444' : '#22c55e' }}>
-                              {t('tools.ioc.detections', { n: f.detections })}{f.total != null ? ` / ${f.total}` : ''}
+                          {f.malicious != null && (
+                            <div className='text-xs' style={{ color: f.malicious > 0 ? '#ef4444' : '#22c55e' }}>
+                              {t('tools.ioc.detections', { n: f.malicious })}{f.total != null ? ` / ${f.total}` : ''}
                             </div>
                           )}
-                          {f.maliciousCount != null && f.maliciousCount > 0 && (
-                            <div className='text-xs text-destructive'>{t('tools.ioc.maliciousSources', { n: f.maliciousCount })}</div>
+                          {f.listed && !f.found && f.last_online && (
+                            <div className='text-xs text-muted-foreground'>{t('tools.ioc.listedOffline', { date: f.last_online })}</div>
                           )}
-                          {clean && f.detections == null && (
+                          {clean && f.malicious == null && !f.listed && (
                             <div className='text-xs text-muted-foreground'>{t('tools.ioc.noDetections')}</div>
                           )}
                           {skipped && (

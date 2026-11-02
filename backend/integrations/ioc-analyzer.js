@@ -212,14 +212,17 @@ falsepositives:
 
 function buildYARA(hash, iocType) {
   const hashField = iocType === "md5" ? "md5" : iocType === "sha1" ? "sha1" : "sha256";
-  return `rule Gjallar_IOC_${hash.slice(0, 8).toUpperCase()} {
+  // Las funciones hash.* necesitan el módulo; sin el import la regla no compila
+  return `import "hash"
+
+rule Gjallar_IOC_${hash.slice(0, 8).toUpperCase()} {
     meta:
         description = "Gjallar: IOC ${iocType.toUpperCase()} match"
         author = "Gjallar Platform"
         date = "${new Date().toISOString().split("T")[0]}"
         ${hashField} = "${hash.toLowerCase()}"
     condition:
-        ${hashField} == "${hash.toLowerCase()}"
+        hash.${hashField}(0, filesize) == "${hash.toLowerCase()}"
 }`;
 }
 

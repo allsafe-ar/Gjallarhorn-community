@@ -17,7 +17,6 @@ const SERVICES = [
   { key: 'criminalip',     label: 'Criminal IP',          desc: 'IP threat intelligence score' },
   { key: 'ipqualityscore', label: 'IPQualityScore',       desc: 'Fraud & proxy / VPN scoring' },
   { key: 'threatfox',      label: 'Abuse.ch (ThreatFox)', desc: 'IOC sharing platform' },
-  { key: 'hybrid',         label: 'Hybrid Analysis',      desc: 'Malware sandbox (free tier)' },
 ]
 
 type ApiKeyEntry = { key: string; configured: boolean }
