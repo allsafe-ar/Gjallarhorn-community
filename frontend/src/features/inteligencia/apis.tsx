@@ -98,7 +98,7 @@ export function ApisView() {
                 { label: t('intel.apis.kpi.iaModule'),     value: aiMeta.label,                                color: aiMeta.color },
               ].map(c => (
                 <div key={c.label} className='relative rounded-lg border bg-card px-4 py-3 overflow-hidden flex-1'>
-                  <div className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1'>{c.label}</div>
+                  <div className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1'>{c.label}</div>
                   <div className='text-2xl font-black tabular-nums' style={{ color: c.color }}>{c.value}</div>
                   <div className='absolute bottom-0 left-0 right-0 h-0.5' style={{ background: c.color, opacity: 0.5 }} />
                 </div>
@@ -111,7 +111,7 @@ export function ApisView() {
                 <div className='flex-none flex items-center gap-2 mb-3'>
                   <Key className='h-3.5 w-3.5 text-muted-foreground' />
                   <span className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>{t('intel.apis.apiKeys')}</span>
-                  <span className='ml-auto text-[10px] text-muted-foreground'>{activeCount} / {API_KEY_SERVICES.length} {t('intel.apis.configured')}</span>
+                  <span className='ml-auto text-xs text-muted-foreground'>{activeCount} / {API_KEY_SERVICES.length} {t('intel.apis.configured')}</span>
                 </div>
                 <div className='flex-1 min-h-0 overflow-y-auto space-y-2 pr-0.5'>
                   {API_KEY_SERVICES.map(s => {
@@ -126,17 +126,17 @@ export function ApisView() {
                         <span className={cn('text-sm flex-1', !active && 'text-muted-foreground')}>
                           {s.label}
                           {s.paid && (
-                            <span className='ml-2 text-[10px] font-semibold text-amber-500/80 border border-amber-500/30 rounded px-1 py-0.5'>
+                            <span className='ml-2 text-xs font-semibold text-amber-500/80 border border-amber-500/30 rounded px-1 py-0.5'>
                               {t('intel.apis.paid')}
                             </span>
                           )}
                         </span>
                         {usage && (
-                          <span className='text-[10px] text-muted-foreground'>{t('intel.apis.usages', { n: usage.queries })}</span>
+                          <span className='text-xs text-muted-foreground'>{t('intel.apis.usages', { n: usage.queries })}</span>
                         )}
                         <Badge
                           variant={active ? 'default' : 'secondary'}
-                          className={cn('text-[10px] shrink-0', active && 'bg-green-500/15 text-green-500 border-green-500/30')}
+                          className={cn('text-xs shrink-0', active && 'bg-green-500/15 text-green-500 border-green-500/30')}
                         >
                           {active ? t('intel.apis.configuredKey') : t('intel.apis.notConfigured')}
                         </Badge>
@@ -150,7 +150,7 @@ export function ApisView() {
                 <div className='flex-none flex items-center gap-2 mb-3'>
                   <Globe className='h-3.5 w-3.5 text-muted-foreground' />
                   <span className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>{t('intel.apis.freeSources')}</span>
-                  <Badge className='ml-auto text-[10px] bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20'>
+                  <Badge className='ml-auto text-xs bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20'>
                     {FREE_INTEL.length} {t('intel.apis.activeBadge')}
                   </Badge>
                 </div>
@@ -159,7 +159,7 @@ export function ApisView() {
                     <div key={s.label} className='flex items-center gap-3 py-0.5'>
                       <CheckCircle2 className='h-3.5 w-3.5 shrink-0 text-green-500' />
                       <span className='text-sm flex-1'>{s.label}</span>
-                      <span className='text-[10px] text-muted-foreground'>{s.url}</span>
+                      <span className='text-xs text-muted-foreground'>{s.url}</span>
                     </div>
                   ))}
                 </div>
@@ -170,7 +170,7 @@ export function ApisView() {
               <div className='flex items-center gap-2 mb-2'>
                 <Brain className='h-3.5 w-3.5 text-muted-foreground' />
                 <span className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>{t('intel.apis.iaModule')}</span>
-                <Badge variant='outline' className='text-[10px] font-bold tracking-wider border-amber-400/40 text-amber-700 dark:text-amber-400 ml-1'>
+                <Badge variant='outline' className='text-xs font-bold tracking-wider border-amber-400/40 text-amber-700 dark:text-amber-400 ml-1'>
                   {t('intel.apis.experimental')}
                 </Badge>
                 <span className='ml-auto text-sm font-semibold' style={{ color: aiMeta.color }}>{aiMeta.label}</span>
@@ -185,7 +185,7 @@ export function ApisView() {
                     { label: t('ia.card.available'), value: String(aiStatus?.models?.length ?? 0),                                           color: undefined },
                   ].map(({ label, value, color, mono }) => (
                     <div key={label} className='rounded-lg border bg-muted/30 px-2.5 py-2'>
-                      <div className='text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5'>{label}</div>
+                      <div className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5'>{label}</div>
                       <div className={cn('text-sm font-bold truncate', mono && 'font-mono text-xs')} style={color ? { color } : {}}>
                         {value}
                       </div>

@@ -114,7 +114,7 @@ export function ApiKeysView() {
             <div key={svc.key} className='rounded-lg border bg-card px-4 py-3 grid grid-cols-[1fr_2fr_auto] gap-4 items-center'>
               <div>
                 <div className='text-sm font-semibold'>{svc.label}</div>
-                <div className='text-[11px] text-muted-foreground mt-0.5'>{svc.desc}</div>
+                <div className='text-xs text-muted-foreground mt-0.5'>{svc.desc}</div>
               </div>
               <div className='relative'>
                 <Input
@@ -134,11 +134,11 @@ export function ApiKeysView() {
               </div>
               <div className='flex items-center gap-2 justify-end'>
                 {isConfigured ? (
-                  <span className='flex items-center gap-1 text-[11px] font-semibold text-emerald-500 whitespace-nowrap'>
+                  <span className='flex items-center gap-1 text-xs font-semibold text-emerald-500 whitespace-nowrap'>
                     <CheckCircle2 className='h-3 w-3' /> {t('config.apikeys.configured')}
                   </span>
                 ) : (
-                  <span className='flex items-center gap-1 text-[11px] text-muted-foreground whitespace-nowrap'>
+                  <span className='flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap'>
                     <XCircle className='h-3 w-3' /> {t('config.apikeys.notConfigured')}
                   </span>
                 )}
@@ -146,7 +146,7 @@ export function ApiKeysView() {
                   <Button
                     variant='ghost'
                     size='sm'
-                    className='h-6 text-[11px] text-destructive hover:text-destructive px-2'
+                    className='h-6 text-xs text-destructive hover:text-destructive px-2'
                     onClick={() => setEdits(prev => ({ ...prev, [svc.key]: 'REMOVE' }))}
                   >
                     {t('config.apikeys.delete')}

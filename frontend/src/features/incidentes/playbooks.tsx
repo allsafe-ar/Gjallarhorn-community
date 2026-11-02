@@ -124,7 +124,7 @@ export function PlaybooksView() {
                         <div className='text-sm font-medium'>{pb.name}</div>
                         {pb.description && <div className='text-xs text-muted-foreground'>{pb.description}</div>}
                       </div>
-                      <Badge variant='outline' className='text-[10px]'>{pb.trigger_type}</Badge>
+                      <Badge variant='outline' className='text-xs'>{pb.trigger_type}</Badge>
                       <div className='text-xs text-muted-foreground'>{t('incidents.playbooks.executions', { n: pb.executions || 0 })}</div>
                       {isAdmin && (
                         <Button size='sm' variant='outline' className='h-7 text-xs' disabled={toggling === pb.id} onClick={() => togglePlaybook(pb)}>

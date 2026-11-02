@@ -25,7 +25,7 @@ const SISTEMAS = ['windows', 'linux', 'macos', 'red', 'movil', 'otro', 'sin_dato
 function Cifra({ etiqueta, valor, tono = '' }: { etiqueta: string; valor: number; tono?: string }) {
   return (
     <div className='rounded-lg border p-3'>
-      <div className='text-[11px] uppercase tracking-wide text-muted-foreground'>{etiqueta}</div>
+      <div className='text-xs uppercase tracking-wide text-muted-foreground'>{etiqueta}</div>
       <div className={`mt-0.5 text-2xl font-semibold ${tono}`}>{valor}</div>
     </div>
   )
@@ -89,7 +89,7 @@ export function ResumenActivos() {
             texto: t(`monitoreo.so.${k}`),
           }))} />
           {(r.sistemas.sin_dato ?? 0) > 0 && (
-            <p className='mt-2 text-[11px] text-muted-foreground'>
+            <p className='mt-2 text-xs text-muted-foreground'>
               {t('monitoreo.res.sinSoAyuda', { n: r.sistemas.sin_dato })}
             </p>
           )}

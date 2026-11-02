@@ -208,10 +208,10 @@ function PanelResumen({ r, tx, irA, abrir }: { r: Resumen | undefined; tx: Taxon
                   <div key={m.mes} className='flex h-full flex-1 flex-col items-center gap-1' title={`${m.cantidad} vencimiento(s)${costo ? ' · ' + costo : ''}`}>
                     {/* El alto en % necesita un contenedor con alto propio: por eso la columna es h-full y la barra vive en un flex-1. */}
                     <div className='flex w-full flex-1 flex-col items-center justify-end'>
-                      {m.cantidad ? <span className='text-muted-foreground mb-0.5 text-[10px]'>{m.cantidad}</span> : null}
+                      {m.cantidad ? <span className='text-muted-foreground mb-0.5 text-xs'>{m.cantidad}</span> : null}
                       <div className='bg-primary/70 w-full rounded-t' style={{ height: `${(m.cantidad / maxMes) * 85}%`, minHeight: m.cantidad ? 4 : 0 }} />
                     </div>
-                    <span className='text-muted-foreground text-[10px]'>{MESES[Number(mm) - 1]}{mm === '01' ? ` ${y.slice(2)}` : ''}</span>
+                    <span className='text-muted-foreground text-xs'>{MESES[Number(mm) - 1]}{mm === '01' ? ` ${y.slice(2)}` : ''}</span>
                   </div>
                 )
               })}

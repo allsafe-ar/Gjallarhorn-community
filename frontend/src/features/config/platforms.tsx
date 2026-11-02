@@ -150,7 +150,7 @@ function PlatformCard({ platform, initialData, isAdmin }: {
               />
             )}
             <span
-              className='text-[11px] font-black rounded px-1.5 py-0.5 tracking-wide'
+              className='text-xs font-black rounded px-1.5 py-0.5 tracking-wide'
               style={{ background: (enabled ? meta.color : '#888') + '22', color: enabled ? meta.color : '#888' }}
             >
               {meta.abbr}
@@ -175,7 +175,7 @@ function PlatformCard({ platform, initialData, isAdmin }: {
                   {stLabels[status] || status}
                 </span>
                 {lastCheck && (
-                  <span className='text-muted-foreground text-[10px]'>
+                  <span className='text-muted-foreground text-xs'>
                     ({new Date(lastCheck).toLocaleTimeString(localeActivo(), { hour: '2-digit', minute: '2-digit' })})
                   </span>
                 )}

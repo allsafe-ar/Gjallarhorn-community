@@ -54,7 +54,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
         <thead>
           <tr className='border-b bg-muted/40'>
             {cols.map(c => (
-              <th key={c.key} className='text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
+              <th key={c.key} className='text-left px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
             ))}
           </tr>
         </thead>
@@ -106,7 +106,7 @@ export function OpenVASView() {
     { key: 'name',     label: t('soc.openvas.col.name'),     render: r => <span className='font-medium'>{r.name || '—'}</span> },
     { key: 'status',   label: t('soc.openvas.col.status'),   render: r => {
       const st = r.status || ''
-      return <Badge variant={st === 'Done' ? 'default' : st === 'Running' ? 'secondary' : 'outline'} className='text-[10px]'>{st || '—'}</Badge>
+      return <Badge variant={st === 'Done' ? 'default' : st === 'Running' ? 'secondary' : 'outline'} className='text-xs'>{st || '—'}</Badge>
     }},
     { key: 'progress', label: t('soc.openvas.col.progress'), muted: true, render: r => r.progress != null ? `${r.progress}%` : '—' },
     { key: 'hosts',    label: t('soc.openvas.col.target'),   muted: true, render: r => r.target?.name || r.hosts || '—' },
@@ -151,10 +151,10 @@ export function OpenVASView() {
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className='mb-4'>
             <TabsTrigger value='tasks'>
-              {t('soc.openvas.tab.tasks')} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{tasks.length}</span>
+              {t('soc.openvas.tab.tasks')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{tasks.length}</span>
             </TabsTrigger>
             <TabsTrigger value='results'>
-              {t('soc.openvas.tab.vulns')}{selTask ? ` (task)` : ''} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{results.length}</span>
+              {t('soc.openvas.tab.vulns')}{selTask ? ` (task)` : ''} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{results.length}</span>
             </TabsTrigger>
           </TabsList>
 

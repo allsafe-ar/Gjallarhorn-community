@@ -57,7 +57,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
         <thead>
           <tr className='border-b bg-muted/40'>
             {cols.map(c => (
-              <th key={c.key} className='text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
+              <th key={c.key} className='text-left px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
             ))}
           </tr>
         </thead>
@@ -108,7 +108,7 @@ export function NessusView() {
     { key: 'status', label: t('soc.nessus.col.status'),   render: r => {
       const type = r.status === 'completed' ? 'default' : r.status === 'running' ? 'secondary' : 'outline'
       const lbl = r.status === 'empty' ? t('soc.nessus.neverRun') : r.status
-      return <Badge variant={type} className='text-[10px]'>{lbl}</Badge>
+      return <Badge variant={type} className='text-xs'>{lbl}</Badge>
     }},
     { key: 'owner',                  label: t('soc.nessus.col.owner'),    muted: true },
     { key: 'last_modification_date', label: t('soc.nessus.col.modified'), muted: true, render: r => fmtTS(r.last_modification_date) },
@@ -153,10 +153,10 @@ export function NessusView() {
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className='mb-4'>
             <TabsTrigger value='scans'>
-              {t('soc.nessus.tab.scans')} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{scans.length}</span>
+              {t('soc.nessus.tab.scans')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{scans.length}</span>
             </TabsTrigger>
             <TabsTrigger value='vulns'>
-              {t('soc.nessus.tab.vulns')}{selScan ? ` — ${selScan}` : ''} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{vulns.length}</span>
+              {t('soc.nessus.tab.vulns')}{selScan ? ` — ${selScan}` : ''} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{vulns.length}</span>
             </TabsTrigger>
           </TabsList>
 

@@ -36,7 +36,7 @@ export function AppTitle() {
               <div className='grid flex-1 text-start text-sm leading-tight min-w-0'>
                 <span className='truncate font-bold flex items-center gap-1.5' style={{ color: '#3b82f6' }}>
                   Gjallarhorn
-                  <span className='text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-muted text-muted-foreground'>Community</span>
+                  <span className='text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-muted text-muted-foreground'>Community</span>
                 </span>
                 <span className='truncate text-xs text-muted-foreground'>{t('nav.blueteam')}</span>
               </div>

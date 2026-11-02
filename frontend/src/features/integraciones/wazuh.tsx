@@ -53,7 +53,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
         <thead>
           <tr className='border-b bg-muted/40'>
             {cols.map(c => (
-              <th key={c.key} className='text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
+              <th key={c.key} className='text-left px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
             ))}
           </tr>
         </thead>
@@ -114,7 +114,7 @@ export function WazuhView() {
     { key: 'os',            label: t('soc.wazuh.col.os'),          muted: true, render: r => r.os?.name || r.os?.platform || '—' },
     { key: 'version',       label: t('soc.wazuh.col.version'),     muted: true, render: r => r.version || '—' },
     { key: 'status',        label: t('soc.wazuh.col.status'),      render: r => (
-      <Badge variant={r.status === 'active' ? 'default' : 'destructive'} className='text-[10px]'>{r.status}</Badge>
+      <Badge variant={r.status === 'active' ? 'default' : 'destructive'} className='text-xs'>{r.status}</Badge>
     )},
     { key: 'lastKeepAlive', label: t('soc.wazuh.col.lastContact'), muted: true, render: r => fmtDate(typeof r.lastKeepAlive === 'string' ? r.lastKeepAlive : undefined) },
   ]
@@ -149,7 +149,7 @@ export function WazuhView() {
             return (
               <div key={s.label} className='relative border rounded-lg px-3 py-2 overflow-hidden bg-card'>
                 <Icon className='absolute right-2 top-2 pointer-events-none' style={{ width: 34, height: 34, color: s.color, opacity: 0.15 }} strokeWidth={1.4} />
-                <div className='relative z-10 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1 pr-8 leading-tight'>{s.label}</div>
+                <div className='relative z-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1 pr-8 leading-tight'>{s.label}</div>
                 <div className='relative z-10 text-xl font-black tabular-nums pr-8' style={{ color: s.color }}>{s.value ?? '—'}</div>
                 <div className='absolute bottom-0 left-0 right-0 h-0.5' style={{ background: s.color, opacity: 0.6 }} />
               </div>
@@ -170,10 +170,10 @@ export function WazuhView() {
         <Tabs defaultValue='agents'>
           <TabsList className='mb-4'>
             <TabsTrigger value='agents'>
-              {t('soc.wazuh.tab.agents')} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{agents.length}</span>
+              {t('soc.wazuh.tab.agents')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{agents.length}</span>
             </TabsTrigger>
             <TabsTrigger value='alerts'>
-              {t('soc.wazuh.tab.alerts')} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{alerts.length}</span>
+              {t('soc.wazuh.tab.alerts')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{alerts.length}</span>
             </TabsTrigger>
           </TabsList>
 

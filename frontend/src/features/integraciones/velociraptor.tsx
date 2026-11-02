@@ -58,7 +58,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
         <thead>
           <tr className='border-b bg-muted/40'>
             {cols.map(c => (
-              <th key={c.key} className='text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
+              <th key={c.key} className='text-left px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
             ))}
           </tr>
         </thead>
@@ -131,7 +131,7 @@ export function VelociraptorView() {
     { key: 'os',        label: t('soc.velociraptor.col.os'),           muted: true, render: r => r.os_info?.system || '—' },
     { key: 'last_seen', label: t('soc.velociraptor.col.lastContact'),  muted: true, render: r => fmtTS(Number(r.last_seen_at) / 1000) },
     { key: 'status',    label: t('soc.velociraptor.col.status'),                    render: r => (
-      <Badge variant={isOnline(r.last_seen_at) ? 'default' : 'secondary'} className='text-[10px]'>
+      <Badge variant={isOnline(r.last_seen_at) ? 'default' : 'secondary'} className='text-xs'>
         {isOnline(r.last_seen_at) ? 'Online' : 'Offline'}
       </Badge>
     )},
@@ -146,7 +146,7 @@ export function VelociraptorView() {
     { key: 'hunt_id',                  label: t('soc.velociraptor.col.huntId'),     muted: true, render: r => <span className='font-mono text-xs'>{(r.hunt_id || '').slice(0, 18)}</span> },
     { key: 'hunt_description',         label: t('soc.velociraptor.col.desc'),                    render: r => r.hunt_description || '—' },
     { key: 'state',                    label: t('soc.velociraptor.col.huntStatus'),              render: r => (
-      <Badge variant={r.state === 'RUNNING' ? 'default' : r.state === 'PAUSED' ? 'secondary' : 'outline'} className='text-[10px]'>
+      <Badge variant={r.state === 'RUNNING' ? 'default' : r.state === 'PAUSED' ? 'secondary' : 'outline'} className='text-xs'>
         {r.state || '—'}
       </Badge>
     )},
@@ -158,7 +158,7 @@ export function VelociraptorView() {
     { key: 'FlowId',    label: t('soc.velociraptor.col.flowId'),    muted: true, render: r => <span className='font-mono text-xs'>{r.FlowId || '—'}</span> },
     { key: 'Artifacts', label: t('soc.velociraptor.col.artifacts'),              render: r => (Array.isArray(r.Artifacts) ? r.Artifacts : [r.Artifacts]).filter(Boolean).join(', ') || '—' },
     { key: 'State',     label: t('soc.velociraptor.col.huntStatus'),             render: r => (
-      <Badge variant={r.State === 'FINISHED' ? 'default' : r.State === 'RUNNING' ? 'secondary' : 'outline'} className='text-[10px]'>
+      <Badge variant={r.State === 'FINISHED' ? 'default' : r.State === 'RUNNING' ? 'secondary' : 'outline'} className='text-xs'>
         {r.State || '—'}
       </Badge>
     )},
@@ -199,13 +199,13 @@ export function VelociraptorView() {
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className='mb-4'>
             <TabsTrigger value='clients'>
-              {t('soc.velociraptor.tab.clients')} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{clients.length}</span>
+              {t('soc.velociraptor.tab.clients')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{clients.length}</span>
             </TabsTrigger>
             <TabsTrigger value='hunts'>
-              {t('soc.velociraptor.tab.hunts')} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{hunts.length}</span>
+              {t('soc.velociraptor.tab.hunts')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{hunts.length}</span>
             </TabsTrigger>
             <TabsTrigger value='flows'>
-              {t('soc.velociraptor.tab.flows')}{selClient ? ` — ${selClient.slice(0, 12)}` : ''} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{flows.length}</span>
+              {t('soc.velociraptor.tab.flows')}{selClient ? ` — ${selClient.slice(0, 12)}` : ''} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{flows.length}</span>
             </TabsTrigger>
           </TabsList>
 

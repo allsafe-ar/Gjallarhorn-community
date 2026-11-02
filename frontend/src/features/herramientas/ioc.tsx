@@ -194,7 +194,7 @@ export function IocView() {
             className='text-sm h-10 pr-20'
           />
           {iocType && (
-            <span className='absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-primary bg-muted px-2 py-0.5 rounded'>
+            <span className='absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-primary bg-muted px-2 py-0.5 rounded'>
               {iocType}
             </span>
           )}
@@ -213,7 +213,7 @@ export function IocView() {
                 <div className='text-5xl font-black tabular-nums leading-none' style={{ color: scoreColor(result.score) }}>
                   {result.score}
                 </div>
-                <div className='text-[10px] text-muted-foreground mt-1'>/ 100</div>
+                <div className='text-xs text-muted-foreground mt-1'>/ 100</div>
               </div>
               <div className='flex-1 min-w-0'>
                 <div className='flex items-center gap-2 mb-2 flex-wrap'>
@@ -290,7 +290,7 @@ export function IocView() {
                         <div key={i} className={cn('rounded-lg border bg-card p-4 flex flex-col gap-1.5 relative overflow-hidden', borderCls)}>
                           <div className='flex items-center justify-between gap-2'>
                             <span className='text-sm font-semibold leading-tight'>{f.source}</span>
-                            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded border shrink-0', badgeCls)}>
+                            <span className={cn('text-xs font-bold px-2 py-0.5 rounded border shrink-0', badgeCls)}>
                               {badgeText}
                             </span>
                           </div>
@@ -315,7 +315,7 @@ export function IocView() {
                           {f.details && <div className='text-xs text-muted-foreground line-clamp-2'>{f.details}</div>}
                           {f.link && (
                             <a href={f.link} target='_blank' rel='noopener noreferrer'
-                              className='text-[11px] text-primary hover:underline mt-auto pt-1'>
+                              className='text-xs text-primary hover:underline mt-auto pt-1'>
                               {t('tools.ioc.viewReport')}
                             </a>
                           )}
@@ -416,10 +416,10 @@ export function IocView() {
                         <td className='px-3 py-2 text-muted-foreground'>{h.ioc_type}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>
                         <td className='px-3 py-2'>
-                          <span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span>
+                          <span className={cn('text-xs font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span>
                         </td>
                         <td className='px-3 py-2 text-muted-foreground'>{h.analyst}</td>
-                        <td className='px-3 py-2'><span className='text-primary text-[11px]'>{t('tools.ioc.view')}</span></td>
+                        <td className='px-3 py-2'><span className='text-primary text-xs'>{t('tools.ioc.view')}</span></td>
                       </tr>
                     ))}
                   </tbody>

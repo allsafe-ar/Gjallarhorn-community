@@ -90,7 +90,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={sidebarData.user} />
-        <div className='px-2 pb-1 text-[11px] leading-tight text-muted-foreground text-center group-data-[collapsible=icon]:hidden'>
+        <div className='px-2 pb-1 text-xs leading-tight text-muted-foreground text-center group-data-[collapsible=icon]:hidden'>
           © AllSafe Security Solutions · Gjallarhorn Community v{APP_VERSION}
         </div>
       </SidebarFooter>

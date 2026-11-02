@@ -141,7 +141,7 @@ export function CuerpoMonitoreo({ id }: { id: string | null }) {
                   </button>
                 </div>
               )}
-              <p className='mt-1 text-[11px] text-muted-foreground'>{t('monitoreo.aliasAyuda')}</p>
+              <p className='mt-1 text-xs text-muted-foreground'>{t('monitoreo.aliasAyuda')}</p>
             </div>
           )}
 
@@ -180,7 +180,7 @@ export function CuerpoMonitoreo({ id }: { id: string | null }) {
                       </span>
                     ) : t('monitoreo.sinPuertos')}
                   </div>
-                  <p className='text-[11px] text-muted-foreground'>
+                  <p className='text-xs text-muted-foreground'>
                     {t('monitoreo.sondeadoEl', { fecha: new Date(a.sondeado_at).toLocaleString(localeActivo()) })}
                   </p>
                 </div>
@@ -274,7 +274,7 @@ export function CuerpoMonitoreo({ id }: { id: string | null }) {
                     <Label className='text-xs'>{t('monitoreo.umbral')}</Label>
                     <Input type='number' min={1} value={form.umbral_fallos}
                       onChange={(e) => setForm(f => ({ ...f, umbral_fallos: Number(e.target.value) }))} />
-                    <p className='mt-1 text-[11px] text-muted-foreground'>{t('monitoreo.umbralAyuda')}</p>
+                    <p className='mt-1 text-xs text-muted-foreground'>{t('monitoreo.umbralAyuda')}</p>
                   </div>
                 </div>
                 <div className='flex justify-end gap-2'>

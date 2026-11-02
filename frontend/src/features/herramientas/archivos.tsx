@@ -198,7 +198,7 @@ export function ArchivosView() {
                 <div className='text-5xl font-black tabular-nums leading-none' style={{ color: scoreColor(result.score) }}>
                   {result.score}
                 </div>
-                <div className='text-[10px] text-muted-foreground mt-1'>/ 100</div>
+                <div className='text-xs text-muted-foreground mt-1'>/ 100</div>
               </div>
               <div className='flex-1 min-w-0'>
                 <div className='flex items-center gap-2 mb-2 flex-wrap'>
@@ -237,10 +237,10 @@ export function ArchivosView() {
             <div className='text-xs font-semibold text-muted-foreground mb-2'>{t('tools.files.hashes')}</div>
             {[['MD5', result.hashes?.md5], ['SHA-1', result.hashes?.sha1], ['SHA-256', result.hashes?.sha256]].map(([label, val]) => (
               <div key={label} className='flex items-center gap-3 mb-1.5'>
-                <span className='text-[11px] text-muted-foreground w-12 shrink-0'>{label}</span>
+                <span className='text-xs text-muted-foreground w-12 shrink-0'>{label}</span>
                 <span className='font-mono text-xs flex-1 break-all'>{val || '—'}</span>
                 {val && (
-                  <button className='text-[11px] text-muted-foreground hover:text-foreground px-1' onClick={() => navigator.clipboard.writeText(val)}>
+                  <button className='text-xs text-muted-foreground hover:text-foreground px-1' onClick={() => navigator.clipboard.writeText(val)}>
                     <Copy className='h-3 w-3' />
                   </button>
                 )}
@@ -262,7 +262,7 @@ export function ArchivosView() {
                   [t('tools.files.info.entropy'), String(analysis.entropy ?? '—')],
                 ].map(([k, v]) => (
                   <div key={k} className='rounded bg-muted/50 px-3 py-2'>
-                    <div className='text-[10px] text-muted-foreground mb-1'>{k}</div>
+                    <div className='text-xs text-muted-foreground mb-1'>{k}</div>
                     <div className='text-sm font-medium truncate'>{v}</div>
                   </div>
                 ))}
@@ -345,9 +345,9 @@ export function ArchivosView() {
                         <td className='px-3 py-2 font-mono max-w-[200px] truncate'>{h.filename}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>
                         <td className='px-3 py-2'>
-                          <span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span>
+                          <span className={cn('text-xs font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span>
                         </td>
-                        <td className='px-3 py-2'><span className='text-primary text-[11px]'>{t('tools.ioc.view')}</span></td>
+                        <td className='px-3 py-2'><span className='text-primary text-xs'>{t('tools.ioc.view')}</span></td>
                       </tr>
                     ))}
                   </tbody>

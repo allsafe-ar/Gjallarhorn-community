@@ -112,14 +112,14 @@ export function TimelineView() {
                 <div key={ev.id} className={cn('flex gap-3 items-start px-4 py-3', i < paged.length - 1 && 'border-b')}>
                   <div className='w-0.5 self-stretch rounded mt-1 shrink-0' style={{ background: sevColor }} />
                   <div className='w-14 shrink-0'>
-                    <span className='text-[10px] font-black rounded px-1.5 py-0.5' style={{ background: srcColor + '22', color: srcColor }}>
+                    <span className='text-xs font-black rounded px-1.5 py-0.5' style={{ background: srcColor + '22', color: srcColor }}>
                       {ev.source?.toUpperCase()}
                     </span>
                   </div>
                   <div className='flex-1 min-w-0'>
                     <div className='flex items-center gap-2 mb-0.5'>
                       <span className='text-sm font-semibold'>{EVT_LABELS[ev.event_type] || ev.event_type}</span>
-                      {ev.severity && <span className='text-[10px] font-bold' style={{ color: sevColor }}>{ev.severity.toUpperCase()}</span>}
+                      {ev.severity && <span className='text-xs font-bold' style={{ color: sevColor }}>{ev.severity.toUpperCase()}</span>}
                     </div>
                     <div className='text-xs text-muted-foreground truncate'>
                       {d.ioc || d.filename || d.subject || d.campaign || d.ip || d.vuln
@@ -131,7 +131,7 @@ export function TimelineView() {
                       {d.analyst && <span className='ml-2'>· {d.analyst}</span>}
                     </div>
                   </div>
-                  <div className='text-[11px] text-muted-foreground shrink-0 whitespace-nowrap'>{fmtDate(ev.ts)}</div>
+                  <div className='text-xs text-muted-foreground shrink-0 whitespace-nowrap'>{fmtDate(ev.ts)}</div>
                 </div>
               )
             })}

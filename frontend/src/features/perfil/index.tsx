@@ -140,7 +140,7 @@ export function PerfilView() {
             <Shield className='h-4 w-4 text-muted-foreground' />
             {t('perfil.2fa.title')}
           </h2>
-          <Badge variant={has2FA ? 'default' : 'secondary'} className='text-[10px]'>
+          <Badge variant={has2FA ? 'default' : 'secondary'} className='text-xs'>
             {has2FA ? t('perfil.2fa.active') : t('perfil.2fa.inactive')}
           </Badge>
         </div>
@@ -164,7 +164,7 @@ export function PerfilView() {
                 <QRCodeSVG value={totpSetup.uri} size={160} />
               </div>
               <div className='flex-1'>
-                <div className='text-[11px] text-muted-foreground mb-1.5'>{t('perfil.2fa.manualSecret')}</div>
+                <div className='text-xs text-muted-foreground mb-1.5'>{t('perfil.2fa.manualSecret')}</div>
                 <div className='font-mono text-xs bg-muted px-3 py-2 rounded border break-all tracking-wider mb-4'>
                   {totpSetup.secret}
                 </div>

@@ -41,7 +41,7 @@ export function AsistenteView() {
           <Brain className='h-5 w-5 text-primary' />
           {t('ia.title')}
         </h1>
-        <Badge variant='outline' className='text-[10px] font-bold tracking-wider border-amber-400/40 text-amber-700 dark:text-amber-400'>
+        <Badge variant='outline' className='text-xs font-bold tracking-wider border-amber-400/40 text-amber-700 dark:text-amber-400'>
           {t('ia.experimental')}
         </Badge>
       </div>
@@ -61,7 +61,7 @@ export function AsistenteView() {
               { label: t('ia.card.available'), value: String(status?.models?.length ?? 0), color: undefined },
             ].map(({ label, value, color, mono }) => (
               <div key={label} className='rounded-lg border bg-card px-4 py-3'>
-                <div className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2'>{label}</div>
+                <div className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2'>{label}</div>
                 <div className={cn('text-base font-bold', mono && 'font-mono text-sm')} style={color ? { color } : {}}>
                   {value}
                 </div>

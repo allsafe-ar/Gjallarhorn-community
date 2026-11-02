@@ -49,7 +49,7 @@ function StatusBadge({ status }: { status: string }) {
   const variant = status === 'Open' || status === 'New' ? 'destructive'
     : status === 'Resolved' || status === 'Closed' ? 'default'
     : 'secondary'
-  return <Badge variant={variant} className='text-[10px]'>{status}</Badge>
+  return <Badge variant={variant} className='text-xs'>{status}</Badge>
 }
 
 type TheHiveCase = {
@@ -78,7 +78,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, emptyMs
         <thead>
           <tr className='border-b bg-muted/40'>
             {cols.map(c => (
-              <th key={c.key} className='text-left px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
+              <th key={c.key} className='text-left px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>{c.label}</th>
             ))}
           </tr>
         </thead>
@@ -176,10 +176,10 @@ export function TheHiveView() {
         <Tabs defaultValue='cases'>
           <TabsList className='mb-4'>
             <TabsTrigger value='cases'>
-              {t('soc.thehive.tab.cases')} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{cases.length}</span>
+              {t('soc.thehive.tab.cases')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{cases.length}</span>
             </TabsTrigger>
             <TabsTrigger value='alerts'>
-              {t('soc.thehive.tab.alerts')} <span className='ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full'>{alerts.length}</span>
+              {t('soc.thehive.tab.alerts')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{alerts.length}</span>
             </TabsTrigger>
           </TabsList>
 

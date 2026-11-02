@@ -107,11 +107,11 @@ function KpiCard({ label, value, color, sub, loading, icon: Icon }: {
           strokeWidth={1.4}
         />
       )}
-      <div className='relative z-10 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1 pr-8 leading-tight'>{label}</div>
+      <div className='relative z-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1 pr-8 leading-tight'>{label}</div>
       <div className='relative z-10 text-xl font-black tabular-nums pr-8' style={{ color }}>
         {loading ? <Loader2 className='size-5 animate-spin' style={{ color }} /> : (value != null ? value : '—')}
       </div>
-      {sub && <div className='relative z-10 text-[9px] mt-0.5' style={{ color }}>{sub}</div>}
+      {sub && <div className='relative z-10 text-xs mt-0.5' style={{ color }}>{sub}</div>}
       <div className='absolute bottom-0 left-0 right-0 h-0.5' style={{ background: color, opacity: 0.6 }} />
     </div>
   )
@@ -240,7 +240,7 @@ export function Dashboard() {
         <div className='flex-none flex items-center justify-between gap-4'>
           <div>
             <h1 className='text-base font-bold'>{t('dashboard.welcome', { name: user?.nombre || user?.username })}</h1>
-            <p className='text-[11px] text-muted-foreground'>{t('dashboard.subtitle')}</p>
+            <p className='text-xs text-muted-foreground'>{t('dashboard.subtitle')}</p>
           </div>
           <div className='flex items-center gap-2 flex-shrink-0'>
             {Number(checkInterval) > 0 && (
@@ -272,10 +272,10 @@ export function Dashboard() {
         )}
 
         <div className='flex-none'>
-          <h2 className='text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5 flex items-center gap-2'>
+          <h2 className='text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5 flex items-center gap-2'>
             {t('dashboard.internalCases')}
             {(localCases.criticalOpen ?? 0) > 0 && (
-              <span className='text-[9px] font-bold text-destructive border border-destructive/40 rounded px-1'>
+              <span className='text-xs font-bold text-destructive border border-destructive/40 rounded px-1'>
                 {t('dashboard.criticals', { n: localCases.criticalOpen })}
               </span>
             )}
@@ -290,7 +290,7 @@ export function Dashboard() {
         </div>
 
         <div className='flex-none'>
-          <h2 className='text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5'>{t('dashboard.soc')}</h2>
+          <h2 className='text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5'>{t('dashboard.soc')}</h2>
           <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5'>
             {PLATFORM_ORDER.map(p => {
               const cfg = platformMap[p] ?? {}
@@ -298,7 +298,7 @@ export function Dashboard() {
               if (!cfg.enabled) {
                 return (
                   <div key={p} className='flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 opacity-40'>
-                    <span className='text-[10px] font-bold rounded px-1 py-0.5' style={{ background: meta.color + '15', color: meta.color + '99' }}>{meta.abbr}</span>
+                    <span className='text-xs font-bold rounded px-1 py-0.5' style={{ background: meta.color + '15', color: meta.color + '99' }}>{meta.abbr}</span>
                     <span className='text-xs font-medium text-muted-foreground truncate'>{meta.name}</span>
                   </div>
                 )
@@ -308,7 +308,7 @@ export function Dashboard() {
                 <div key={p} className='relative rounded-lg border bg-card px-3 pb-2 pt-3 overflow-hidden'>
                   <div className='absolute top-0 left-0 right-0 h-0.5' style={{ background: meta.color }} />
                   <span
-                    className='absolute top-2 right-2 text-[10px] font-black rounded px-1 py-0.5 tracking-wide'
+                    className='absolute top-2 right-2 text-xs font-black rounded px-1 py-0.5 tracking-wide'
                     style={{ background: meta.color + '22', color: meta.color }}
                   >{meta.abbr}</span>
                   <span className='text-xs font-semibold pr-7 block truncate'>{meta.name}</span>
@@ -317,7 +317,7 @@ export function Dashboard() {
                       ? <Loader2 className='size-3 animate-spin text-muted-foreground' />
                       : <StatusIcon status={st} />
                     }
-                    <span className='text-[10px]' style={{ color: st === 'connected' ? '#22c55e' : st === 'error' ? '#ef4444' : '#6b7280' }}>
+                    <span className='text-xs' style={{ color: st === 'connected' ? '#22c55e' : st === 'error' ? '#ef4444' : '#6b7280' }}>
                       {testing === p ? t('dashboard.verifying') : statusLabel(st)}
                     </span>
                   </div>
@@ -330,7 +330,7 @@ export function Dashboard() {
         <div className='flex-1 min-h-0 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_180px_1fr] overflow-hidden'>
 
           <div className='rounded-lg border bg-card p-3 flex flex-col min-h-0 overflow-hidden'>
-            <span className='flex-none text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2'>{t('dashboard.activity7d')}</span>
+            <span className='flex-none text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2'>{t('dashboard.activity7d')}</span>
             <div className='flex-1 min-h-0'>
               <ResponsiveContainer width='100%' height='100%'>
                 <BarChart data={activity} margin={{ top: 4, right: 4, left: -28, bottom: 0 }} barSize={18}>
@@ -360,7 +360,7 @@ export function Dashboard() {
                   <span className='text-lg font-black tabular-nums leading-tight' style={{ color }}>
                     {activity.reduce((s, d) => s + (d[key] as number), 0)}
                   </span>
-                  <span className='text-[9px] uppercase tracking-wider text-muted-foreground'>{label}</span>
+                  <span className='text-xs uppercase tracking-wider text-muted-foreground'>{label}</span>
                 </div>
               ))}
             </div>
@@ -379,7 +379,7 @@ export function Dashboard() {
               let acc = 0
               return (
                 <div className='flex-1 min-h-0 rounded-lg border bg-card p-3 flex flex-col items-center overflow-hidden'>
-                  <span className='flex-none text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mb-2 self-start'>{t('dashboard.casesDist')}</span>
+                  <span className='flex-none text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 self-start'>{t('dashboard.casesDist')}</span>
                   <svg width={sz} height={sz} className='shrink-0'>
                     {total === 0
                       ? <circle cx={cx} cy={cy} r={r} fill='none' stroke='currentColor' strokeOpacity={0.1} strokeWidth={th} />
@@ -396,10 +396,10 @@ export function Dashboard() {
                   <div className='flex-none mt-2 w-full space-y-1'>
                     {segs.map(s => (
                       <div key={s.key} className='flex justify-between items-center'>
-                        <span className='flex items-center gap-1.5 text-[10px] text-muted-foreground'>
+                        <span className='flex items-center gap-1.5 text-xs text-muted-foreground'>
                           <span className='inline-block size-1.5 rounded-sm flex-shrink-0' style={{ background: s.color }} />{s.label}
                         </span>
-                        <span className='text-[10px] font-semibold'>{s.value}</span>
+                        <span className='text-xs font-semibold'>{s.value}</span>
                       </div>
                     ))}
                   </div>
@@ -411,10 +411,10 @@ export function Dashboard() {
 
           <div className='rounded-lg border bg-card p-3 flex flex-col min-h-0 overflow-hidden'>
             <div className='flex-none flex items-center justify-between mb-2'>
-              <span className='text-[10px] font-semibold uppercase tracking-widest text-muted-foreground'>{t('dashboard.recentEvents')}</span>
+              <span className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>{t('dashboard.recentEvents')}</span>
               <div className='flex items-center gap-2'>
                 {corrStatus && (
-                  <span className='text-[10px] text-muted-foreground'>
+                  <span className='text-xs text-muted-foreground'>
                     {corrStatus.running
                       ? t('dashboard.correlating')
                       : corrStatus.lastWazuhRun
@@ -438,19 +438,19 @@ export function Dashboard() {
                   const sc = srcColor[ev.source] ?? '#6b7280'
                   return (
                     <div key={ev.id} className='flex gap-2 items-start pb-2 border-b last:border-0 last:pb-0'>
-                      <span className='text-[9px] font-bold rounded px-1 py-0.5 flex-shrink-0 mt-0.5' style={{ background: sc + '22', color: sc }}>
+                      <span className='text-xs font-bold rounded px-1 py-0.5 flex-shrink-0 mt-0.5' style={{ background: sc + '22', color: sc }}>
                         {ev.source.toUpperCase()}
                       </span>
                       <div className='flex-1 min-w-0'>
                         <div className='text-xs font-medium truncate'>
                           {d.ioc ?? d.filename ?? d.subject ?? d.campaign ?? d.ip ?? d.vuln ?? ev.event_type}
                         </div>
-                        <div className='text-[10px] text-muted-foreground'>
+                        <div className='text-xs text-muted-foreground'>
                           {ev.event_type} · {new Date(ev.ts).toLocaleString(localeActivo())}
                         </div>
                       </div>
                       {ev.severity && (
-                        <span className='text-[9px] font-bold flex-shrink-0' style={{ color: sevColor[ev.severity] ?? '#6b7280' }}>
+                        <span className='text-xs font-bold flex-shrink-0' style={{ color: sevColor[ev.severity] ?? '#6b7280' }}>
                           {ev.severity.toUpperCase()}
                         </span>
                       )}
@@ -466,12 +466,12 @@ export function Dashboard() {
           <Link to='/inteligencia/threat' className='group rounded-lg border bg-card px-3 py-2 flex items-center gap-2 hover:bg-muted/40 transition-colors'>
             <ShieldAlertIcon className='h-3.5 w-3.5 text-destructive shrink-0' />
             <span className='text-xs font-semibold flex-1'>Threat Intelligence</span>
-            <span className='text-[10px] text-muted-foreground group-hover:text-foreground'>→</span>
+            <span className='text-xs text-muted-foreground group-hover:text-foreground'>→</span>
           </Link>
           <Link to='/inteligencia/apis' className='group rounded-lg border bg-card px-3 py-2 flex items-center gap-2 hover:bg-muted/40 transition-colors'>
             <Key className='h-3.5 w-3.5 text-primary shrink-0' />
             <span className='text-xs font-semibold flex-1'>{t('nav.apis')}</span>
-            <span className='text-[10px] text-muted-foreground group-hover:text-foreground'>{apiActiveCount}/{API_KEY_SERVICES.length} {t('intel.apis.activeBadge')} →</span>
+            <span className='text-xs text-muted-foreground group-hover:text-foreground'>{apiActiveCount}/{API_KEY_SERVICES.length} {t('intel.apis.activeBadge')} →</span>
           </Link>
         </div>
 

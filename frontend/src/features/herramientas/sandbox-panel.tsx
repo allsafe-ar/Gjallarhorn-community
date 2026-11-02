@@ -191,7 +191,7 @@ export function SandboxPanel({ file, fileAnalysisId, standalone, onDone }: { fil
           <span className='text-sm text-muted-foreground'>
             {resultado.estado === 'pendiente' ? t('tools.sandbox.queued') : t('tools.sandbox.running')}
           </span>
-          {envioId && <span className='font-mono text-[11px] text-muted-foreground ml-auto'>{envioId.slice(0, 8)}</span>}
+          {envioId && <span className='font-mono text-xs text-muted-foreground ml-auto'>{envioId.slice(0, 8)}</span>}
         </div>
       )}
 
@@ -239,7 +239,7 @@ export function ResultadoSandbox({ resultado, destino }: { resultado: Resultado;
           <div className='text-3xl font-bold' style={{ color: resultado.verdicto === 'UNANALYZED' ? '#9ca3af' : colorPuntaje(resultado.puntaje) }}>
             {resultado.verdicto === 'UNANALYZED' ? '—' : (resultado.puntaje ?? 0)}
           </div>
-          <div className='text-[11px] text-muted-foreground'>{t('tools.sandbox.score')}</div>
+          <div className='text-xs text-muted-foreground'>{t('tools.sandbox.score')}</div>
         </div>
         <Badge variant={resultado.verdicto === 'MALICIOUS' ? 'destructive' : 'outline'}
           className={resultado.verdicto === 'UNANALYZED' ? 'border-amber-500/50 text-amber-700 dark:text-amber-400' : undefined}>
@@ -264,7 +264,7 @@ export function ResultadoSandbox({ resultado, destino }: { resultado: Resultado;
               : <><FolderPlus className='h-3.5 w-3.5 mr-1.5' />{casoInterno ? t('tools.sandbox.existingCase', 'Caso ya abierto') : t('tools.sandbox.createCase', 'Abrir caso')}</>}
           </Button>
           {casoInterno && resultado.internal_case_title && (
-            <span className='text-[11px] text-muted-foreground'>{resultado.internal_case_title}</span>
+            <span className='text-xs text-muted-foreground'>{resultado.internal_case_title}</span>
           )}
         </div>
       )}
@@ -281,7 +281,7 @@ export function ResultadoSandbox({ resultado, destino }: { resultado: Resultado;
       <Seccion titulo={t('tools.sandbox.network')} vacio={!resultado.red?.length}>
         {resultado.red?.map((r, i) => (
           <div key={i} className='py-1 flex gap-2 items-center'>
-            <Badge variant='outline' className='text-[10px]'>{r.tipo}</Badge>
+            <Badge variant='outline' className='text-xs'>{r.tipo}</Badge>
             <span className='font-mono text-xs break-all'>{r.valor}</span>
           </div>
         ))}
@@ -300,7 +300,7 @@ export function ResultadoSandbox({ resultado, destino }: { resultado: Resultado;
           <div key={i} className='py-1 text-xs'>
             <span className='font-medium'>{a.nombre}</span>
             {a.tipo && <span className='text-muted-foreground ml-2'>{a.tipo}</span>}
-            {a.sha256 && <div className='font-mono text-[10px] text-muted-foreground break-all'>{a.sha256}</div>}
+            {a.sha256 && <div className='font-mono text-xs text-muted-foreground break-all'>{a.sha256}</div>}
           </div>
         ))}
       </Seccion>
@@ -312,7 +312,7 @@ function Seccion({ titulo, vacio, children }: { titulo: string; vacio: boolean; 
   const { t } = useTranslation()
   return (
     <div className='rounded-lg border p-3'>
-      <div className='text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2'>{titulo}</div>
+      <div className='text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2'>{titulo}</div>
       {vacio ? <p className='text-xs text-muted-foreground'>{t('tools.sandbox.nothing')}</p> : children}
     </div>
   )

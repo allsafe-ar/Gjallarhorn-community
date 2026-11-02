@@ -178,7 +178,7 @@ export function CasosView() {
                 <span className='text-xs font-semibold text-muted-foreground'>{STAT_LABELS[c.status]}</span>
               </div>
               <div className='text-sm font-medium truncate'>{c.title}</div>
-              <div className='text-[11px] text-muted-foreground mt-0.5'>{fmtDate(c.created_at)}</div>
+              <div className='text-xs text-muted-foreground mt-0.5'>{fmtDate(c.created_at)}</div>
             </div>
           ))}
           {!loading && filtered.length === 0 && <p className='text-sm text-muted-foreground'>{t('incidents.casos.noCases')}</p>}
@@ -202,12 +202,12 @@ export function CasosView() {
               <div className='flex items-start justify-between mb-4'>
                 <div>
                   <div className='flex items-center gap-2 mb-1'>
-                    <Badge className='text-[10px]' style={{ background: SEV_COLORS[selected.severity] + '22', color: SEV_COLORS[selected.severity], border: `1px solid ${SEV_COLORS[selected.severity]}44` }}>
+                    <Badge className='text-xs' style={{ background: SEV_COLORS[selected.severity] + '22', color: SEV_COLORS[selected.severity], border: `1px solid ${SEV_COLORS[selected.severity]}44` }}>
                       {SEV_LABELS[selected.severity]}
                     </Badge>
-                    <Badge variant='outline' className='text-[10px]'>{STAT_LABELS[selected.status]}</Badge>
+                    <Badge variant='outline' className='text-xs'>{STAT_LABELS[selected.status]}</Badge>
                     {selected.tlp != null && (
-                      <span className='text-[10px] font-bold rounded px-1.5 py-0.5' style={{ background: TLP_META[selected.tlp]?.color + '22', color: TLP_META[selected.tlp]?.color }}>
+                      <span className='text-xs font-bold rounded px-1.5 py-0.5' style={{ background: TLP_META[selected.tlp]?.color + '22', color: TLP_META[selected.tlp]?.color }}>
                         TLP:{TLP_META[selected.tlp]?.label}
                       </span>
                     )}
@@ -269,22 +269,22 @@ export function CasosView() {
                             <div key={`${a.analysis_type}-${a.analysis_id}`} className='rounded-lg border px-3 py-2.5'>
                               <div className='flex items-center gap-2.5'>
                                 <Icono className='h-4 w-4 shrink-0 text-muted-foreground' />
-                                <Badge variant='secondary' className='text-[10px] shrink-0'>
+                                <Badge variant='secondary' className='text-xs shrink-0'>
                                   {t(`incidents.casos.evidence.type.${a.analysis_type}`, { defaultValue: a.analysis_type })}
                                 </Badge>
                                 <span className='font-mono text-xs flex-1 break-all'>{valor}</span>
                                 {a.detail?.verdict && (
-                                  <span className='text-[10px] font-bold shrink-0' style={{ color: vc }}>
+                                  <span className='text-xs font-bold shrink-0' style={{ color: vc }}>
                                     {a.detail.verdict}
                                   </span>
                                 )}
                                 {typeof a.detail?.threat_score === 'number' && (
-                                  <Badge variant='outline' className='text-[10px] shrink-0' style={{ color: vc, borderColor: vc + '66' }}>
+                                  <Badge variant='outline' className='text-xs shrink-0' style={{ color: vc, borderColor: vc + '66' }}>
                                     {a.detail.threat_score}/100
                                   </Badge>
                                 )}
                               </div>
-                              <div className='flex items-center gap-3 mt-1.5 pl-6.5 text-[11px] text-muted-foreground'>
+                              <div className='flex items-center gap-3 mt-1.5 pl-6.5 text-xs text-muted-foreground'>
                                 {a.detail?.ts && <span>{fmtDate(a.detail.ts)}</span>}
                                 {a.linked_at && <span>{t('incidents.casos.evidence.linked', 'Vinculado')}: {fmtDate(a.linked_at)}</span>}
                                 <Link to={meta.ruta} className='ml-auto inline-flex items-center gap-1 hover:text-foreground transition-colors'>
@@ -323,7 +323,7 @@ export function CasosView() {
                     ? <p className='text-sm text-muted-foreground'>{t('incidents.casos.noObservables')}</p>
                     : (selected.observables || []).map((obs: any) => (
                       <div key={obs.id} className='rounded border px-3 py-2 mb-2 text-sm flex items-center gap-3'>
-                        <Badge variant='secondary' className='text-[10px] shrink-0'>{obs.obs_type}</Badge>
+                        <Badge variant='secondary' className='text-xs shrink-0'>{obs.obs_type}</Badge>
                         <span className='font-mono text-xs flex-1 break-all'>{obs.value}</span>
                       </div>
                     ))

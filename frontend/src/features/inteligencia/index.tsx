@@ -46,7 +46,7 @@ function KpiCard({ label, value, color, icon: Icon }: {
   return (
     <div className='relative rounded-lg border bg-card px-4 py-3 overflow-hidden'>
       {Icon && <Icon className='absolute right-3 top-3 opacity-10' style={{ width: 40, height: 40, color }} strokeWidth={1.4} />}
-      <div className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1'>{label}</div>
+      <div className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1'>{label}</div>
       <div className='text-2xl font-black tabular-nums' style={{ color }}>{value}</div>
       <div className='absolute bottom-0 left-0 right-0 h-0.5' style={{ background: color, opacity: 0.5 }} />
     </div>
@@ -166,7 +166,7 @@ export function InteligenciaView() {
               {stats && (
                 <div className='flex gap-3 mt-4 flex-wrap'>
                   {(stats.byType ?? []).map(item => (
-                    <div key={item.ioc_type} className='flex items-center gap-1.5 text-[11px] text-muted-foreground'>
+                    <div key={item.ioc_type} className='flex items-center gap-1.5 text-xs text-muted-foreground'>
                       <span className='inline-block size-2 rounded-sm bg-primary/50' />
                       {TYPE_LABELS[item.ioc_type] || item.ioc_type}
                       <span className='font-bold text-foreground'>{item.c}</span>
@@ -189,11 +189,11 @@ export function InteligenciaView() {
                     const detPct = s.queries > 0 ? Math.round((s.detections / s.queries) * 100) : 0
                     return (
                       <div key={s.source} className='flex items-center gap-3'>
-                        <span className='text-[10px] text-muted-foreground w-3 text-right'>{i + 1}</span>
+                        <span className='text-xs text-muted-foreground w-3 text-right'>{i + 1}</span>
                         <div className='flex-1 min-w-0'>
                           <div className='flex items-center justify-between mb-0.5'>
                             <span className='text-xs font-medium truncate'>{s.source}</span>
-                            <span className='text-[10px] text-muted-foreground ml-2 shrink-0'>{t('intel.index.queries', { n: s.queries })}</span>
+                            <span className='text-xs text-muted-foreground ml-2 shrink-0'>{t('intel.index.queries', { n: s.queries })}</span>
                           </div>
                           <div className='h-1.5 rounded-full bg-muted overflow-hidden'>
                             <div
@@ -202,13 +202,13 @@ export function InteligenciaView() {
                             />
                           </div>
                         </div>
-                        <span className={cn('text-[10px] font-bold w-10 text-right shrink-0', detPct > 30 ? 'text-red-500' : detPct > 10 ? 'text-amber-500' : 'text-muted-foreground')}>
+                        <span className={cn('text-xs font-bold w-10 text-right shrink-0', detPct > 30 ? 'text-red-500' : detPct > 10 ? 'text-amber-500' : 'text-muted-foreground')}>
                           {detPct}%
                         </span>
                       </div>
                     )
                   })}
-                  <p className='text-[10px] text-muted-foreground mt-1'>{t('intel.index.detectionNote')}</p>
+                  <p className='text-xs text-muted-foreground mt-1'>{t('intel.index.detectionNote')}</p>
                 </div>
               )}
             </div>
@@ -220,7 +220,7 @@ export function InteligenciaView() {
               <div className='flex items-center gap-2 mb-4'>
                 <Key className='h-3.5 w-3.5 text-muted-foreground' />
                 <span className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>{t('intel.index.withKey')}</span>
-                <span className='ml-auto text-[10px] text-muted-foreground'>{apiActive} / {API_KEY_SERVICES.length} {t('intel.apis.activeBadge')}</span>
+                <span className='ml-auto text-xs text-muted-foreground'>{apiActive} / {API_KEY_SERVICES.length} {t('intel.apis.activeBadge')}</span>
               </div>
               <div className='space-y-2.5'>
                 {API_KEY_SERVICES.map(s => {
@@ -231,9 +231,9 @@ export function InteligenciaView() {
                       <span className={cn('inline-block size-2 rounded-full shrink-0', active ? 'bg-green-500' : 'bg-muted-foreground/30')} />
                       <span className='text-sm flex-1'>{s.label}</span>
                       {usage && (
-                        <span className='text-[10px] text-muted-foreground'>{t('intel.index.queries', { n: usage.queries })}</span>
+                        <span className='text-xs text-muted-foreground'>{t('intel.index.queries', { n: usage.queries })}</span>
                       )}
-                      <Badge variant={active ? 'default' : 'secondary'} className='text-[10px]'>
+                      <Badge variant={active ? 'default' : 'secondary'} className='text-xs'>
                         {active ? t('intel.index.active') : t('intel.index.notConfigured')}
                       </Badge>
                     </div>
@@ -246,7 +246,7 @@ export function InteligenciaView() {
               <div className='flex items-center gap-2 mb-4'>
                 <Globe className='h-3.5 w-3.5 text-muted-foreground' />
                 <span className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>{t('intel.index.freeSources')}</span>
-                <span className='ml-auto text-[10px] text-green-500'>{t('intel.index.activeCount', { n: FREE_INTEL.length })}</span>
+                <span className='ml-auto text-xs text-green-500'>{t('intel.index.activeCount', { n: FREE_INTEL.length })}</span>
               </div>
               <div className='space-y-2.5'>
                 {FREE_INTEL.map(s => {
@@ -256,9 +256,9 @@ export function InteligenciaView() {
                       <span className='inline-block size-2 rounded-full shrink-0 bg-green-500' />
                       <span className='text-sm flex-1'>{s}</span>
                       {usage && (
-                        <span className='text-[10px] text-muted-foreground'>{t('intel.index.queries', { n: usage.queries })}</span>
+                        <span className='text-xs text-muted-foreground'>{t('intel.index.queries', { n: usage.queries })}</span>
                       )}
-                      <Badge className='text-[10px] bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20'>
+                      <Badge className='text-xs bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20'>
                         {t('intel.index.active')}
                       </Badge>
                     </div>

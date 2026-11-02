@@ -20,9 +20,9 @@ type Stats = {
 function KpiCard({ label, value, color, sub }: { label: string; value: number | string; color: string; sub?: string }) {
   return (
     <div className='relative rounded-lg border bg-card px-4 py-3 overflow-hidden flex-1'>
-      <div className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1'>{label}</div>
+      <div className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1'>{label}</div>
       <div className='text-3xl font-black tabular-nums' style={{ color }}>{value}</div>
-      {sub && <div className='text-[10px] mt-0.5' style={{ color }}>{sub}</div>}
+      {sub && <div className='text-xs mt-0.5' style={{ color }}>{sub}</div>}
       <div className='absolute bottom-0 left-0 right-0 h-0.5' style={{ background: color, opacity: 0.5 }} />
     </div>
   )
@@ -137,7 +137,7 @@ export function ThreatIntelView() {
                 </div>
                 <div className='flex-none flex gap-3 mt-2 flex-wrap'>
                   {(stats?.byType ?? []).map(item => (
-                    <div key={item.ioc_type} className='flex items-center gap-1.5 text-[11px] text-muted-foreground'>
+                    <div key={item.ioc_type} className='flex items-center gap-1.5 text-xs text-muted-foreground'>
                       <span className='inline-block size-2 rounded-sm bg-primary/50' />
                       {TYPE_LABELS[item.ioc_type] || item.ioc_type}
                       <span className='font-bold text-foreground'>{item.c}</span>
@@ -186,7 +186,7 @@ export function ThreatIntelView() {
                 <span className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>
                   {t('intel.threat.topSources')}
                 </span>
-                <span className='ml-auto text-[10px] text-muted-foreground'>{t('intel.threat.detectionNote')}</span>
+                <span className='ml-auto text-xs text-muted-foreground'>{t('intel.threat.detectionNote')}</span>
               </div>
               {topSources.length === 0 ? (
                 <div className='text-sm text-muted-foreground text-center py-3'>
@@ -200,17 +200,17 @@ export function ThreatIntelView() {
                     const barColor = detPct > 30 ? '#ef4444' : detPct > 10 ? '#f59e0b' : '#3b82f6'
                     return (
                       <div key={s.source} className='flex items-center gap-3'>
-                        <span className='text-[10px] text-muted-foreground w-4 text-right shrink-0'>{i + 1}</span>
+                        <span className='text-xs text-muted-foreground w-4 text-right shrink-0'>{i + 1}</span>
                         <div className='flex-1 min-w-0'>
                           <div className='flex items-center justify-between mb-1'>
                             <span className='text-xs font-medium truncate'>{s.source}</span>
-                            <span className='text-[10px] text-muted-foreground ml-2 shrink-0'>{s.queries} {t('intel.threat.queries')}</span>
+                            <span className='text-xs text-muted-foreground ml-2 shrink-0'>{s.queries} {t('intel.threat.queries')}</span>
                           </div>
                           <div className='h-1.5 rounded-full bg-muted overflow-hidden'>
                             <div className='h-full rounded-full' style={{ width: `${pct}%`, background: barColor }} />
                           </div>
                         </div>
-                        <span className={cn('text-[10px] font-bold w-9 text-right shrink-0',
+                        <span className={cn('text-xs font-bold w-9 text-right shrink-0',
                           detPct > 30 ? 'text-red-500' : detPct > 10 ? 'text-amber-500' : 'text-muted-foreground')}>
                           {detPct}%
                         </span>

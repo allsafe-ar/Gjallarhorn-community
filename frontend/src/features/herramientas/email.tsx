@@ -213,7 +213,7 @@ export function EmailView() {
                     [t('tools.email.info.links'), String(result.links?.length || 0)],
                   ].map(([k, v]) => (
                     <div key={k} className='rounded bg-muted/50 px-3 py-2'>
-                      <div className='text-[10px] text-muted-foreground mb-1'>{k}</div>
+                      <div className='text-xs text-muted-foreground mb-1'>{k}</div>
                       <div className='text-xs break-all'>{v}</div>
                     </div>
                   ))}
@@ -371,8 +371,8 @@ export function EmailView() {
                         <td className='px-3 py-2 max-w-[200px] truncate'>{h.subject || '—'}</td>
                         <td className='px-3 py-2 max-w-[160px] truncate text-muted-foreground'>{h.email_from || '—'}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>
-                        <td className='px-3 py-2'><span className={cn('text-[10px] font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span></td>
-                        <td className='px-3 py-2'><span className='text-primary text-[11px]'>{t('tools.ioc.view')}</span></td>
+                        <td className='px-3 py-2'><span className={cn('text-xs font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span></td>
+                        <td className='px-3 py-2'><span className='text-primary text-xs'>{t('tools.ioc.view')}</span></td>
                       </tr>
                     ))}
                   </tbody>

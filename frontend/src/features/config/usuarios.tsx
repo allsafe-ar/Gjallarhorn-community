@@ -163,38 +163,38 @@ export function UsuariosView() {
                   <td className='px-4 py-2.5 font-medium'>{u.username}</td>
                   <td className='px-4 py-2.5 text-muted-foreground'>{u.nombre || '—'}</td>
                   <td className='px-4 py-2.5'>
-                    <Badge variant={u.role === 'admin' ? 'destructive' : 'secondary'} className='text-[10px]'>
+                    <Badge variant={u.role === 'admin' ? 'destructive' : 'secondary'} className='text-xs'>
                       {ROLE_LABELS[u.role] || u.role}
                     </Badge>
                   </td>
                   <td className='px-4 py-2.5'>
-                    <Badge variant={u.has2FA ? 'default' : 'outline'} className='text-[10px]'>
+                    <Badge variant={u.has2FA ? 'default' : 'outline'} className='text-xs'>
                       {u.has2FA ? t('config.users.active') : t('config.users.inactive')}
                     </Badge>
                   </td>
                   <td className='px-4 py-2.5'>
-                    <Badge variant={u.enabled ? 'default' : 'destructive'} className='text-[10px]'>
+                    <Badge variant={u.enabled ? 'default' : 'destructive'} className='text-xs'>
                       {u.enabled ? t('config.users.enabled') : t('config.users.blocked')}
                     </Badge>
                   </td>
                   <td className='px-4 py-2.5 text-muted-foreground text-xs'>{fmtDate(u.created_at)}</td>
                   <td className='px-4 py-2.5'>
                     <div className='flex gap-1 flex-wrap'>
-                      <Button variant='ghost' size='sm' className='h-6 text-[11px] px-2' onClick={() => openEdit(u)}>
+                      <Button variant='ghost' size='sm' className='h-6 text-xs px-2' onClick={() => openEdit(u)}>
                         {t('config.users.edit')}
                       </Button>
                       {u.id !== currentId && (
-                        <Button variant='ghost' size='sm' className='h-6 text-[11px] px-2' onClick={() => handleToggle(u)}>
+                        <Button variant='ghost' size='sm' className='h-6 text-xs px-2' onClick={() => handleToggle(u)}>
                           {u.enabled ? t('config.users.block') : t('config.users.enable')}
                         </Button>
                       )}
                       {u.has2FA && (
-                        <Button variant='ghost' size='sm' className='h-6 text-[11px] px-2' onClick={() => handleReset2FA(u)}>
+                        <Button variant='ghost' size='sm' className='h-6 text-xs px-2' onClick={() => handleReset2FA(u)}>
                           {t('config.users.reset2fa')}
                         </Button>
                       )}
                       {u.id !== currentId && (
-                        <Button variant='ghost' size='sm' className='h-6 text-[11px] px-2 text-destructive hover:text-destructive' onClick={() => handleDelete(u)}>
+                        <Button variant='ghost' size='sm' className='h-6 text-xs px-2 text-destructive hover:text-destructive' onClick={() => handleDelete(u)}>
                           {t('config.users.delete')}
                         </Button>
                       )}
