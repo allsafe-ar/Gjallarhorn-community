@@ -3,6 +3,20 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.6.0] - 2026-11-02
+
+### Fixed
+- **Threat intelligence sources up to date.** C2-Tracker was archived and always answered "not found": it is replaced by **C2IntelFeeds** (IPs and domains seen in the last 30 days; for a URL it checks the host, and it reports an error if no list can be read). **OpenPhish** uses its new feed address. **Feodo Tracker** only weighs what is active or recent (online adds 70, offline seen in the last 30 days adds 25, older adds 0) and shows when it was last online. A **benign GreyNoise** classification is no longer a finding. **ThreatFox** also matches indicators stored as `ip:port`.
+- **The generated YARA rule compiles**: it now declares `import "hash"` and uses `hash.<alg>(0, filesize)`.
+- **Sources tab** marks a source as "Detected" when it adds 40 or more to the score, and VirusTotal shows `malicious/total`.
+- Sources the backend never queries (ThreatCrowd, CIRCL MISP, Malpedia, Hybrid Analysis) are no longer shown.
+- A new Velociraptor hunt is created paused: the notice says so and points to the Velociraptor console to review and start it.
+- No text below 12 px on any screen.
+
+### Changed
+- **Complete English interface.** Dates follow the selected language instead of a fixed Argentine format, and the remaining fixed Spanish texts (dashboard, My account, session dialogs, password recovery, platforms, TheHive, users) are translated.
+- **Asset inventory in Spanish, English and Portuguese**, aligned with the canonical module.
+
 ## [1.5.4] - 2026-10-28
 
 ### Security
