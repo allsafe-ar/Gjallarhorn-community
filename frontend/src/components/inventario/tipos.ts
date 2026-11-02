@@ -2,6 +2,7 @@
  * Tipos y utilidades del inventario de activos. Canónico (utiles/activos/ui): idéntico en Skuld y
  * Gjallarhorn, copiado a `src/components/inventario/`.
  */
+import { idiomaActual, localeDe, textosActuales } from './textos'
 
 export type Fetcher = <T = unknown>(path: string, init?: { method?: string; body?: string }) => Promise<T>
 
@@ -96,55 +97,70 @@ export interface Activo extends Record<string, unknown> {
   discrepancias: { campo: string; valores: Record<string, string> }[]
 }
 
-export const SEMAFORO: Record<Semaforo, { texto: string; clase: string }> = {
-  vencido: { texto: 'Vencido', clase: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30' },
-  critico: { texto: 'Vence en 30 días', clase: 'bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30' },
-  proximo: { texto: 'Próximo', clase: 'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/30' },
-  al_dia: { texto: 'Al día', clase: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' },
-  sin_fecha: { texto: 'Sin fecha', clase: 'bg-muted text-muted-foreground' },
-}
+/**
+ * Colores de cada estado. El `texto` es un getter: sale en el idioma activo (ver textos.ts), así los
+ * componentes siguen usando `SEMAFORO[x].texto` sin saber de idiomas.
+ */
+const conTexto = <K extends string>(grupo: 'semaforo' | 'criticidad', clases: Record<K, string>) =>
+  Object.fromEntries(Object.entries(clases).map(([k, clase]) => [k, {
+    clase: clase as string,
+    get texto() { return textosActuales()[grupo][k] ?? k },
+  }])) as Record<K, { readonly texto: string; clase: string }>
 
-export const CRITICIDAD: Record<string, { texto: string; clase: string }> = {
-  critica: { texto: 'Crítica', clase: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30' },
-  alta: { texto: 'Alta', clase: 'bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30' },
-  media: { texto: 'Media', clase: 'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/30' },
-  baja: { texto: 'Baja', clase: 'bg-muted text-muted-foreground' },
-}
+export const SEMAFORO = conTexto<Semaforo>('semaforo', {
+  vencido: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30',
+  critico: 'bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30',
+  proximo: 'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/30',
+  al_dia: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30',
+  sin_fecha: 'bg-muted text-muted-foreground',
+})
 
-export const CLASIFICACION: Record<string, string> = {
-  publica: 'Pública', interna: 'Interna', confidencial: 'Confidencial', restringida: 'Restringida',
-}
+export const CRITICIDAD: Record<string, { readonly texto: string; clase: string }> = conTexto('criticidad', {
+  critica: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30',
+  alta: 'bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30',
+  media: 'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/30',
+  baja: 'bg-muted text-muted-foreground',
+})
 
-export const FUENTE: Record<string, string> = {
-  manual: 'Carga manual', csv: 'Planilla', huginn: 'Huginn', zabbix: 'Zabbix', glpi: 'GLPI', sondeo: 'Sondeo',
-  skuld: 'Skuld', gjallarhorn: 'Gjallarhorn', propio: 'Monitoreo propio',
-}
+export const CLASIFICACION_CLAVES = ['publica', 'interna', 'confidencial', 'restringida']
 
 export const VERIFICADAS = ['huginn', 'zabbix', 'glpi', 'sondeo', 'gjallarhorn', 'propio']
 
-/** "2026-10-31" -> "31/10/2026" sin pasar por Date (que corre la fecha según la zona). */
+/** Nombre visible de una fuente en el idioma activo. */
+export const nombreFuente = (f: string) => textosActuales().fuente[f] || f
+
+/** Nombre visible de una clasificación en el idioma activo. */
+export const nombreClasificacion = (c: string) => textosActuales().clasificacion[c] || c
+
+/**
+ * "2026-10-31" -> "31/10/2026" (o "10/31/2026" en inglés) sin pasar por la zona horaria: se arma
+ * la fecha en UTC y se formatea en UTC, así no se corre un día.
+ */
 export function fecha(iso: string | null | undefined): string {
   if (!iso) return '-'
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso))
-  return m ? `${m[3]}/${m[2]}/${m[1]}` : String(iso)
+  if (!m) return String(iso)
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])))
+  return d.toLocaleDateString(localeDe(idiomaActual()), { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' })
 }
 
 export function fechaHora(iso: string | null | undefined): string {
   if (!iso) return '-'
   const d = new Date(iso)
-  return isNaN(d.getTime()) ? String(iso) : d.toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
+  return isNaN(d.getTime()) ? String(iso) : d.toLocaleString(localeDe(idiomaActual()), { dateStyle: 'short', timeStyle: 'short' })
 }
 
 export function dinero(n: number | string | null | undefined, moneda?: string | null): string {
   if (n == null || n === '') return '-'
-  return `${moneda || 'ARS'} ${Number(n).toLocaleString('es-AR', { maximumFractionDigits: 2 })}`
+  return `${moneda || 'ARS'} ${Number(n).toLocaleString(localeDe(idiomaActual()), { maximumFractionDigits: 2 })}`
 }
 
 export function cuandoVence(dias: number | null | undefined): string {
   if (dias == null) return ''
-  if (dias < 0) return `venció hace ${-dias} día${dias === -1 ? '' : 's'}`
-  if (dias === 0) return 'vence hoy'
-  return `en ${dias} día${dias === 1 ? '' : 's'}`
+  const t = textosActuales()
+  if (dias < 0) return t.vencioHace(-dias)
+  if (dias === 0) return t.venceHoy
+  return t.enDias(dias)
 }
 
 export function nombreTipo(tx: Taxonomia | undefined, categoria: string, tipo: string): string {

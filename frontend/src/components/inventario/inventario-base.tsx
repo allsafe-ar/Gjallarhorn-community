@@ -30,8 +30,9 @@ import { FichaActivo } from './ficha-activo'
 import { DialogoSincronizacion } from './sincronizacion'
 import {
   type Activo, type Asignacion, type Fetcher, type FilaActivo, type Taxonomia, type Vencimiento,
-  CRITICIDAD, FUENTE, SEMAFORO, VERIFICADAS, cuandoVence, dinero, fecha, nombreTipo,
+  CRITICIDAD, SEMAFORO, VERIFICADAS, cuandoVence, dinero, fecha, nombreFuente, nombreTipo,
 } from './tipos'
+import { localizarTaxonomia, traducirCriterio, traducirError, useTextos } from './textos'
 
 export interface InventarioProps {
   fetcher: Fetcher
@@ -64,11 +65,10 @@ interface Resumen {
   dudas: number
 }
 
-const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
-
 export function InventarioBase(props: InventarioProps) {
   const { fetcher, alcance, puede, cabecera, listo = true, sincronizacion = true } = props
   const qc = useQueryClient()
+  const T = useTextos()
   const q = (p: string) => (alcance ? `${p}${p.includes('?') ? '&' : '?'}${alcance}` : p)
   const [tab, setTab] = useState('resumen')
   const [ficha, setFicha] = useState<string | null>(null)
@@ -78,7 +78,9 @@ export function InventarioBase(props: InventarioProps) {
   const [conectar, setConectar] = useState(false)
   const [filtroVenc, setFiltroVenc] = useState<string>('')
 
-  const { data: tx } = useQuery<Taxonomia>({ queryKey: ['inventario-taxonomia'], queryFn: () => fetcher<Taxonomia>('/inventario/taxonomia'), staleTime: Infinity })
+  const { data: txBackend } = useQuery<Taxonomia>({ queryKey: ['inventario-taxonomia'], queryFn: () => fetcher<Taxonomia>('/inventario/taxonomia'), staleTime: Infinity })
+  // La taxonomía llega en español; se traduce por clave al idioma activo (textos.ts).
+  const tx = useMemo(() => localizarTaxonomia(txBackend, T.idioma), [txBackend, T])
   const { data: resumen } = useQuery<Resumen>({
     queryKey: ['inventario', 'resumen', alcance], queryFn: () => fetcher<Resumen>(q('/inventario/resumen')), enabled: listo,
   })
@@ -91,24 +93,24 @@ export function InventarioBase(props: InventarioProps) {
         {cabecera}
         <div className='ml-auto flex flex-wrap gap-2'>
           {listo && puede.administrar && resumen?.dudas ? (
-            <Button variant='outline' onClick={() => setDuplicados(true)}><Copy className='mr-1 size-4' />Posibles duplicados <Badge className='ml-1'>{resumen.dudas}</Badge></Button>
+            <Button variant='outline' onClick={() => setDuplicados(true)}><Copy className='mr-1 size-4' />{T.posiblesDuplicados} <Badge className='ml-1'>{resumen.dudas}</Badge></Button>
           ) : null}
-          {listo && sincronizacion && puede.administrar ? <Button variant='outline' onClick={() => setConectar(true)}><Link2 className='mr-1 size-4' />Conectar</Button> : null}
-          {listo ? <Button variant='outline' onClick={() => props.descargar(q('/inventario/exportar.csv'), 'inventario.csv').catch((e) => toast.error(e.message))}><Download className='mr-1 size-4' />Exportar</Button> : null}
-          {listo && puede.administrar ? <Button variant='outline' onClick={() => setImportar(true)}><Upload className='mr-1 size-4' />Importar planilla</Button> : null}
-          {listo && puede.editar ? <Button onClick={() => setAlta(true)}><Plus className='mr-1 size-4' />Nuevo activo</Button> : null}
+          {listo && sincronizacion && puede.administrar ? <Button variant='outline' onClick={() => setConectar(true)}><Link2 className='mr-1 size-4' />{T.conectar}</Button> : null}
+          {listo ? <Button variant='outline' onClick={() => props.descargar(q('/inventario/exportar.csv'), 'inventario.csv').catch((e) => toast.error(traducirError(e.message)))}><Download className='mr-1 size-4' />{T.exportar}</Button> : null}
+          {listo && puede.administrar ? <Button variant='outline' onClick={() => setImportar(true)}><Upload className='mr-1 size-4' />{T.importarPlanilla}</Button> : null}
+          {listo && puede.editar ? <Button onClick={() => setAlta(true)}><Plus className='mr-1 size-4' />{T.nuevoActivo}</Button> : null}
         </div>
       </div>
 
       {!listo ? (
-        <Card><CardContent className='text-muted-foreground py-10 text-center'>Elegí una organización para ver su inventario.</CardContent></Card>
+        <Card><CardContent className='text-muted-foreground py-10 text-center'>{T.elegiOrganizacion}</CardContent></Card>
       ) : (
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value='resumen'>Resumen</TabsTrigger>
-            <TabsTrigger value='inventario'>Inventario</TabsTrigger>
-            <TabsTrigger value='vencimientos'>Vencimientos</TabsTrigger>
-            <TabsTrigger value='entregas'>Entregas</TabsTrigger>
+            <TabsTrigger value='resumen'>{T.tabResumen}</TabsTrigger>
+            <TabsTrigger value='inventario'>{T.tabInventario}</TabsTrigger>
+            <TabsTrigger value='vencimientos'>{T.tabVencimientos}</TabsTrigger>
+            <TabsTrigger value='entregas'>{T.tabEntregas}</TabsTrigger>
           </TabsList>
           <TabsContent value='resumen' className='pt-2'>
             <PanelResumen r={resumen} tx={tx} irA={irA} abrir={setFicha} />
@@ -151,6 +153,7 @@ function Kpi({ titulo, valor, detalle, clase, onClick }: { titulo: string; valor
 }
 
 function PanelResumen({ r, tx, irA, abrir }: { r: Resumen | undefined; tx: Taxonomia | undefined; irA: (v: string) => void; abrir: (id: string) => void }) {
+  const T = useTextos()
   if (!r) return <div className='flex h-40 items-center justify-center'><Loader2 className='size-5 animate-spin' /></div>
   const total = r.por_categoria.reduce((s, c) => s + Number(c.filas), 0)
   const unidades = r.por_categoria.reduce((s, c) => s + Number(c.unidades || 0), 0)
@@ -163,20 +166,20 @@ function PanelResumen({ r, tx, irA, abrir }: { r: Resumen | undefined; tx: Taxon
   return (
     <div className='space-y-4'>
       <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6'>
-        <Kpi titulo='Activos' valor={total} detalle={unidades !== total ? `${unidades} unidades` : undefined} />
-        <Kpi titulo='Vencidos' valor={s.vencido} clase={s.vencido ? 'text-red-600 dark:text-red-400' : ''} onClick={() => irA('vencido')} />
-        <Kpi titulo='Vencen en 30 días' valor={s.critico} clase={s.critico ? 'text-orange-600 dark:text-orange-400' : ''} onClick={() => irA('proximo')} />
-        <Kpi titulo='Próximos (90 días)' valor={s.proximo} onClick={() => irA('proximo')} />
-        <Kpi titulo='Sin fechas cargadas' valor={r.vencimientos.sin_fechas} detalle='hardware y software' clase={r.vencimientos.sin_fechas ? 'text-yellow-700 dark:text-yellow-400' : ''} onClick={() => irA('sin_fecha')} />
-        <Kpi titulo='Verificado en la red' valor={total ? `${Math.round((verificado / total) * 100)}%` : '-'} detalle={`${verificado} de ${total}`} />
+        <Kpi titulo={T.kpiActivos} valor={total} detalle={unidades !== total ? T.unidades(unidades) : undefined} />
+        <Kpi titulo={T.kpiVencidos} valor={s.vencido} clase={s.vencido ? 'text-red-600 dark:text-red-400' : ''} onClick={() => irA('vencido')} />
+        <Kpi titulo={T.kpiVencen30} valor={s.critico} clase={s.critico ? 'text-orange-600 dark:text-orange-400' : ''} onClick={() => irA('proximo')} />
+        <Kpi titulo={T.kpiProximos90} valor={s.proximo} onClick={() => irA('proximo')} />
+        <Kpi titulo={T.kpiSinFechas} valor={r.vencimientos.sin_fechas} detalle={T.kpiSinFechasDetalle} clase={r.vencimientos.sin_fechas ? 'text-yellow-700 dark:text-yellow-400' : ''} onClick={() => irA('sin_fecha')} />
+        <Kpi titulo={T.kpiVerificado} valor={total ? `${Math.round((verificado / total) * 100)}%` : '-'} detalle={T.deTotal(verificado, total)} />
       </div>
 
       <div className='grid gap-4 lg:grid-cols-2'>
         <Card>
-          <CardHeader className='pb-2'><CardTitle className='flex items-center gap-2 text-base'><CalendarClock className='size-4' />Lo que vence</CardTitle></CardHeader>
+          <CardHeader className='pb-2'><CardTitle className='flex items-center gap-2 text-base'><CalendarClock className='size-4' />{T.loQueVence}</CardTitle></CardHeader>
           <CardContent>
             {!r.vencimientos.proximos.length ? (
-              <p className='text-muted-foreground text-sm'>{r.vencimientos.sin_fechas ? 'No hay vencimientos próximos entre los cargados, pero hay activos sin fechas: el semáforo solo ve lo que se cargó.' : 'Nada vence en los próximos 90 días.'}</p>
+              <p className='text-muted-foreground text-sm'>{r.vencimientos.sin_fechas ? T.sinProximosConFaltantes : T.nadaVence90}</p>
             ) : (
               <ul className='space-y-1.5 text-sm'>
                 {r.vencimientos.proximos.map((v) => (
@@ -193,10 +196,10 @@ function PanelResumen({ r, tx, irA, abrir }: { r: Resumen | undefined; tx: Taxon
 
         <Card>
           <CardHeader className='pb-2'>
-            <CardTitle className='text-base'>Renovaciones en los próximos 12 meses</CardTitle>
+            <CardTitle className='text-base'>{T.renovaciones12}</CardTitle>
             <p className='text-muted-foreground text-xs'>
-              {Object.entries(totalesProy).map(([m, v]) => dinero(v, m)).join(' + ') || 'Sin costos cargados'}
-              {sinCosto ? ` · ${sinCosto} vencimiento${sinCosto === 1 ? '' : 's'} sin costo cargado` : ''}
+              {Object.entries(totalesProy).map(([m, v]) => dinero(v, m)).join(' + ') || T.sinCostos}
+              {sinCosto ? ` · ${T.sinCostoCargado(sinCosto)}` : ''}
             </p>
           </CardHeader>
           <CardContent>
@@ -205,13 +208,13 @@ function PanelResumen({ r, tx, irA, abrir }: { r: Resumen | undefined; tx: Taxon
                 const [y, mm] = m.mes.split('-')
                 const costo = Object.entries(m.costos).map(([mon, v]) => dinero(v, mon)).join(' + ')
                 return (
-                  <div key={m.mes} className='flex h-full flex-1 flex-col items-center gap-1' title={`${m.cantidad} vencimiento(s)${costo ? ' · ' + costo : ''}`}>
+                  <div key={m.mes} className='flex h-full flex-1 flex-col items-center gap-1' title={`${T.nVencimientos(m.cantidad)}${costo ? ' · ' + costo : ''}`}>
                     {/* El alto en % necesita un contenedor con alto propio: por eso la columna es h-full y la barra vive en un flex-1. */}
                     <div className='flex w-full flex-1 flex-col items-center justify-end'>
                       {m.cantidad ? <span className='text-muted-foreground mb-0.5 text-xs'>{m.cantidad}</span> : null}
                       <div className='bg-primary/70 w-full rounded-t' style={{ height: `${(m.cantidad / maxMes) * 85}%`, minHeight: m.cantidad ? 4 : 0 }} />
                     </div>
-                    <span className='text-muted-foreground text-xs'>{MESES[Number(mm) - 1]}{mm === '01' ? ` ${y.slice(2)}` : ''}</span>
+                    <span className='text-muted-foreground text-xs'>{T.meses[Number(mm) - 1]}{mm === '01' ? ` ${y.slice(2)}` : ''}</span>
                   </div>
                 )
               })}
@@ -222,16 +225,16 @@ function PanelResumen({ r, tx, irA, abrir }: { r: Resumen | undefined; tx: Taxon
 
       <div className='grid gap-4 md:grid-cols-2'>
         <Card>
-          <CardHeader className='pb-2'><CardTitle className='text-base'>Por categoría</CardTitle></CardHeader>
+          <CardHeader className='pb-2'><CardTitle className='text-base'>{T.porCategoria}</CardTitle></CardHeader>
           <CardContent className='space-y-1 text-sm'>
             {r.por_categoria.map((c) => (
-              <div key={c.categoria} className='flex justify-between'><span>{tx?.categorias[c.categoria]?.nombre || c.categoria}</span><span className='text-muted-foreground'>{c.filas}{Number(c.unidades) !== Number(c.filas) ? ` (${c.unidades} u.)` : ''}</span></div>
+              <div key={c.categoria} className='flex justify-between'><span>{tx?.categorias[c.categoria]?.nombre || c.categoria}</span><span className='text-muted-foreground'>{c.filas}{Number(c.unidades) !== Number(c.filas) ? ` ${T.unidadesAbrev(c.unidades)}` : ''}</span></div>
             ))}
-            {!r.por_categoria.length ? <p className='text-muted-foreground'>Todavía no hay activos. Cargalos a mano, importá una planilla o usá el relevamiento automático.</p> : null}
+            {!r.por_categoria.length ? <p className='text-muted-foreground'>{T.sinActivosAun}</p> : null}
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className='pb-2'><CardTitle className='text-base'>Por criticidad</CardTitle></CardHeader>
+          <CardHeader className='pb-2'><CardTitle className='text-base'>{T.porCriticidad}</CardTitle></CardHeader>
           <CardContent className='space-y-1 text-sm'>
             {['critica', 'alta', 'media', 'baja'].map((k) => {
               const n = Number(r.por_criticidad.find((c) => c.criticidad === k)?.n || 0)
@@ -245,18 +248,19 @@ function PanelResumen({ r, tx, irA, abrir }: { r: Resumen | undefined; tx: Taxon
 }
 
 function Paginador({ pagina, total, limite, setPagina, setLimite }: { pagina: number; total: number; limite: number; setPagina: (n: number) => void; setLimite: (n: number) => void }) {
+  const T = useTextos()
   const paginas = Math.max(1, Math.ceil(total / limite))
   return (
     <div className='flex flex-wrap items-center gap-2 text-sm'>
-      <span className='text-muted-foreground'>{total} activo{total === 1 ? '' : 's'}</span>
+      <span className='text-muted-foreground'>{T.nActivos(total)}</span>
       <div className='ml-auto flex items-center gap-2'>
         <Select value={String(limite)} onValueChange={(v) => { setLimite(Number(v)); setPagina(1) }}>
           <SelectTrigger className='h-8 w-36'><SelectValue /></SelectTrigger>
-          <SelectContent>{[10, 50, 100, 500].map((n) => <SelectItem key={n} value={String(n)}>{n === 500 ? 'Todos' : `${n} por página`}</SelectItem>)}</SelectContent>
+          <SelectContent>{[10, 50, 100, 500].map((n) => <SelectItem key={n} value={String(n)}>{n === 500 ? T.todos : T.porPagina(n)}</SelectItem>)}</SelectContent>
         </Select>
-        <Button size='sm' variant='outline' disabled={pagina <= 1} onClick={() => setPagina(pagina - 1)}><ChevronLeft className='size-4' />Anterior</Button>
-        <span className='text-muted-foreground'>{pagina} de {paginas}</span>
-        <Button size='sm' variant='outline' disabled={pagina >= paginas} onClick={() => setPagina(pagina + 1)}>Siguiente<ChevronRight className='size-4' /></Button>
+        <Button size='sm' variant='outline' disabled={pagina <= 1} onClick={() => setPagina(pagina - 1)}><ChevronLeft className='size-4' />{T.anterior}</Button>
+        <span className='text-muted-foreground'>{T.paginaDe(pagina, paginas)}</span>
+        <Button size='sm' variant='outline' disabled={pagina >= paginas} onClick={() => setPagina(pagina + 1)}>{T.siguiente}<ChevronRight className='size-4' /></Button>
       </div>
     </div>
   )
@@ -265,6 +269,7 @@ function Paginador({ pagina, total, limite, setPagina, setLimite }: { pagina: nu
 function Listado({ fetcher, q, tx, abrir, alcance, filtroVenc, setFiltroVenc }: InventarioProps & {
   q: (p: string) => string; tx: Taxonomia | undefined; abrir: (id: string) => void; filtroVenc: string; setFiltroVenc: (v: string) => void
 }) {
+  const T = useTextos()
   const [busca, setBusca] = useState('')
   const [buscaAplicada, setBuscaAplicada] = useState('')
   const [categoria, setCategoria] = useState('')
@@ -308,21 +313,21 @@ function Listado({ fetcher, q, tx, abrir, alcance, filtroVenc, setFiltroVenc }: 
       <div className='flex flex-wrap items-center gap-2'>
         <div className='relative'>
           <Search className='text-muted-foreground absolute top-2.5 left-2 size-4' />
-          <Input className='h-9 w-72 pl-8' placeholder='Buscar por nombre, IP, serie, persona...' value={busca} onChange={(e) => setBusca(e.target.value)} />
+          <Input className='h-9 w-72 pl-8' placeholder={T.buscarActivo} value={busca} onChange={(e) => setBusca(e.target.value)} />
         </div>
-        {filtro(categoria, setCategoria, Object.entries(tx?.categorias || {}).map(([k, c]) => [k, c.nombre]), 'Todas las categorías')}
-        {filtro(estado, setEstado, Object.entries(tx?.estados || {}), 'Todos los estados')}
-        {filtro(criticidad, setCriticidad, Object.entries(CRITICIDAD).map(([k, c]) => [k, c.texto]), 'Toda criticidad')}
-        {filtro(filtroVenc, setFiltroVenc, [['vencido', 'Con algo vencido'], ['proximo', 'Vence en 90 días'], ['sin_fecha', 'Sin fechas cargadas']], 'Todo vencimiento')}
-        <label className='flex items-center gap-2 text-sm'><Switch checked={bajas} onCheckedChange={setBajas} />Incluir bajas</label>
+        {filtro(categoria, setCategoria, Object.entries(tx?.categorias || {}).map(([k, c]) => [k, c.nombre]), T.todasCategorias)}
+        {filtro(estado, setEstado, Object.entries(tx?.estados || {}), T.todosEstados)}
+        {filtro(criticidad, setCriticidad, Object.entries(CRITICIDAD).map(([k, c]) => [k, c.texto]), T.todaCriticidad)}
+        {filtro(filtroVenc, setFiltroVenc, [['vencido', T.conAlgoVencido], ['proximo', T.vence90], ['sin_fecha', T.kpiSinFechas]], T.todoVencimiento)}
+        <label className='flex items-center gap-2 text-sm'><Switch checked={bajas} onCheckedChange={setBajas} />{T.incluirBajas}</label>
         <Select value={orden} onValueChange={setOrden}>
           <SelectTrigger className='ml-auto h-9 w-44'><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value='nombre'>Ordenar por nombre</SelectItem>
-            <SelectItem value='vencimiento'>Próximo vencimiento</SelectItem>
-            <SelectItem value='criticidad'>Criticidad</SelectItem>
-            <SelectItem value='tipo'>Tipo</SelectItem>
-            <SelectItem value='actualizado'>Últimos modificados</SelectItem>
+            <SelectItem value='nombre'>{T.ordenNombre}</SelectItem>
+            <SelectItem value='vencimiento'>{T.ordenVencimiento}</SelectItem>
+            <SelectItem value='criticidad'>{T.ordenCriticidad}</SelectItem>
+            <SelectItem value='tipo'>{T.ordenTipo}</SelectItem>
+            <SelectItem value='actualizado'>{T.ordenActualizado}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -331,13 +336,13 @@ function Listado({ fetcher, q, tx, abrir, alcance, filtroVenc, setFiltroVenc }: 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Activo</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Criticidad</TableHead>
-              <TableHead className='hidden lg:table-cell'>Propietario</TableHead>
-              <TableHead className='hidden 2xl:table-cell'>Ubicación</TableHead>
-              <TableHead>Próximo vencimiento</TableHead>
-              <TableHead className='hidden xl:table-cell'>Origen</TableHead>
+              <TableHead>{T.colActivo}</TableHead>
+              <TableHead>{T.colTipo}</TableHead>
+              <TableHead>{T.colCriticidad}</TableHead>
+              <TableHead className='hidden lg:table-cell'>{T.colPropietario}</TableHead>
+              <TableHead className='hidden 2xl:table-cell'>{T.colUbicacion}</TableHead>
+              <TableHead>{T.colProxVenc}</TableHead>
+              <TableHead className='hidden xl:table-cell'>{T.colOrigen}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -345,24 +350,24 @@ function Listado({ fetcher, q, tx, abrir, alcance, filtroVenc, setFiltroVenc }: 
               <TableRow key={f.id} className={`cursor-pointer ${f.estado === 'baja' ? 'opacity-50' : ''}`} onClick={() => abrir(f.id)}>
                 <TableCell>
                   <div className='font-medium'>{f.alias || f.nombre}{f.cantidad > 1 ? <span className='text-muted-foreground font-normal'> × {f.cantidad}</span> : null}</div>
-                  <div className='text-muted-foreground text-xs'>{[f.alias ? f.nombre : null, f.ip, f.serie ? `S/N ${f.serie}` : null].filter(Boolean).join(' · ')}</div>
+                  <div className='text-muted-foreground text-xs'>{[f.alias ? f.nombre : null, f.ip, f.serie ? `${T.serie} ${f.serie}` : null].filter(Boolean).join(' · ')}</div>
                 </TableCell>
                 <TableCell className='max-w-48 text-sm whitespace-normal'>{nombreTipo(tx, f.categoria, f.tipo)}{f.estado !== 'produccion' ? <div className='text-muted-foreground text-xs'>{tx?.estados[f.estado]}</div> : null}</TableCell>
                 <TableCell><Badge variant='outline' className={CRITICIDAD[f.criticidad]?.clase}>{CRITICIDAD[f.criticidad]?.texto}</Badge></TableCell>
                 <TableCell className='hidden text-sm lg:table-cell'>{f.propietario || <span className='text-muted-foreground'>-</span>}</TableCell>
                 <TableCell className='hidden text-sm 2xl:table-cell'>{f.ubicacion || '-'}</TableCell>
                 <TableCell>
-                  {f.semaforo ? <Badge variant='outline' className={SEMAFORO[f.semaforo].clase}>{fecha(f.prox_venc)} · {cuandoVence(f.dias_venc)}</Badge> : <span className='text-muted-foreground text-xs'>Sin fechas</span>}
+                  {f.semaforo ? <Badge variant='outline' className={SEMAFORO[f.semaforo].clase}>{fecha(f.prox_venc)} · {cuandoVence(f.dias_venc)}</Badge> : <span className='text-muted-foreground text-xs'>{T.sinFechas}</span>}
                 </TableCell>
                 <TableCell className='hidden xl:table-cell'>
                   {VERIFICADAS.includes(f.origen) || f.n_fuentes > 1
-                    ? <span className='flex items-center gap-1 text-xs'><ShieldCheck className='size-3.5 text-emerald-600' />{FUENTE[f.origen] || f.origen}{f.n_fuentes > 1 ? ` +${f.n_fuentes - 1}` : ''}</span>
-                    : <span className='text-muted-foreground text-xs'>{FUENTE[f.origen] || f.origen}</span>}
+                    ? <span className='flex items-center gap-1 text-xs'><ShieldCheck className='size-3.5 text-emerald-600' />{nombreFuente(f.origen)}{f.n_fuentes > 1 ? ` +${f.n_fuentes - 1}` : ''}</span>
+                    : <span className='text-muted-foreground text-xs'>{nombreFuente(f.origen)}</span>}
                 </TableCell>
               </TableRow>
             ))}
             {!filas.length && !isFetching ? (
-              <TableRow><TableCell colSpan={7} className='text-muted-foreground py-8 text-center'>No hay activos con esos filtros.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className='text-muted-foreground py-8 text-center'>{T.sinActivosFiltro}</TableCell></TableRow>
             ) : null}
           </TableBody>
         </Table>
@@ -373,6 +378,7 @@ function Listado({ fetcher, q, tx, abrir, alcance, filtroVenc, setFiltroVenc }: 
 }
 
 function ListaVencimientos({ fetcher, q, alcance, tx, abrir }: { fetcher: Fetcher; q: (p: string) => string; alcance: string; tx: Taxonomia | undefined; abrir: (id: string) => void }) {
+  const T = useTextos()
   const [semaforo, setSemaforo] = useState('')
   const [tipo, setTipo] = useState('')
   const { data = [], isLoading } = useQuery<Vencimiento[]>({
@@ -386,29 +392,29 @@ function ListaVencimientos({ fetcher, q, alcance, tx, abrir }: { fetcher: Fetche
       <div className='flex flex-wrap gap-2'>
         {(['', 'vencido', 'critico', 'proximo', 'al_dia'] as const).map((s) => (
           <Button key={s || 'todos'} size='sm' variant={semaforo === s ? 'default' : 'outline'} onClick={() => setSemaforo(s)}>
-            {s ? SEMAFORO[s].texto : 'Todos'} <span className='text-muted-foreground ml-1'>{s ? data.filter((v) => v.semaforo === s).length : data.length}</span>
+            {s ? SEMAFORO[s].texto : T.todos} <span className='text-muted-foreground ml-1'>{s ? data.filter((v) => v.semaforo === s).length : data.length}</span>
           </Button>
         ))}
         <Select value={tipo || 'todos'} onValueChange={(v) => setTipo(v === 'todos' ? '' : v)}>
           <SelectTrigger className='ml-auto h-8 w-52'><SelectValue /></SelectTrigger>
-          <SelectContent><SelectItem value='todos'>Todos los tipos</SelectItem>{Object.entries(tx?.vencimientos || {}).map(([k, n]) => <SelectItem key={k} value={k}>{n}</SelectItem>)}</SelectContent>
+          <SelectContent><SelectItem value='todos'>{T.todosTipos}</SelectItem>{Object.entries(tx?.vencimientos || {}).map(([k, n]) => <SelectItem key={k} value={k}>{n}</SelectItem>)}</SelectContent>
         </Select>
       </div>
       <div className='rounded-md border'>
         <Table>
-          <TableHeader><TableRow><TableHead>Vence</TableHead><TableHead>Activo</TableHead><TableHead>Qué</TableHead><TableHead className='hidden md:table-cell'>Costo</TableHead><TableHead className='hidden md:table-cell'>Propietario</TableHead><TableHead className='hidden lg:table-cell'>Último aviso</TableHead></TableRow></TableHeader>
+          <TableHeader><TableRow><TableHead>{T.colVence}</TableHead><TableHead>{T.colActivo}</TableHead><TableHead>{T.colQue}</TableHead><TableHead className='hidden md:table-cell'>{T.colCosto}</TableHead><TableHead className='hidden md:table-cell'>{T.colPropietario}</TableHead><TableHead className='hidden lg:table-cell'>{T.colUltimoAviso}</TableHead></TableRow></TableHeader>
           <TableBody>
             {filas.map((v) => (
               <TableRow key={v.id} className='cursor-pointer' onClick={() => abrir(v.activo_id)}>
                 <TableCell><Badge variant='outline' className={SEMAFORO[v.semaforo || 'al_dia'].clase}>{fecha(v.fecha)}</Badge><div className='text-muted-foreground text-xs'>{cuandoVence(v.dias)}</div></TableCell>
                 <TableCell className='font-medium'>{v.activo_nombre}</TableCell>
-                <TableCell className='text-sm'>{tx?.vencimientos[v.tipo] || v.tipo}{v.renovacion_auto ? <div className='text-muted-foreground text-xs'>renovación automática</div> : null}</TableCell>
+                <TableCell className='text-sm'>{tx?.vencimientos[v.tipo] || v.tipo}{v.renovacion_auto ? <div className='text-muted-foreground text-xs'>{T.renovacionAutoMin}</div> : null}</TableCell>
                 <TableCell className='hidden text-sm md:table-cell'>{dinero(v.costo_renovacion, v.moneda)}</TableCell>
-                <TableCell className='hidden text-sm md:table-cell'>{v.propietario || <span className='text-muted-foreground'>Sin propietario</span>}</TableCell>
+                <TableCell className='hidden text-sm md:table-cell'>{v.propietario || <span className='text-muted-foreground'>{T.sinPropietario}</span>}</TableCell>
                 <TableCell className='text-muted-foreground hidden text-xs lg:table-cell'>{v.ultimo_aviso ? fecha(v.ultimo_aviso) : '-'}</TableCell>
               </TableRow>
             ))}
-            {!filas.length ? <TableRow><TableCell colSpan={6} className='text-muted-foreground py-8 text-center'>Sin vencimientos en esta vista.</TableCell></TableRow> : null}
+            {!filas.length ? <TableRow><TableCell colSpan={6} className='text-muted-foreground py-8 text-center'>{T.sinVencimientosVista}</TableCell></TableRow> : null}
           </TableBody>
         </Table>
       </div>
@@ -417,6 +423,7 @@ function ListaVencimientos({ fetcher, q, alcance, tx, abrir }: { fetcher: Fetche
 }
 
 function ListaEntregas({ fetcher, q, alcance, abrir }: { fetcher: Fetcher; q: (p: string) => string; alcance: string; abrir: (id: string) => void }) {
+  const T = useTextos()
   const [pendientes, setPendientes] = useState(true)
   const [persona, setPersona] = useState('')
   const { data = [], isLoading } = useQuery<Asignacion[]>({
@@ -427,25 +434,25 @@ function ListaEntregas({ fetcher, q, alcance, abrir }: { fetcher: Fetcher; q: (p
   if (isLoading) return <Loader2 className='size-5 animate-spin' />
   return (
     <div className='space-y-3'>
-      <p className='text-muted-foreground text-sm'>Lo que cada persona tiene en su poder. Es lo que se revisa cuando alguien deja la organización: nada se da de baja en el sistema sin que vuelva lo entregado.</p>
+      <p className='text-muted-foreground text-sm'>{T.entregasIntro}</p>
       <div className='flex flex-wrap items-center gap-3'>
-        <Input className='h-9 w-64' placeholder='Buscar persona...' value={persona} onChange={(e) => setPersona(e.target.value)} />
-        <label className='flex items-center gap-2 text-sm'><Switch checked={pendientes} onCheckedChange={setPendientes} />Solo sin devolver</label>
+        <Input className='h-9 w-64' placeholder={T.buscarPersona} value={persona} onChange={(e) => setPersona(e.target.value)} />
+        <label className='flex items-center gap-2 text-sm'><Switch checked={pendientes} onCheckedChange={setPendientes} />{T.soloSinDevolver}</label>
       </div>
       <div className='rounded-md border'>
         <Table>
-          <TableHeader><TableRow><TableHead>Persona</TableHead><TableHead>Activo</TableHead><TableHead>Entregado</TableHead><TableHead>Uso aceptable</TableHead><TableHead>Devuelto</TableHead></TableRow></TableHeader>
+          <TableHeader><TableRow><TableHead>{T.colPersona}</TableHead><TableHead>{T.colActivo}</TableHead><TableHead>{T.colEntregado}</TableHead><TableHead>{T.colUsoAceptable}</TableHead><TableHead>{T.colDevuelto}</TableHead></TableRow></TableHeader>
           <TableBody>
             {filas.map((s) => (
               <TableRow key={s.id} className='cursor-pointer' onClick={() => abrir(s.activo_id)}>
                 <TableCell className='font-medium'>{s.persona}{s.persona_correo ? <div className='text-muted-foreground text-xs'>{s.persona_correo}</div> : null}</TableCell>
-                <TableCell>{s.activo_nombre}{s.serie ? <div className='text-muted-foreground text-xs'>S/N {s.serie}</div> : null}</TableCell>
+                <TableCell>{s.activo_nombre}{s.serie ? <div className='text-muted-foreground text-xs'>{T.serie} {s.serie}</div> : null}</TableCell>
                 <TableCell>{fecha(s.entregado_at)}</TableCell>
-                <TableCell>{s.acepto_uso ? 'Sí' : <span className='text-yellow-700 dark:text-yellow-400'>Sin registrar</span>}</TableCell>
-                <TableCell>{s.devuelto_at ? fecha(s.devuelto_at) : <Badge variant='outline'>Pendiente</Badge>}</TableCell>
+                <TableCell>{s.acepto_uso ? T.si : <span className='text-yellow-700 dark:text-yellow-400'>{T.sinRegistrar}</span>}</TableCell>
+                <TableCell>{s.devuelto_at ? fecha(s.devuelto_at) : <Badge variant='outline'>{T.pendiente}</Badge>}</TableCell>
               </TableRow>
             ))}
-            {!filas.length ? <TableRow><TableCell colSpan={5} className='text-muted-foreground py-8 text-center'>Sin entregas en esta vista.</TableCell></TableRow> : null}
+            {!filas.length ? <TableRow><TableCell colSpan={5} className='text-muted-foreground py-8 text-center'>{T.sinEntregasVista}</TableCell></TableRow> : null}
           </TableBody>
         </Table>
       </div>
@@ -456,6 +463,7 @@ function ListaEntregas({ fetcher, q, alcance, abrir }: { fetcher: Fetcher; q: (p
 function DialogoAlta({ abierto, onClose, tx, fetcher, q, onCreado }: {
   abierto: boolean; onClose: () => void; tx: Taxonomia | undefined; fetcher: Fetcher; q: (p: string) => string; onCreado: (id: string) => void
 }) {
+  const T = useTextos()
   const vacio = { nombre: '', categoria: 'hardware', tipo: 'pc', criticidad: 'media', propietario: '', propietario_correo: '', serie: '', numero_inventario: '', ubicacion: '', cantidad: '1' }
   const [f, setF] = useState(vacio)
   const [enviando, setEnviando] = useState(false)
@@ -466,12 +474,12 @@ function DialogoAlta({ abierto, onClose, tx, fetcher, q, onCreado }: {
     setEnviando(true)
     try {
       const r = await fetcher<{ id: string }>(q('/inventario'), { method: 'POST', body: JSON.stringify({ ...f, cantidad: Number(f.cantidad) || 1, forzar }) })
-      toast.success('Activo creado: completá sus vencimientos en la ficha')
+      toast.success(T.activoCreado)
       onCreado(r.id)
     } catch (e) {
       const err = e as Error & { code?: string }
-      if (err.code === 'duplicado') setDuplicado(err.message)
-      else toast.error(err.message)
+      if (err.code === 'duplicado') setDuplicado(traducirError(err.message))
+      else toast.error(traducirError(err.message))
     } finally { setEnviando(false) }
   }
   const campo = (k: keyof typeof vacio, label: string, tipo = 'text') => (
@@ -480,31 +488,31 @@ function DialogoAlta({ abierto, onClose, tx, fetcher, q, onCreado }: {
   return (
     <Dialog open={abierto} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className='sm:max-w-2xl'>
-        <DialogHeader><DialogTitle>Nuevo activo</DialogTitle><DialogDescription>Lo esencial para identificarlo. Vencimientos, compra y valoración se completan en la ficha.</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle>{T.nuevoActivo}</DialogTitle><DialogDescription>{T.altaDescripcion}</DialogDescription></DialogHeader>
         <div className='grid gap-3 sm:grid-cols-2'>
-          {campo('nombre', 'Nombre')}
+          {campo('nombre', T.nombre)}
           <div className='grid grid-cols-2 gap-2'>
-            <div className='space-y-1'><Label className='text-muted-foreground text-xs'>Categoría</Label>
+            <div className='space-y-1'><Label className='text-muted-foreground text-xs'>{T.categoria}</Label>
               <Select value={f.categoria} onValueChange={(v) => setF({ ...f, categoria: v, tipo: Object.keys(tx?.categorias[v]?.tipos || {})[0] || '' })}>
                 <SelectTrigger className='w-full'><SelectValue /></SelectTrigger>
                 <SelectContent>{Object.entries(tx?.categorias || {}).map(([k, c]) => <SelectItem key={k} value={k}>{c.nombre}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div className='space-y-1'><Label className='text-muted-foreground text-xs'>Tipo</Label>
+            <div className='space-y-1'><Label className='text-muted-foreground text-xs'>{T.tipo}</Label>
               <Select value={f.tipo} onValueChange={(v) => setF({ ...f, tipo: v })}>
                 <SelectTrigger className='w-full'><SelectValue /></SelectTrigger>
                 <SelectContent>{Object.entries(tipos).map(([k, n]) => <SelectItem key={k} value={k}>{n}</SelectItem>)}</SelectContent>
               </Select>
             </div>
           </div>
-          {campo('propietario', 'Propietario (responde por el activo)')}
-          {campo('propietario_correo', 'Correo del propietario (recibe los avisos)', 'email')}
-          {campo('serie', 'Número de serie')}
-          {campo('numero_inventario', 'N° de inventario')}
-          {campo('ubicacion', 'Ubicación')}
+          {campo('propietario', T.propietarioResponde)}
+          {campo('propietario_correo', T.correoPropietarioAvisos, 'email')}
+          {campo('serie', T.numeroSerie)}
+          {campo('numero_inventario', T.numeroInventario)}
+          {campo('ubicacion', T.ubicacion)}
           <div className='grid grid-cols-2 gap-2'>
-            {campo('cantidad', 'Cantidad', 'number')}
-            <div className='space-y-1'><Label className='text-muted-foreground text-xs'>Criticidad</Label>
+            {campo('cantidad', T.cantidad, 'number')}
+            <div className='space-y-1'><Label className='text-muted-foreground text-xs'>{T.criticidadLabel}</Label>
               <Select value={f.criticidad} onValueChange={(v) => setF({ ...f, criticidad: v })}>
                 <SelectTrigger className='w-full'><SelectValue /></SelectTrigger>
                 <SelectContent>{Object.entries(CRITICIDAD).map(([k, c]) => <SelectItem key={k} value={k}>{c.texto}</SelectItem>)}</SelectContent>
@@ -514,9 +522,9 @@ function DialogoAlta({ abierto, onClose, tx, fetcher, q, onCreado }: {
         </div>
         {duplicado ? <p className='flex items-center gap-2 rounded border border-yellow-500/40 bg-yellow-500/5 p-2 text-sm'><AlertTriangle className='size-4' />{duplicado}</p> : null}
         <DialogFooter>
-          <Button variant='ghost' onClick={onClose}>Cancelar</Button>
-          {duplicado ? <Button variant='outline' disabled={enviando} onClick={() => crear(true)}>Crear igual</Button> : null}
-          <Button disabled={!f.nombre.trim() || enviando} onClick={() => crear(false)}>{enviando ? <Loader2 className='mr-1 size-4 animate-spin' /> : null}Crear</Button>
+          <Button variant='ghost' onClick={onClose}>{T.cancelar}</Button>
+          {duplicado ? <Button variant='outline' disabled={enviando} onClick={() => crear(true)}>{T.crearIgual}</Button> : null}
+          <Button disabled={!f.nombre.trim() || enviando} onClick={() => crear(false)}>{enviando ? <Loader2 className='mr-1 size-4 animate-spin' /> : null}{T.crear}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -524,6 +532,7 @@ function DialogoAlta({ abierto, onClose, tx, fetcher, q, onCreado }: {
 }
 
 function DialogoImportar({ abierto, onClose, fetcher, q, onListo }: { abierto: boolean; onClose: () => void; fetcher: Fetcher; q: (p: string) => string; onListo: () => void }) {
+  const T = useTextos()
   const [texto, setTexto] = useState('')
   const [nombre, setNombre] = useState('')
   const [simulacion, setSimulacion] = useState<{ filas: number; columnas: { origen: string; campo: string | null }[]; ignoradas: string[] } | null>(null)
@@ -537,22 +546,22 @@ function DialogoImportar({ abierto, onClose, fetcher, q, onListo }: { abierto: b
     setTexto(t)
     setTrabajando(true)
     try { setSimulacion(await fetcher(q('/inventario/importar'), { method: 'POST', body: JSON.stringify({ csv: t, simular: true }) })) }
-    catch (e) { toast.error((e as Error).message); setSimulacion(null) } finally { setTrabajando(false) }
+    catch (e) { toast.error(traducirError((e as Error).message)); setSimulacion(null) } finally { setTrabajando(false) }
   }
   async function confirmar() {
     setTrabajando(true)
     try {
       const r = await fetcher<{ resumen: Record<string, number> }>(q('/inventario/importar'), { method: 'POST', body: JSON.stringify({ csv: texto }) })
       setResultado(r.resumen); onListo()
-    } catch (e) { toast.error((e as Error).message) } finally { setTrabajando(false) }
+    } catch (e) { toast.error(traducirError((e as Error).message)) } finally { setTrabajando(false) }
   }
-  const NOMBRES: Record<string, string> = { nuevo: 'nuevos', vinculado: 'ya existían (vinculados)', actualizado: 'actualizados', nuevo_con_duda: 'nuevos con posible duplicado', descartado: 'descartados (sin nombre ni IP)', vencimientos: 'vencimientos cargados' }
+  const NOMBRES = T.importacion
   return (
     <Dialog open={abierto} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className='sm:max-w-2xl'>
         <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'><FileSpreadsheet className='size-5' />Importar planilla</DialogTitle>
-          <DialogDescription>CSV exportado de Excel o Google Sheets. Se reconocen las columnas habituales en español o inglés (nombre, serie, marca, modelo, IP, ubicación, responsable, garantía, soporte, contrato...). Un equipo que ya existe se completa en vez de duplicarse.</DialogDescription>
+          <DialogTitle className='flex items-center gap-2'><FileSpreadsheet className='size-5' />{T.importarPlanilla}</DialogTitle>
+          <DialogDescription>{T.importarDescripcion}</DialogDescription>
         </DialogHeader>
         {resultado ? (
           <div className='space-y-1 text-sm'>
@@ -564,17 +573,17 @@ function DialogoImportar({ abierto, onClose, fetcher, q, onListo }: { abierto: b
             {trabajando ? <Loader2 className='size-4 animate-spin' /> : null}
             {simulacion ? (
               <div className='space-y-2 text-sm'>
-                <p><b>{nombre}</b>: {simulacion.filas} fila{simulacion.filas === 1 ? '' : 's'} para importar.</p>
+                <p><b>{nombre}</b>: {T.filasParaImportar(simulacion.filas)}</p>
                 <div className='flex flex-wrap gap-1'>
-                  {simulacion.columnas.map((c) => <Badge key={c.origen} variant={c.campo ? 'secondary' : 'outline'} className={c.campo ? '' : 'opacity-60'}>{c.origen}{c.campo ? ` → ${c.campo.replace('venc_', 'vence: ')}` : ' (se ignora)'}</Badge>)}
+                  {simulacion.columnas.map((c) => <Badge key={c.origen} variant={c.campo ? 'secondary' : 'outline'} className={c.campo ? '' : 'opacity-60'}>{c.origen}{c.campo ? ` → ${c.campo.replace('venc_', T.vencePrefijo)}` : T.seIgnora}</Badge>)}
                 </div>
               </div>
             ) : null}
           </div>
         )}
         <DialogFooter>
-          <Button variant='ghost' onClick={onClose}>{resultado ? 'Cerrar' : 'Cancelar'}</Button>
-          {!resultado ? <Button disabled={!simulacion || trabajando} onClick={confirmar}>Importar {simulacion?.filas || ''} filas</Button> : null}
+          <Button variant='ghost' onClick={onClose}>{resultado ? T.cerrar : T.cancelar}</Button>
+          {!resultado ? <Button disabled={!simulacion || trabajando} onClick={confirmar}>{T.importarFilas(simulacion?.filas || '')}</Button> : null}
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -589,38 +598,39 @@ interface Duda {
 }
 
 function DialogoDuplicados({ abierto, onClose, fetcher, q, onCambio }: { abierto: boolean; onClose: () => void; fetcher: Fetcher; q: (p: string) => string; onCambio: () => void }) {
+  const T = useTextos()
   const { data = [], refetch } = useQuery<Duda[]>({ queryKey: ['inventario', 'uniones'], queryFn: () => fetcher(q('/inventario/uniones')), enabled: abierto })
   async function resolver(d: Duda, accion: 'fusionar' | 'descartar', principal?: string) {
     try {
       await fetcher(q(`/inventario/uniones/${d.id}/${accion}`), { method: 'POST', body: JSON.stringify({ principal }) })
-      toast.success(accion === 'fusionar' ? 'Activos unidos' : 'Marcados como distintos')
+      toast.success(accion === 'fusionar' ? T.activosUnidos : T.marcadosDistintos)
       refetch(); onCambio()
-    } catch (e) { toast.error((e as Error).message) }
+    } catch (e) { toast.error(traducirError((e as Error).message)) }
   }
   const lado = (x: Duda['a'], titulo: string) => (
     <div className='flex-1 rounded border p-2 text-xs'>
       <div className='text-muted-foreground mb-1'>{titulo}</div>
       <div className='font-medium'>{x.nombre}</div>
       {(['ip', 'hostname', 'serie', 'mac', 'so'] as const).map((k) => x[k] ? <div key={k}><span className='text-muted-foreground'>{k}:</span> {x[k]}</div> : null)}
-      <div className='text-muted-foreground mt-1'>{x.fuentes.map((f) => FUENTE[f.fuente] || f.fuente).join(', ')}</div>
+      <div className='text-muted-foreground mt-1'>{x.fuentes.map((f) => nombreFuente(f.fuente)).join(', ')}</div>
     </div>
   )
   return (
     <Dialog open={abierto} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className='max-h-[85vh] overflow-y-auto sm:max-w-3xl'>
         <DialogHeader>
-          <DialogTitle>Posibles duplicados</DialogTitle>
-          <DialogDescription>Activos que se parecen pero no tienen un dato fuerte (serie o MAC) que confirme que son el mismo. Unir no se puede deshacer: lo que colgaba del que se absorbe pasa al que queda.</DialogDescription>
+          <DialogTitle>{T.posiblesDuplicados}</DialogTitle>
+          <DialogDescription>{T.duplicadosDescripcion}</DialogDescription>
         </DialogHeader>
-        {!data.length ? <p className='text-muted-foreground text-sm'>No hay dudas pendientes.</p> : null}
+        {!data.length ? <p className='text-muted-foreground text-sm'>{T.sinDudas}</p> : null}
         {data.map((d) => (
           <div key={d.id} className='space-y-2 border-b pb-3'>
-            <div className='text-sm'>Coinciden por <b>{d.criterio}</b>{d.discrepancias.length ? <span className='text-yellow-700 dark:text-yellow-400'> · difieren en {d.discrepancias.map((x) => x.campo).join(', ')}</span> : ' · nada se contradice'}</div>
-            <div className='flex gap-2'>{lado(d.a, 'Recién llegado')}{lado(d.b, 'Ya estaba')}</div>
+            <div className='text-sm'>{T.coincidenPor} <b>{traducirCriterio(d.criterio, T)}</b>{d.discrepancias.length ? <span className='text-yellow-700 dark:text-yellow-400'>{T.difierenEn(d.discrepancias.map((x) => x.campo).join(', '))}</span> : T.nadaSeContradice}</div>
+            <div className='flex gap-2'>{lado(d.a, T.recienLlegado)}{lado(d.b, T.yaEstaba)}</div>
             <div className='flex flex-wrap gap-2'>
-              <Button size='sm' onClick={() => resolver(d, 'fusionar', d.b.id || undefined)}>Unir (queda el que ya estaba)</Button>
-              <Button size='sm' variant='outline' onClick={() => resolver(d, 'fusionar', d.a.id || undefined)}>Unir (queda el recién llegado)</Button>
-              <Button size='sm' variant='ghost' onClick={() => resolver(d, 'descartar')}>Son distintos</Button>
+              <Button size='sm' onClick={() => resolver(d, 'fusionar', d.b.id || undefined)}>{T.unirQuedaExistente}</Button>
+              <Button size='sm' variant='outline' onClick={() => resolver(d, 'fusionar', d.a.id || undefined)}>{T.unirQuedaNuevo}</Button>
+              <Button size='sm' variant='ghost' onClick={() => resolver(d, 'descartar')}>{T.sonDistintos}</Button>
             </div>
           </div>
         ))}
