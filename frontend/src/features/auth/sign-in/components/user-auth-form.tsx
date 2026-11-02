@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 import { Loader2, LogIn, Mail, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -118,10 +118,8 @@ export function UserAuthForm({ className, redirectTo }: UserAuthFormProps) {
 
   function handleForgot() {
     if (!forgotUser.trim()) return
-    const subject = encodeURIComponent('Gjallarhorn - Recuperación de contraseña')
-    const body = encodeURIComponent(
-      `Estimado Administrador,\n\nEl usuario "${forgotUser.trim()}" solicita la recuperación de su contraseña en el sistema Gjallarhorn.\n\nPor favor, restablezca la contraseña del usuario indicado.\n\nGracias.`
-    )
+    const subject = encodeURIComponent(t('auth.recovery.mailSubject'))
+    const body = encodeURIComponent(t('auth.recovery.mailBody', { user: forgotUser.trim() }))
     window.location.href = `mailto:info@allsafe.com.ar?subject=${subject}&body=${body}`
     setForgotSent(true)
   }
@@ -135,9 +133,11 @@ export function UserAuthForm({ className, redirectTo }: UserAuthFormProps) {
         </div>
         {forgotSent ? (
           <div className='rounded-md bg-muted p-3 text-sm text-center text-muted-foreground'>
-            Se abrió tu cliente de correo con la solicitud para el usuario{' '}
-            <strong className='text-foreground'>{forgotUser}</strong>. Enviá el mail para que el
-            administrador restablezca tu contraseña.
+            <Trans
+              i18nKey='auth.recovery.sent'
+              values={{ user: forgotUser }}
+              components={{ b: <strong className='text-foreground' /> }}
+            />
           </div>
         ) : (
           <>
@@ -219,7 +219,7 @@ export function UserAuthForm({ className, redirectTo }: UserAuthFormProps) {
             <FormItem>
               <FormLabel>{t('auth.signin.username')}</FormLabel>
               <FormControl>
-                <Input placeholder='usuario' autoComplete='username' {...field} />
+                <Input placeholder={t('auth.signin.usernamePlaceholder')} autoComplete='username' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

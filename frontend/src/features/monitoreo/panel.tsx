@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { HelpTip } from '@/components/help-tip'
 import { apiFetch } from '@/lib/api'
 import { EstadoBadge } from './estado'
+import { localeActivo } from '@/lib/locale'
 
 type Resumen = {
   total: number
@@ -117,7 +118,7 @@ export function PanelMonitoreo() {
                       <Badge variant='outline' className='text-xs'>{t('monitoreo.origenPropio')}</Badge>
                       <EstadoBadge estado={e.estado_nuevo === 'problema' ? 'caido' : (e.estado_nuevo ?? 'desconocido')} />
                       <span className='ml-auto text-xs text-muted-foreground'>
-                        {new Date(e.ts).toLocaleString('es-AR')}
+                        {new Date(e.ts).toLocaleString(localeActivo())}
                       </span>
                     </div>
                     <p className='mt-1 text-sm'>{e.mensaje}</p>
@@ -174,7 +175,7 @@ export function PanelMonitoreo() {
                       {h.latencia != null ? `${h.latencia} ms` : '-'}
                     </td>
                     <td className='px-4 py-2 text-xs text-muted-foreground'>
-                      {h.medido_at ? new Date(h.medido_at).toLocaleTimeString('es-AR') : '-'}
+                      {h.medido_at ? new Date(h.medido_at).toLocaleTimeString(localeActivo()) : '-'}
                     </td>
                   </tr>
                 ))}

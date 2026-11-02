@@ -7,11 +7,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 function fmtDate(val: string | undefined) {
   if (!val) return '—'
   const d = new Date(val)
-  return isNaN(d.getTime()) ? val : d.toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
+  return isNaN(d.getTime()) ? val : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
 
 function SevBadge({ score }: { score: number }) {

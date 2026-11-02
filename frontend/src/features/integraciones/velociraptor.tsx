@@ -16,11 +16,12 @@ import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 function fmtTS(epochSeconds: number | undefined) {
   if (!epochSeconds) return '—'
   const d = new Date(epochSeconds * 1000)
-  return isNaN(d.getTime()) ? '—' : d.toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
+  return isNaN(d.getTime()) ? '—' : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
 
 const isOnline = (ts: string | number | undefined) =>

@@ -17,6 +17,7 @@ import {
   FolderOpen, AlertCircle, Clock, CheckCheck, Archive,
   type LucideIcon,
 } from 'lucide-react'
+import { localeActivo } from '@/lib/locale'
 
 const PLATFORM_META: Record<string, { name: string; abbr: string; color: string }> = {
   thehive:      { name: 'TheHive',       abbr: 'TH', color: '#f59e0b' },
@@ -216,7 +217,7 @@ export function Dashboard() {
   const sevColor: Record<string, string> = { critical: '#ef4444', high: '#ef4444', medium: '#f59e0b', low: '#6b7280' }
   const srcColor: Record<string, string> = { wazuh: '#3b82f6', ioc: '#e8192c', file: '#22c55e', email: '#f59e0b', nessus: '#ef4444' }
 
-  const today = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })
+  const today = new Date().toLocaleDateString(localeActivo(), { weekday: 'long', day: 'numeric', month: 'long' })
 
   const chartLegend = [
     [t('dashboard.chart.ioc'),   '#e8192c', 'ioc'   as keyof ActivityDay],
@@ -417,7 +418,7 @@ export function Dashboard() {
                     {corrStatus.running
                       ? t('dashboard.correlating')
                       : corrStatus.lastWazuhRun
-                        ? t('dashboard.lastRun', { time: new Date(corrStatus.lastWazuhRun).toLocaleTimeString('es-AR') })
+                        ? t('dashboard.lastRun', { time: new Date(corrStatus.lastWazuhRun).toLocaleTimeString(localeActivo()) })
                         : t('dashboard.neverRun')
                     }
                   </span>
@@ -445,7 +446,7 @@ export function Dashboard() {
                           {d.ioc ?? d.filename ?? d.subject ?? d.campaign ?? d.ip ?? d.vuln ?? ev.event_type}
                         </div>
                         <div className='text-[10px] text-muted-foreground'>
-                          {ev.event_type} · {new Date(ev.ts).toLocaleString('es-AR')}
+                          {ev.event_type} · {new Date(ev.ts).toLocaleString(localeActivo())}
                         </div>
                       </div>
                       {ev.severity && (
@@ -469,7 +470,7 @@ export function Dashboard() {
           </Link>
           <Link to='/inteligencia/apis' className='group rounded-lg border bg-card px-3 py-2 flex items-center gap-2 hover:bg-muted/40 transition-colors'>
             <Key className='h-3.5 w-3.5 text-primary shrink-0' />
-            <span className='text-xs font-semibold flex-1'>APIs &amp; Módulos</span>
+            <span className='text-xs font-semibold flex-1'>{t('nav.apis')}</span>
             <span className='text-[10px] text-muted-foreground group-hover:text-foreground'>{apiActiveCount}/{API_KEY_SERVICES.length} {t('intel.apis.activeBadge')} →</span>
           </Link>
         </div>

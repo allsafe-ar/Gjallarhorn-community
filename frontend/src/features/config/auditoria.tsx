@@ -7,12 +7,13 @@ import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 type LogEntry = { id: number; ts: string; action: string; detail: string; username: string; ip: string; result: 'ok' | 'fail' | 'pending' }
 
 function fmtDate(d: string) {
   if (!d) return '—'
-  return new Date(d).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  return new Date(d).toLocaleString(localeActivo(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 export function AuditoriaView() {

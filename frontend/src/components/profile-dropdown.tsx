@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -12,6 +13,7 @@ import { SignOutDialog } from '@/components/sign-out-dialog'
 import { useAuthStore } from '@/stores/auth-store'
 
 export function ProfileDropdown() {
+  const { t } = useTranslation()
   const [open, setOpen] = useDialogState()
   const { auth } = useAuthStore()
   const user = auth.user
@@ -37,11 +39,11 @@ export function ProfileDropdown() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className='w-44' align='end' forceMount>
           <DropdownMenuItem asChild>
-            <Link to='/perfil'>Mi cuenta</Link>
+            <Link to='/perfil'>{t('auth.myAccount')}</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant='destructive' onClick={() => setOpen(true)}>
-            Cerrar sesión
+            {t('auth.signOut')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

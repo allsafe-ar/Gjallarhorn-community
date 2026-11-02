@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { Clock, LogIn } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
@@ -11,6 +12,7 @@ import {
 } from '@/components/ui/dialog'
 
 export function SessionExpiredDialog() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const shown = useRef(false)
   const navigate = useNavigate()
@@ -44,15 +46,15 @@ export function SessionExpiredDialog() {
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Clock className='size-5 text-destructive' />
-            Sesión expirada
+            {t('auth.sessionExpired.title')}
           </DialogTitle>
         </DialogHeader>
         <p className='text-sm text-muted-foreground'>
-          Tu sesión expiró por inactividad. Iniciá sesión nuevamente para continuar.
+          {t('auth.sessionExpired.desc')}
         </p>
         <Button onClick={handleAccept} className='w-full mt-1'>
           <LogIn className='size-4 mr-2' />
-          Iniciar sesión
+          {t('auth.sessionExpired.signIn')}
         </Button>
       </DialogContent>
     </Dialog>

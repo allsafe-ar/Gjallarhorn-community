@@ -9,6 +9,7 @@ import { HelpTip } from '@/components/help-tip'
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 const TOKEN_KEY = 'gjallarhorn_token'
 
@@ -203,7 +204,7 @@ export function EmailView() {
                     [t('tools.email.info.to'), toStr(result.to)],
                     [t('tools.email.info.replyTo'), fromStr(result.replyTo)],
                     [t('tools.email.info.messageId'), result.messageId || '—'],
-                    [t('tools.email.info.date'), result.date ? new Date(result.date).toLocaleString('es-AR') : '—'],
+                    [t('tools.email.info.date'), result.date ? new Date(result.date).toLocaleString(localeActivo()) : '—'],
                     [t('tools.email.info.spf'), result.auth?.spf || '—'],
                     [t('tools.email.info.dkim'), result.auth?.dkim || '—'],
                     [t('tools.email.info.dmarc'), result.auth?.dmarc || '—'],
@@ -366,7 +367,7 @@ export function EmailView() {
                   <tbody>
                     {pageRows.map(h => (
                       <tr key={h.id} className='border-b last:border-0 hover:bg-muted/20 cursor-pointer' onClick={() => loadFromHistory(h.id)}>
-                        <td className='px-3 py-2 text-muted-foreground whitespace-nowrap'>{new Date(h.ts).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                        <td className='px-3 py-2 text-muted-foreground whitespace-nowrap'>{new Date(h.ts).toLocaleString(localeActivo(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
                         <td className='px-3 py-2 max-w-[200px] truncate'>{h.subject || '—'}</td>
                         <td className='px-3 py-2 max-w-[160px] truncate text-muted-foreground'>{h.email_from || '—'}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>

@@ -9,6 +9,7 @@ import { HelpTip } from '@/components/help-tip'
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 const TOKEN_KEY = 'gjallarhorn_token'
 
@@ -340,7 +341,7 @@ export function ArchivosView() {
                   <tbody>
                     {pageRows.map(h => (
                       <tr key={h.id} className='border-b last:border-0 hover:bg-muted/20 cursor-pointer' onClick={() => loadFromHistory(h.id)}>
-                        <td className='px-3 py-2 text-muted-foreground whitespace-nowrap'>{new Date(h.ts).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                        <td className='px-3 py-2 text-muted-foreground whitespace-nowrap'>{new Date(h.ts).toLocaleString(localeActivo(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
                         <td className='px-3 py-2 font-mono max-w-[200px] truncate'>{h.filename}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>
                         <td className='px-3 py-2'>

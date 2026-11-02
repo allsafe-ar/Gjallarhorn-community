@@ -21,6 +21,7 @@ import {
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { EstadoBadge } from './estado'
+import { localeActivo } from '@/lib/locale'
 
 type Chequeo = {
   id: string; tipo: 'icmp' | 'tcp' | 'http'; destino: string | null
@@ -180,7 +181,7 @@ export function CuerpoMonitoreo({ id }: { id: string | null }) {
                     ) : t('monitoreo.sinPuertos')}
                   </div>
                   <p className='text-[11px] text-muted-foreground'>
-                    {t('monitoreo.sondeadoEl', { fecha: new Date(a.sondeado_at).toLocaleString('es-AR') })}
+                    {t('monitoreo.sondeadoEl', { fecha: new Date(a.sondeado_at).toLocaleString(localeActivo()) })}
                   </p>
                 </div>
               )}

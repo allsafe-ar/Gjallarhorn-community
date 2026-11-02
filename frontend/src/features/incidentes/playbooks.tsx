@@ -10,8 +10,8 @@ import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 
 const PLAYBOOK_TEMPLATES = [
-  { id: 'wazuh_ioc', label: 'Wazuh → IOC → Caso', desc: 'Correlaciona alertas Wazuh críticas, enriquece IPs con threat intel y crea casos automáticos.', trigger_type: 'wazuh_alert', config: { trigger: { type: 'wazuh_alert', level_min: 12 }, actions: [{ type: 'enrich_ioc', score_threshold: 70, create_case: true, case_severity: 'high' }] } },
-  { id: 'nessus_critical', label: 'Nessus Vulns Críticas → Caso', desc: 'Importa vulnerabilidades críticas de Nessus/OpenVAS y crea un caso por cada una.', trigger_type: 'nessus_scan', config: { trigger: { type: 'nessus_scan', severity_min: 4 }, actions: [{ type: 'create_case', case_severity: 'critical' }] } },
+  { id: 'wazuh_ioc', label: 'Wazuh → IOC → Caso', desc: 'Correlaciona alertas Wazuh críticas, enriquece IPs con threat intel y crea casos automáticos.', otrosNombres: ['Wazuh → IOC → Case'], trigger_type: 'wazuh_alert', config: { trigger: { type: 'wazuh_alert', level_min: 12 }, actions: [{ type: 'enrich_ioc', score_threshold: 70, create_case: true, case_severity: 'high' }] } },
+  { id: 'nessus_critical', label: 'Nessus Vulns Críticas → Caso', desc: 'Importa vulnerabilidades críticas de Nessus/OpenVAS y crea un caso por cada una.', otrosNombres: ['Nessus Critical Vulns → Case'], trigger_type: 'nessus_scan', config: { trigger: { type: 'nessus_scan', severity_min: 4 }, actions: [{ type: 'create_case', case_severity: 'critical' }] } },
 ]
 
 const CORR_STATUS_COLORS: Record<string, string> = { active: '#22c55e', inactive: '#6b7280', error: '#ef4444', running: '#f59e0b' }
@@ -67,7 +67,7 @@ export function PlaybooksView() {
   async function createFromTemplate(tpl: any) {
     setCreating(true)
     try {
-      await apiFetch('/playbooks', { method: 'POST', body: JSON.stringify({ name: tpl.label, description: tpl.desc, trigger_type: tpl.trigger_type, config: tpl.config }) })
+      await apiFetch('/playbooks', { method: 'POST', body: JSON.stringify({ name: t(`incidents.playbooks.tpl.${tpl.id}.label`, tpl.label), description: t(`incidents.playbooks.tpl.${tpl.id}.desc`, tpl.desc), trigger_type: tpl.trigger_type, config: tpl.config }) })
       toast.success(t('incidents.playbooks.created'))
       load()
     } catch (e: any) { toast.error(e.message) }
@@ -150,11 +150,13 @@ export function PlaybooksView() {
               <h2 className='text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3'>{t('incidents.playbooks.templates')}</h2>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
                 {PLAYBOOK_TEMPLATES.map(tpl => {
-                  const exists = playbooks.some(pb => pb.name === tpl.label)
+                  // La plantilla pudo crearse con la interfaz en otro idioma: cuenta cualquiera de sus nombres
+                  const nombres = [tpl.label, t(`incidents.playbooks.tpl.${tpl.id}.label`, tpl.label), ...tpl.otrosNombres]
+                  const exists = playbooks.some(pb => nombres.includes(pb.name))
                   return (
                     <div key={tpl.id} className={cn('rounded-lg border bg-card px-4 py-3', exists && 'opacity-50')}>
-                      <div className='text-sm font-semibold mb-1'>{tpl.label}</div>
-                      <div className='text-xs text-muted-foreground mb-3'>{tpl.desc}</div>
+                      <div className='text-sm font-semibold mb-1'>{t(`incidents.playbooks.tpl.${tpl.id}.label`, tpl.label)}</div>
+                      <div className='text-xs text-muted-foreground mb-3'>{t(`incidents.playbooks.tpl.${tpl.id}.desc`, tpl.desc)}</div>
                       <Button size='sm' variant='outline' className='h-7 text-xs' disabled={creating || exists} onClick={() => createFromTemplate(tpl)}>
                         {creating ? <Loader2 className='h-3 w-3 animate-spin mr-1' /> : <Plus className='h-3 w-3 mr-1' />}
                         {exists ? t('incidents.playbooks.alreadyCreated') : t('incidents.playbooks.useTemplate')}

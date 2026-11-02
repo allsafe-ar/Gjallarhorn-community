@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
@@ -8,6 +9,7 @@ interface SignOutDialogProps {
 }
 
 export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { auth } = useAuthStore()
@@ -27,9 +29,9 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title='Cerrar sesión'
-      desc='¿Confirmás que querés cerrar sesión? Vas a necesitar ingresar nuevamente.'
-      confirmText='Cerrar sesión'
+      title={t('auth.signOut')}
+      desc={t('auth.signOutConfirm')}
+      confirmText={t('auth.signOut')}
       destructive
       handleConfirm={handleSignOut}
       className='sm:max-w-sm'

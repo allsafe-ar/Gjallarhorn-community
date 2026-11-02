@@ -25,6 +25,7 @@ import { PaginationBar } from '@/components/ui/pagination-bar'
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 const SEV_COLORS: Record<string, string> = { critical: '#ef4444', high: '#f97316', medium: '#f59e0b', low: '#22c55e' }
 // Evidencia que originó el caso: de dónde viene cada análisis y adónde se va a verlo completo.
@@ -48,7 +49,7 @@ const TLP_META: Record<number, { label: string; color: string }> = {
 
 function fmtDate(d: string) {
   if (!d) return '—'
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(d).toLocaleDateString(localeActivo(), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 export function CasosView() {

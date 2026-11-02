@@ -13,6 +13,7 @@ import { PaginationBar } from '@/components/ui/pagination-bar'
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 const SRC_COLORS: Record<string, string> = {
   wazuh: '#3b82f6', ioc: '#8b5cf6', file: '#22c55e', email: '#f59e0b',
@@ -24,7 +25,7 @@ const SEV_COLORS: Record<string, string> = {
 
 function fmtDate(d: string) {
   if (!d) return '—'
-  return new Date(d).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  return new Date(d).toLocaleString(localeActivo(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 export function TimelineView() {

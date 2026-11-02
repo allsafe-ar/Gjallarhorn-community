@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 const TOKEN_KEY = 'gjallarhorn_token'
 
@@ -410,7 +411,7 @@ export function IocView() {
                   <tbody>
                     {pageRows.map(h => (
                       <tr key={h.id} className='border-b last:border-0 hover:bg-muted/20 cursor-pointer' onClick={() => loadFromHistory(h.id)}>
-                        <td className='px-3 py-2 text-muted-foreground whitespace-nowrap'>{new Date(h.ts).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                        <td className='px-3 py-2 text-muted-foreground whitespace-nowrap'>{new Date(h.ts).toLocaleString(localeActivo(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
                         <td className='px-3 py-2 font-mono max-w-[200px] truncate'>{h.ioc_value}</td>
                         <td className='px-3 py-2 text-muted-foreground'>{h.ioc_type}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>

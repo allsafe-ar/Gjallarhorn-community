@@ -6,11 +6,12 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 function fmtDate(val: string | number | undefined) {
   if (!val) return '—'
   const d = new Date(typeof val === 'number' ? val : val)
-  return isNaN(d.getTime()) ? String(val) : d.toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
+  return isNaN(d.getTime()) ? String(val) : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
 
 function LevelBadge({ level }: { level: number | string }) {

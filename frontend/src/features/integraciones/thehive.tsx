@@ -24,6 +24,7 @@ import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 const SEV_COLORS: Record<number, string> = { 1: '#22c55e', 2: '#f59e0b', 3: '#ef4444', 4: '#7c3aed' }
 const SEV_LABELS: Record<number, string> = { 1: 'Low', 2: 'Medium', 3: 'High', 4: 'Critical' }
@@ -31,7 +32,7 @@ const SEV_LABELS: Record<number, string> = { 1: 'Low', 2: 'Medium', 3: 'High', 4
 function fmtDate(val: string | number | undefined) {
   if (!val) return '—'
   const d = new Date(typeof val === 'number' ? val : val)
-  return isNaN(d.getTime()) ? String(val) : d.toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
+  return isNaN(d.getTime()) ? String(val) : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
 
 function SevBadge({ value, text }: { value: number; text: string }) {
@@ -224,11 +225,11 @@ export function TheHiveView() {
           <form onSubmit={handleCreate} className='flex flex-col gap-4 mt-2'>
             <div className='flex flex-col gap-1.5'>
               <Label>{t('soc.thehive.dialog.titleField')}</Label>
-              <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder='Incidente de seguridad…' />
+              <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder={t('soc.thehive.dialog.titlePlaceholder')} />
             </div>
             <div className='flex flex-col gap-1.5'>
               <Label>{t('soc.thehive.dialog.desc')}</Label>
-              <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} placeholder='Descripción del incidente…' />
+              <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} placeholder={t('soc.thehive.dialog.descPlaceholder')} />
             </div>
             <div className='flex flex-col gap-1.5'>
               <Label>{t('soc.thehive.dialog.severity')}</Label>

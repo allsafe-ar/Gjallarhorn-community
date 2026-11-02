@@ -16,21 +16,24 @@ import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
+import { localeActivo } from '@/lib/locale'
 
 const PLATFORM_ORDER = ['thehive', 'wazuh', 'velociraptor', 'openvas', 'nessus', 'cape', 'cuckoo', 'triage'] as const
 type PlatformKey = (typeof PLATFORM_ORDER)[number]
 
 const PLATFORM_META: Record<PlatformKey, {
   name: string; abbr: string; desc: string; color: string
-  fields: { key: string; label: string; type?: string; sensitive?: boolean; placeholder?: string }[]
+  // labelKey/descKey/nameKey: texto traducible; label/desc/name quedan para los nombres técnicos fijos
+  nameKey?: string; descKey?: string
+  fields: { key: string; label: string; labelKey?: string; type?: string; sensitive?: boolean; placeholder?: string }[]
 }> = {
   thehive:      { name: 'TheHive',        abbr: 'TH', color: '#f59e0b', desc: 'Case & Alert Management',              fields: [{ key: 'url', label: 'URL', placeholder: 'http://localhost:9000' }, { key: 'api_key', label: 'API Key', type: 'password', sensitive: true }] },
-  wazuh:        { name: 'Wazuh',           abbr: 'WZ', color: '#3b82f6', desc: 'Security Monitoring / SIEM',           fields: [{ key: 'url', label: 'URL', placeholder: 'https://localhost:55000' }, { key: 'username', label: 'Username', placeholder: 'wazuh-wui' }, { key: 'password', label: 'Password', type: 'password', sensitive: true }] },
-  velociraptor: { name: 'Velociraptor',    abbr: 'VR', color: '#8b5cf6', desc: 'DFIR — Forensics & Incident Response', fields: [{ key: 'url', label: 'URL', placeholder: 'https://localhost:8889' }, { key: 'username', label: 'Usuario', placeholder: 'admin' }, { key: 'password', label: 'Contraseña', type: 'password', sensitive: true }] },
+  wazuh:        { name: 'Wazuh',           abbr: 'WZ', color: '#3b82f6', desc: 'Security Monitoring / SIEM',           fields: [{ key: 'url', label: 'URL', placeholder: 'https://localhost:55000' }, { key: 'username', label: 'Username', labelKey: 'config.platforms.field.username', placeholder: 'wazuh-wui' }, { key: 'password', label: 'Password', labelKey: 'config.platforms.field.password', type: 'password', sensitive: true }] },
+  velociraptor: { name: 'Velociraptor',    abbr: 'VR', color: '#8b5cf6', desc: 'DFIR - Forensics & Incident Response', fields: [{ key: 'url', label: 'URL', placeholder: 'https://localhost:8889' }, { key: 'username', label: 'Username', labelKey: 'config.platforms.field.username', placeholder: 'admin' }, { key: 'password', label: 'Password', labelKey: 'config.platforms.field.password', type: 'password', sensitive: true }] },
   openvas:      { name: 'OpenVAS / GVM',   abbr: 'OV', color: '#22c55e', desc: 'Vulnerability Scanner (Greenbone)',    fields: [{ key: 'url', label: 'URL (proxy :9391)', placeholder: 'http://localhost:9391' }, { key: 'api_key', label: 'GMP Password', type: 'password', sensitive: true }] },
-  cape:         { name: 'CAPEv2',          abbr: 'CP', color: '#06b6d4', desc: 'Sandbox - detonación self-hosted',   fields: [{ key: 'url', label: 'URL', placeholder: 'http://localhost:8000' }, { key: 'api_key', label: 'Token (opcional)', type: 'password', sensitive: true }] },
-  cuckoo:       { name: 'Cuckoo',          abbr: 'CK', color: '#84cc16', desc: 'Sandbox - detonación self-hosted',   fields: [{ key: 'url', label: 'URL', placeholder: 'http://localhost:8090' }, { key: 'api_key', label: 'Token (opcional)', type: 'password', sensitive: true }] },
-  triage:       { name: 'Triage (nube)',   abbr: 'TR', color: '#a855f7', desc: 'Sandbox de nube - la muestra sale de la red', fields: [{ key: 'url', label: 'URL', placeholder: 'https://tria.ge' }, { key: 'api_key', label: 'API Key', type: 'password', sensitive: true }] },
+  cape:         { name: 'CAPEv2',          abbr: 'CP', color: '#06b6d4', desc: 'Sandbox - self-hosted detonation', descKey: 'config.platforms.sandboxLocalDesc',   fields: [{ key: 'url', label: 'URL', placeholder: 'http://localhost:8000' }, { key: 'api_key', label: 'Token (optional)', labelKey: 'config.platforms.field.tokenOptional', type: 'password', sensitive: true }] },
+  cuckoo:       { name: 'Cuckoo',          abbr: 'CK', color: '#84cc16', desc: 'Sandbox - self-hosted detonation', descKey: 'config.platforms.sandboxLocalDesc',   fields: [{ key: 'url', label: 'URL', placeholder: 'http://localhost:8090' }, { key: 'api_key', label: 'Token (optional)', labelKey: 'config.platforms.field.tokenOptional', type: 'password', sensitive: true }] },
+  triage:       { name: 'Triage (cloud)',   nameKey: 'config.platforms.triageName', abbr: 'TR', color: '#a855f7', desc: 'Cloud sandbox - the sample leaves your network', descKey: 'config.platforms.sandboxCloudDesc', fields: [{ key: 'url', label: 'URL', placeholder: 'https://tria.ge' }, { key: 'api_key', label: 'API Key', type: 'password', sensitive: true }] },
   nessus:       { name: 'Nessus',          abbr: 'NS', color: '#ef4444', desc: 'Vulnerability Management (Tenable)',   fields: [{ key: 'url', label: 'URL', placeholder: 'https://localhost:8834' }, { key: 'api_key', label: 'Access Key', type: 'password', sensitive: true }, { key: 'extra_secretKey', label: 'Secret Key', type: 'password', sensitive: true }] },
 }
 
@@ -153,8 +156,8 @@ function PlatformCard({ platform, initialData, isAdmin }: {
               {meta.abbr}
             </span>
             <div>
-              <span className='text-sm font-semibold'>{meta.name}</span>
-              <span className='text-xs text-muted-foreground ml-2'>{meta.desc}</span>
+              <span className='text-sm font-semibold'>{meta.nameKey ? t(meta.nameKey) : meta.name}</span>
+              <span className='text-xs text-muted-foreground ml-2'>{meta.descKey ? t(meta.descKey) : meta.desc}</span>
             </div>
           </div>
           <div className='flex items-center gap-3'>
@@ -173,7 +176,7 @@ function PlatformCard({ platform, initialData, isAdmin }: {
                 </span>
                 {lastCheck && (
                   <span className='text-muted-foreground text-[10px]'>
-                    ({new Date(lastCheck).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})
+                    ({new Date(lastCheck).toLocaleTimeString(localeActivo(), { hour: '2-digit', minute: '2-digit' })})
                   </span>
                 )}
               </div>
@@ -200,7 +203,7 @@ function PlatformCard({ platform, initialData, isAdmin }: {
                   {meta.fields.map(f => (
                     <div key={f.key}>
                       <Label className='text-xs mb-1 block'>
-                        {f.label}{f.sensitive ? ` ${t('config.platforms.emptyUrl')}` : ''}
+                        {f.labelKey ? t(f.labelKey) : f.label}{f.sensitive ? ` ${t('config.platforms.emptyUrl')}` : ''}
                       </Label>
                       <Input
                         type={f.type || 'text'}

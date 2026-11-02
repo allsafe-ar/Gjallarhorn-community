@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
+import { localeActivo } from '@/lib/locale'
 
 const ROLES = ['admin', 'analyst', 'viewer'] as const
 type Role = (typeof ROLES)[number]
@@ -36,7 +37,7 @@ const EMPTY_FORM: UserForm = { username: '', password: '', role: 'analyst', nomb
 
 function fmtDate(d: string) {
   if (!d) return '—'
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return new Date(d).toLocaleDateString(localeActivo(), { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 export function UsuariosView() {
@@ -218,11 +219,11 @@ export function UsuariosView() {
           <div className='flex flex-col gap-3 pt-2'>
             <div>
               <Label className='text-xs mb-1.5 block text-muted-foreground'>{t('config.users.fullName')}</Label>
-              <Input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} placeholder='Juan Pérez' className='h-8 text-sm' />
+              <Input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} placeholder={t('config.users.fullNamePlaceholder')} className='h-8 text-sm' />
             </div>
             <div>
               <Label className='text-xs mb-1.5 block text-muted-foreground'>{t('config.users.username')}</Label>
-              <Input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} placeholder='jperez' className='h-8 text-sm' />
+              <Input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} placeholder={t('config.users.usernamePlaceholder')} className='h-8 text-sm' />
             </div>
             <div>
               <Label className='text-xs mb-1.5 block text-muted-foreground'>
