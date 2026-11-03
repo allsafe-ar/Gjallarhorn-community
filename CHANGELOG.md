@@ -3,6 +3,15 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.7.0] - 2026-11-03
+
+### Changed
+- **New version notice**: when a new build is published, open tabs show a notice to reload (shared AllSafe component, `version.json` served without cache).
+- Accent color like Gjallarhorn Pro: blue in light and dark mode, sidebar included.
+
+### Removed
+- The Playbooks screen, a leftover from Pro with no backend and no menu entry.
+
 ## [1.6.0] - 2026-11-02
 
 ### Fixed
