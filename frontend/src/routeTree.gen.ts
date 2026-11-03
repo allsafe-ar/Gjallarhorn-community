@@ -31,7 +31,6 @@ import { Route as AuthenticatedHerramientasIocRouteImport } from './routes/_auth
 import { Route as AuthenticatedHerramientasSandboxRouteImport } from './routes/_authenticated/herramientas/sandbox'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia/index'
 import { Route as AuthenticatedIncidentesCasosRouteImport } from './routes/_authenticated/incidentes/casos'
-import { Route as AuthenticatedIncidentesPlaybooksRouteImport } from './routes/_authenticated/incidentes/playbooks'
 import { Route as AuthenticatedIncidentesTimelineRouteImport } from './routes/_authenticated/incidentes/timeline'
 import { Route as AuthenticatedInteligenciaIndexRouteImport } from './routes/_authenticated/inteligencia/index'
 import { Route as AuthenticatedInteligenciaApisRouteImport } from './routes/_authenticated/inteligencia/apis'
@@ -166,12 +165,6 @@ const AuthenticatedIncidentesCasosRoute =
     path: '/incidentes/casos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedIncidentesPlaybooksRoute =
-  AuthenticatedIncidentesPlaybooksRouteImport.update({
-    id: '/incidentes/playbooks',
-    path: '/incidentes/playbooks',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedIncidentesTimelineRoute =
   AuthenticatedIncidentesTimelineRouteImport.update({
     id: '/incidentes/timeline',
@@ -266,7 +259,6 @@ export interface FileRoutesByFullPath {
   '/herramientas/ioc': typeof AuthenticatedHerramientasIocRoute
   '/herramientas/sandbox': typeof AuthenticatedHerramientasSandboxRoute
   '/incidentes/casos': typeof AuthenticatedIncidentesCasosRoute
-  '/incidentes/playbooks': typeof AuthenticatedIncidentesPlaybooksRoute
   '/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
   '/inteligencia/apis': typeof AuthenticatedInteligenciaApisRoute
   '/inteligencia/threat': typeof AuthenticatedInteligenciaThreatRoute
@@ -303,7 +295,6 @@ export interface FileRoutesByTo {
   '/herramientas/ioc': typeof AuthenticatedHerramientasIocRoute
   '/herramientas/sandbox': typeof AuthenticatedHerramientasSandboxRoute
   '/incidentes/casos': typeof AuthenticatedIncidentesCasosRoute
-  '/incidentes/playbooks': typeof AuthenticatedIncidentesPlaybooksRoute
   '/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
   '/inteligencia/apis': typeof AuthenticatedInteligenciaApisRoute
   '/inteligencia/threat': typeof AuthenticatedInteligenciaThreatRoute
@@ -342,7 +333,6 @@ export interface FileRoutesById {
   '/_authenticated/herramientas/ioc': typeof AuthenticatedHerramientasIocRoute
   '/_authenticated/herramientas/sandbox': typeof AuthenticatedHerramientasSandboxRoute
   '/_authenticated/incidentes/casos': typeof AuthenticatedIncidentesCasosRoute
-  '/_authenticated/incidentes/playbooks': typeof AuthenticatedIncidentesPlaybooksRoute
   '/_authenticated/incidentes/timeline': typeof AuthenticatedIncidentesTimelineRoute
   '/_authenticated/inteligencia/apis': typeof AuthenticatedInteligenciaApisRoute
   '/_authenticated/inteligencia/threat': typeof AuthenticatedInteligenciaThreatRoute
@@ -381,7 +371,6 @@ export interface FileRouteTypes {
     | '/herramientas/ioc'
     | '/herramientas/sandbox'
     | '/incidentes/casos'
-    | '/incidentes/playbooks'
     | '/incidentes/timeline'
     | '/inteligencia/apis'
     | '/inteligencia/threat'
@@ -418,7 +407,6 @@ export interface FileRouteTypes {
     | '/herramientas/ioc'
     | '/herramientas/sandbox'
     | '/incidentes/casos'
-    | '/incidentes/playbooks'
     | '/incidentes/timeline'
     | '/inteligencia/apis'
     | '/inteligencia/threat'
@@ -456,7 +444,6 @@ export interface FileRouteTypes {
     | '/_authenticated/herramientas/ioc'
     | '/_authenticated/herramientas/sandbox'
     | '/_authenticated/incidentes/casos'
-    | '/_authenticated/incidentes/playbooks'
     | '/_authenticated/incidentes/timeline'
     | '/_authenticated/inteligencia/apis'
     | '/_authenticated/inteligencia/threat'
@@ -642,13 +629,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIncidentesCasosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/incidentes/playbooks': {
-      id: '/_authenticated/incidentes/playbooks'
-      path: '/incidentes/playbooks'
-      fullPath: '/incidentes/playbooks'
-      preLoaderRoute: typeof AuthenticatedIncidentesPlaybooksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/incidentes/timeline': {
       id: '/_authenticated/incidentes/timeline'
       path: '/incidentes/timeline'
@@ -755,7 +735,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHerramientasIocRoute: typeof AuthenticatedHerramientasIocRoute
   AuthenticatedHerramientasSandboxRoute: typeof AuthenticatedHerramientasSandboxRoute
   AuthenticatedIncidentesCasosRoute: typeof AuthenticatedIncidentesCasosRoute
-  AuthenticatedIncidentesPlaybooksRoute: typeof AuthenticatedIncidentesPlaybooksRoute
   AuthenticatedIncidentesTimelineRoute: typeof AuthenticatedIncidentesTimelineRoute
   AuthenticatedInteligenciaApisRoute: typeof AuthenticatedInteligenciaApisRoute
   AuthenticatedInteligenciaThreatRoute: typeof AuthenticatedInteligenciaThreatRoute
@@ -787,7 +766,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHerramientasIocRoute: AuthenticatedHerramientasIocRoute,
   AuthenticatedHerramientasSandboxRoute: AuthenticatedHerramientasSandboxRoute,
   AuthenticatedIncidentesCasosRoute: AuthenticatedIncidentesCasosRoute,
-  AuthenticatedIncidentesPlaybooksRoute: AuthenticatedIncidentesPlaybooksRoute,
   AuthenticatedIncidentesTimelineRoute: AuthenticatedIncidentesTimelineRoute,
   AuthenticatedInteligenciaApisRoute: AuthenticatedInteligenciaApisRoute,
   AuthenticatedInteligenciaThreatRoute: AuthenticatedInteligenciaThreatRoute,
