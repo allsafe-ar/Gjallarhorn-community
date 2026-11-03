@@ -61,12 +61,12 @@
 
   --sidebar: oklch(0.112 0.022 264);
   --sidebar-foreground: oklch(0.96 0.005 250);
-  --sidebar-primary: oklch(0.535 0.233 22.3);
+  --sidebar-primary: oklch(0.62 0.19 264);
   --sidebar-primary-foreground: oklch(0.98 0.003 0);
   --sidebar-accent: oklch(0.19 0.028 264);
   --sidebar-accent-foreground: oklch(0.96 0.005 250);
   --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.535 0.233 22.3);
+  --sidebar-ring: oklch(0.62 0.19 264);
 }
 
 @theme inline {
