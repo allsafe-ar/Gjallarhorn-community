@@ -2,7 +2,7 @@
   "name": "gjallar-backend",
   "version": "1.7.0",
   "engines": { "node": ">=24.22.1" },
-  "description": "Gjallar Blue Team Platform — API",
+  "description": "Gjallar Blue Team Platform - API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

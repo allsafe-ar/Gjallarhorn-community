@@ -27,7 +27,7 @@ function detectType(ioc) {
 }
 
 // ── DGA Detection (7 heuristics) ─────────────────────────────────────────────
-// Patterns must be SPECIFIC — avoid broad ones that match legit domains (e.g. google.com)
+// Patterns must be SPECIFIC - avoid broad ones that match legit domains (e.g. google.com)
 const KNOWN_DGA_PATTERNS = [
   // GameOverZeus: 18+ random alphanumeric chars
   { name: "GameOverZeus", re: /^[a-z0-9]{18,}\.(com|net|biz)$/ },
@@ -78,7 +78,7 @@ function detectDGA(domain) {
   const parts = domain.split(".");
   if (parts.length === 2 && label.length > 12 && parts[1].length <= 3) { score += 10; reasons.push("Estructura dominio sospechosa"); }
 
-  // 7. Known DGA families (add points — do not force score, require other indicators too)
+  // 7. Known DGA families (add points - do not force score, require other indicators too)
   let family = null;
   for (const dga of KNOWN_DGA_PATTERNS) {
     if (dga.re.test(domain)) { family = dga.name; score += 30; reasons.push(`Coincide patrón DGA ${dga.name}`); break; }
@@ -121,19 +121,19 @@ function generateRules(ioc, iocType, verdict) {
 }
 
 function buildKQL(ioc, iocType) {
-  if (iocType === "ipv4" || iocType === "ipv6") return `// Microsoft Sentinel / Defender — KQL
+  if (iocType === "ipv4" || iocType === "ipv6") return `// Microsoft Sentinel / Defender - KQL
 union DeviceNetworkEvents, DeviceEvents
 | where RemoteIP == "${ioc}" or LocalIP == "${ioc}"
 | project TimeGenerated, DeviceName, ActionType, RemoteIP, LocalIP, RemotePort, InitiatingProcessFileName
 | order by TimeGenerated desc`;
 
-  if (iocType === "domain") return `// Microsoft Sentinel / Defender — KQL
+  if (iocType === "domain") return `// Microsoft Sentinel / Defender - KQL
 union DeviceNetworkEvents, DnsEvents
 | where RemoteUrl contains "${ioc}" or Name contains "${ioc}" or QueryName contains "${ioc}"
 | project TimeGenerated, DeviceName, ActionType, RemoteUrl, Name, QueryName
 | order by TimeGenerated desc`;
 
-  if (iocType === "url") return `// Microsoft Sentinel / Defender — KQL
+  if (iocType === "url") return `// Microsoft Sentinel / Defender - KQL
 DeviceNetworkEvents
 | where RemoteUrl contains "${ioc}"
 | project TimeGenerated, DeviceName, ActionType, RemoteUrl, RemoteIP, InitiatingProcessFileName
@@ -141,7 +141,7 @@ DeviceNetworkEvents
 
   if (["md5","sha1","sha256"].includes(iocType)) {
     const field = iocType === "md5" ? "MD5" : iocType === "sha1" ? "SHA1" : "SHA256";
-    return `// Microsoft Sentinel / Defender — KQL
+    return `// Microsoft Sentinel / Defender - KQL
 union DeviceFileEvents, DeviceProcessEvents, DeviceImageLoadEvents
 | where ${field} =~ "${ioc.toUpperCase()}"
 | project TimeGenerated, DeviceName, ActionType, FileName, FolderPath, ${field}
@@ -191,7 +191,7 @@ function buildSIGMA(ioc, iocType, verdict) {
     detection = `    selection:\n        '*|contains': '${ioc}'\n    condition: selection`;
   }
 
-  return `title: Gjallarhorn Threat Intel — ${iocType.toUpperCase()} IOC
+  return `title: Gjallarhorn Threat Intel - ${iocType.toUpperCase()} IOC
 id: ${crypto.randomUUID()}
 status: experimental
 description: Detección de IOC ${iocType.toUpperCase()} con veredicto ${verdict}. Generado por Gjallar.
@@ -231,7 +231,7 @@ function generateSTIX(ioc, iocType, score, verdict, findings) {
   const now = new Date().toISOString();
   const uid  = () => crypto.randomUUID();
 
-  const identity = { type: "identity", spec_version: "2.1", id: `identity--${uid()}`, created: now, modified: now, name: "Gjallar Platform", identity_class: "system", description: "Gjallar Blue Team Platform — IOC Investigation" };
+  const identity = { type: "identity", spec_version: "2.1", id: `identity--${uid()}`, created: now, modified: now, name: "Gjallar Platform", identity_class: "system", description: "Gjallar Blue Team Platform - IOC Investigation" };
 
   const tlpGreen = { type: "marking-definition", spec_version: "2.1", id: "marking-definition--34098fce-860f-48ae-8e50-ebd3cc5e41da", created: "2017-01-20T00:00:00.000Z", definition_type: "tlp", definition: { tlp: "green" } };
 
@@ -243,7 +243,7 @@ function generateSTIX(ioc, iocType, score, verdict, findings) {
     created: now, modified: now, created_by_ref: identity.id,
     object_marking_refs: [tlpGreen.id],
     name: `IOC: ${ioc}`,
-    description: `${iocType.toUpperCase()} IOC — Veredicto: ${verdict} (score: ${score}/100). Fuentes confirmadas: ${findings.filter(f => f.found).map(f => f.source).join(", ") || "ninguna"}`,
+    description: `${iocType.toUpperCase()} IOC - Veredicto: ${verdict} (score: ${score}/100). Fuentes confirmadas: ${findings.filter(f => f.found).map(f => f.source).join(", ") || "ninguna"}`,
     indicator_types: verdict === "MALICIOUS" ? ["malicious-activity"] : verdict === "SUSPICIOUS" ? ["anomalous-activity"] : ["benign"],
     pattern, pattern_type: "stix",
     valid_from: now,

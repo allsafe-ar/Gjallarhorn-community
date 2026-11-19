@@ -34,11 +34,13 @@ export function AppTitle() {
                 <ShieldAlert className='size-4' />
               </div>
               <div className='grid flex-1 text-start text-sm leading-tight min-w-0'>
-                <span className='truncate font-bold flex items-center gap-1.5' style={{ color: '#3b82f6' }}>
-                  Gjallarhorn
-                  <span className='text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-muted text-muted-foreground'>Community</span>
+                {/* El azul fijo #3b82f6 daba 3,3:1 en claro y "Community" se cortaba al lado del nombre: el nombre usa
+                    el color de texto del sistema y la etiqueta pasa al segundo renglón. */}
+                <span className='truncate font-bold text-[var(--acento-texto)]'>Gjallarhorn</span>
+                <span className='flex items-center gap-1.5 min-w-0 text-xs text-muted-foreground'>
+                  <span className='shrink-0 font-bold uppercase tracking-wide px-1 rounded bg-muted'>Community</span>
+                  <span className='truncate'>{t('nav.blueteam')}</span>
                 </span>
-                <span className='truncate text-xs text-muted-foreground'>{t('nav.blueteam')}</span>
               </div>
             </Link>
           </SidebarMenuButton>

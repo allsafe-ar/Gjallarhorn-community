@@ -201,7 +201,7 @@ async function testPlatformConnection(platform, cfg) {
           try {
             const d = JSON.parse(r.data);
             const total = parseInt(d?.total || "0");
-            return { status: "connected", message: `Conectado — ${total} cliente${total !== 1 ? "s" : ""}` };
+            return { status: "connected", message: `Conectado - ${total} cliente${total !== 1 ? "s" : ""}` };
           } catch { return { status: "connected", message: "Conectado" }; }
         }
         if (r.status === 401 || r.status === 403) return { status: "error", message: "Credenciales inválidas" };
@@ -209,7 +209,7 @@ async function testPlatformConnection(platform, cfg) {
       }
 
       case "openvas":
-        // Proxy HTTP at port 9391 — /api/v1/health returns {"status":"ok"}
+        // Proxy HTTP at port 9391 - /api/v1/health returns {"status":"ok"}
         r = await httpRequest(`${cfg.url}/api/v1/health`, {
           headers: { "Authorization": `Bearer ${cfg.api_key || ""}` },
         });
@@ -249,7 +249,7 @@ const app = express();
 // cliente elegía la IP de la auditoría y del limitador con solo mandar la cabecera.
 const TRUST_PROXY = process.env.TRUST_PROXY || "loopback";
 app.set("trust proxy", TRUST_PROXY === "false" ? false : /^\d+$/.test(TRUST_PROXY) ? Number(TRUST_PROXY) : TRUST_PROXY);
-const ipDe = (req) => String(req.ip || req.socket.remoteAddress || "—").replace(/^::ffff:/, "");
+const ipDe = (req) => String(req.ip || req.socket.remoteAddress || "-").replace(/^::ffff:/, "");
 // 🔴 G-11: la CSP estaba apagada. Esta es la que aguanta el panel compilado (sin scripts en
 // línea ni orígenes externos). upgrade-insecure-requests va apagada: helmet la agrega sola y
 // rompe en silencio una instalación servida por HTTP.
@@ -330,7 +330,7 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 
   const user = await qRow("SELECT * FROM users WHERE username = ?", [username]);
   if (!user) {
-    await auditLog("LOGIN_FAIL", `Usuario no encontrado: ${username}`, username, "—", ip, "fail");
+    await auditLog("LOGIN_FAIL", `Usuario no encontrado: ${username}`, username, "-", ip, "fail");
     return res.status(401).json({ error: "Usuario o contraseña incorrectos" });
   }
 
@@ -725,7 +725,7 @@ function logoSettingRow(rowShow, rowData) {
   return { show, logoData: rowData?.value || null };
 }
 
-// Public endpoint — used by LoginView before auth
+// Public endpoint - used by LoginView before auth
 app.get("/api/settings/allsafe-logo/public", async (req, res) => {
   const [rowShow, rowData] = await Promise.all([
     qRow("SELECT value FROM settings WHERE key_name = 'show_allsafe_logo'").catch(() => null),
@@ -767,14 +767,14 @@ app.put("/api/settings/allsafe-logo", auth, adminOnly, async (req, res) => {
   }
   await auditLog(
     "SETTING_ALLSAFE_LOGO",
-    `Logo AllSafe: show=${show ?? '—'} reset=${!!reset} custom=${!!logoData}`,
+    `Logo AllSafe: show=${show ?? '-'} reset=${!!reset} custom=${!!logoData}`,
     req.user.username, req.user.role, "internal", "ok"
   );
   res.json({ ok: true });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// API KEYS (threat intel services — stored in settings table)
+// API KEYS (threat intel services - stored in settings table)
 // ─────────────────────────────────────────────────────────────────────────────
 const API_KEY_SERVICES = [
   "virustotal","abuseipdb","shodan","alienvault","greynoise",
@@ -821,7 +821,7 @@ app.get("/api/settings/api-keys/status", auth, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SOC INTEGRATIONS — helper para obtener config de plataforma
+// SOC INTEGRATIONS - helper para obtener config de plataforma
 // ─────────────────────────────────────────────────────────────────────────────
 async function getPlatformCfg(platform) {
   const row = await qRow("SELECT * FROM platform_configs WHERE platform = ?", [platform]);
@@ -845,7 +845,7 @@ function setCache(key, data, ttlMs = 60000) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SOC — WAZUH
+// SOC - WAZUH
 // ─────────────────────────────────────────────────────────────────────────────
 app.get("/api/soc/wazuh/agents", auth, analystOrAdmin, async (req, res) => {
   const cfg = await getPlatformCfg("wazuh");
@@ -873,7 +873,7 @@ app.get("/api/soc/wazuh/alerts", auth, analystOrAdmin, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SOC — VELOCIRAPTOR
+// SOC - VELOCIRAPTOR
 // ─────────────────────────────────────────────────────────────────────────────
 app.get("/api/soc/velociraptor/clients", auth, analystOrAdmin, async (req, res) => {
   const cfg = await getPlatformCfg("velociraptor");
@@ -922,7 +922,7 @@ app.get("/api/soc/velociraptor/flows", auth, analystOrAdmin, async (req, res) =>
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SOC — OPENVAS
+// SOC - OPENVAS
 // ─────────────────────────────────────────────────────────────────────────────
 app.get("/api/soc/openvas/tasks", auth, analystOrAdmin, async (req, res) => {
   const cfg = await getPlatformCfg("openvas");
@@ -948,7 +948,7 @@ app.get("/api/soc/openvas/results", auth, analystOrAdmin, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SOC — DASHBOARD SUMMARY (métricas unificadas de todas las plataformas)
+// SOC - DASHBOARD SUMMARY (métricas unificadas de todas las plataformas)
 // ─────────────────────────────────────────────────────────────────────────────
 app.get("/api/soc/dashboard/summary", auth, async (req, res) => {
   const cacheKey = "soc:dashboard:summary";
@@ -993,7 +993,7 @@ app.get("/api/soc/dashboard/summary", auth, async (req, res) => {
 // FILE ANALYSIS
 // ─────────────────────────────────────────────────────────────────────────────
 
-// POST /api/files/analyze — upload + analyze
+// POST /api/files/analyze - upload + analyze
 app.post("/api/files/analyze", auth, analystOrAdmin, upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Archivo requerido (campo 'file')" });
 
@@ -1075,7 +1075,7 @@ app.get("/api/files/:id", auth, analystOrAdmin, async (req, res) => {
   }
 });
 
-// POST /api/files/:id/create-case — crear caso en TheHive
+// POST /api/files/:id/create-case - crear caso en TheHive
 app.post("/api/files/:id/create-case", auth, analystOrAdmin, async (req, res) => {
   try {
     const row = await qRow("SELECT * FROM file_analyses WHERE id = ?", [req.params.id]);
@@ -1118,7 +1118,7 @@ app.post("/api/files/:id/create-case", auth, analystOrAdmin, async (req, res) =>
 // EMAIL FORENSICS
 // ─────────────────────────────────────────────────────────────────────────────
 
-// POST /api/emails/analyze — upload .eml file
+// POST /api/emails/analyze - upload .eml file
 app.post("/api/emails/analyze", auth, analystOrAdmin, upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Archivo .eml requerido (campo 'file')" });
 
@@ -1196,7 +1196,7 @@ app.get("/api/emails/:id/rules", auth, analystOrAdmin, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SANDBOX DINÁMICO — detonación en un motor propio (CAPE/Cuckoo) o de nube (Triage)
+// SANDBOX DINÁMICO - detonación en un motor propio (CAPE/Cuckoo) o de nube (Triage)
 // Community: enviar a mano y ver el resultado. La automatización (verdictos que
 // alimentan la respuesta/casos, IOCs de detonación, lote) es de Gjallarhorn Pro.
 // Restringido a admin: detona malware real.
@@ -1253,7 +1253,7 @@ app.post("/api/sandbox/submit", auth, canSandbox, upload.single("file"), async (
     );
     await auditLog("SANDBOX_SUBMIT",
       `${tipo === "url" ? "URL" : "Archivo"} enviado a ${motor.meta.nombre} (${motor.meta.tipo}): ${nombre.slice(0, 120)}` +
-      (motor.meta.publica ? " — motor de envío público" : ""),
+      (motor.meta.publica ? " - motor de envío público" : ""),
       req.user.username, req.user.role, req.ip, "ok");
     res.json({ id, engine: engineId, taskId: envio.taskId, estado: "pendiente", publica: motor.meta.publica });
   } catch (e) {
@@ -1357,7 +1357,7 @@ app.get("/api/sandbox/history", auth, canSandbox, async (req, res) => {
   res.json({ submissions: rows });
 });
 
-// POST /api/emails/:id/create-case — crear caso en TheHive
+// POST /api/emails/:id/create-case - crear caso en TheHive
 app.post("/api/emails/:id/create-case", auth, analystOrAdmin, async (req, res) => {
   try {
     const row = await qRow("SELECT * FROM email_analyses WHERE id = ?", [req.params.id]);
@@ -1379,10 +1379,10 @@ app.post("/api/emails/:id/create-case", auth, analystOrAdmin, async (req, res) =
       title: `Análisis de Email: ${row.subject || "(sin asunto)"}`,
       description: [
         "**Análisis forense de email generado por Gjallar**\n",
-        `- **De:** \`${row.email_from || "—"}\``,
-        `- **Para:** ${row.email_to || "—"}`,
+        `- **De:** \`${row.email_from || "-"}\``,
+        `- **Para:** ${row.email_to || "-"}`,
         `- **Asunto:** ${row.subject || "(sin asunto)"}`,
-        `- **Message-ID:** \`${row.message_id || "—"}\``,
+        `- **Message-ID:** \`${row.message_id || "-"}\``,
         `- **Tipo de amenaza:** ${detectionTypes}`,
         `- **Veredicto:** ${row.verdict}`,
         `- **Score:** ${row.threat_score}/100`,
@@ -1422,7 +1422,7 @@ async function getApiKeys() {
   return keys;
 }
 
-// POST /api/ioc/investigate — main investigation
+// POST /api/ioc/investigate - main investigation
 app.post("/api/ioc/investigate", auth, analystOrAdmin, async (req, res) => {
   const { ioc } = req.body;
   if (!ioc || !String(ioc).trim()) return res.status(400).json({ error: "IOC requerido" });
@@ -1562,7 +1562,7 @@ app.get("/api/ioc/:id/stix", auth, analystOrAdmin, async (req, res) => {
   }
 });
 
-// POST /api/ioc/:id/create-case — crear caso en TheHive
+// POST /api/ioc/:id/create-case - crear caso en TheHive
 app.post("/api/ioc/:id/create-case", auth, analystOrAdmin, async (req, res) => {
   try {
     const row = await qRow("SELECT * FROM ioc_investigations WHERE id = ?", [req.params.id]);
@@ -1914,19 +1914,19 @@ function buildHtmlReport(type, row) {
     const obsHtml = (row.observables || []).length === 0
       ? "<tr><td colspan='4' style='color:#6e7681'>Sin observables.</td></tr>"
       : (row.observables || []).map(o =>
-          `<tr><td><span class="badge" style="background:#388bfd22;color:#58a6ff;font-size:10px">${o.obs_type}</span></td><td class="mono">${o.value}</td><td style="color:${o.is_ioc?"#f85149":"#6e7681"}">${o.is_ioc?"IOC":"—"}</td><td>${o.created_by||"—"}</td></tr>`
+          `<tr><td><span class="badge" style="background:#388bfd22;color:#58a6ff;font-size:10px">${o.obs_type}</span></td><td class="mono">${o.value}</td><td style="color:${o.is_ioc?"#f85149":"#6e7681"}">${o.is_ioc?"IOC":"-"}</td><td>${o.created_by||"-"}</td></tr>`
         ).join("");
 
     const attHtml = (row.attachments || []).length === 0
       ? "<tr><td colspan='4' style='color:#6e7681'>Sin adjuntos.</td></tr>"
       : (row.attachments || []).map(a =>
-          `<tr><td>${a.original_name}</td><td>${a.mime_type||"—"}</td><td>${a.file_size ? (a.file_size/1024).toFixed(1)+" KB" : "—"}</td><td>${a.uploaded_by||"—"} · ${new Date(a.ts).toLocaleString("es-AR")}</td></tr>`
+          `<tr><td>${a.original_name}</td><td>${a.mime_type||"-"}</td><td>${a.file_size ? (a.file_size/1024).toFixed(1)+" KB" : "-"}</td><td>${a.uploaded_by||"-"} · ${new Date(a.ts).toLocaleString("es-AR")}</td></tr>`
         ).join("");
 
     const actHtml = (row.activity || []).length === 0
       ? "<tr><td colspan='3' style='color:#6e7681'>Sin actividad registrada.</td></tr>"
       : (row.activity || []).map(a =>
-          `<tr><td>${ACT[a.action]||a.action}</td><td>${a.detail||"—"}</td><td>${a.username||"—"} · ${new Date(a.ts).toLocaleString("es-AR")}</td></tr>`
+          `<tr><td>${ACT[a.action]||a.action}</td><td>${a.detail||"-"}</td><td>${a.username||"-"} · ${new Date(a.ts).toLocaleString("es-AR")}</td></tr>`
         ).join("");
 
     return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Caso: ${row.title}</title>
@@ -1948,9 +1948,9 @@ th{color:#8b949e;font-weight:600;font-size:11px;text-transform:uppercase}.mono{f
   ${row.thehive_case_id ? `<span class="badge" style="background:#388bfd33;color:#388bfd">TheHive #${row.thehive_case_id}</span>` : ""}
 </div>
 <table style="margin-bottom:4px"><tbody>
-  <tr><th style="width:160px">Creado por</th><td>${row.created_by||"—"} · ${new Date(row.ts).toLocaleString("es-AR")}</td></tr>
+  <tr><th style="width:160px">Creado por</th><td>${row.created_by||"-"} · ${new Date(row.ts).toLocaleString("es-AR")}</td></tr>
   ${row.assigned_to ? `<tr><th>Asignado a</th><td>${row.assigned_to}</td></tr>` : ""}
-  ${row.closed_by   ? `<tr><th>Cerrado por</th><td>${row.closed_by} · ${row.closed_at ? new Date(row.closed_at).toLocaleString("es-AR") : "—"}</td></tr>` : ""}
+  ${row.closed_by   ? `<tr><th>Cerrado por</th><td>${row.closed_by} · ${row.closed_at ? new Date(row.closed_at).toLocaleString("es-AR") : "-"}</td></tr>` : ""}
 </tbody></table>
 <h2>Tags</h2><div style="margin-bottom:8px">${tagsHtml}</div>
 <h2>Descripción</h2><p style="font-size:13px;line-height:1.7">${(row.description||"Sin descripción.").replace(/\n/g,"<br>")}</p>
@@ -1973,14 +1973,14 @@ th{color:#8b949e;font-weight:600;font-size:11px;text-transform:uppercase}.mono{f
   if (type === "ioc") {
     const sd = row.sources_data || {};
     const sourceRows = Object.entries(sd).map(([k,v]) =>
-      `<tr><td>${k}</td><td style="color:${v.detected?"#f85149":"#3fb950"}">${v.detected?"Detectado":"Limpio"}</td><td>${v.message||"—"}</td></tr>`
+      `<tr><td>${k}</td><td style="color:${v.detected?"#f85149":"#3fb950"}">${v.detected?"Detectado":"Limpio"}</td><td>${v.message||"-"}</td></tr>`
     ).join("");
     body = `
       <div class="section"><h3>IOC</h3><table>
         <tr><th>Campo</th><th>Valor</th></tr>
         <tr><td>IOC</td><td class="mono">${row.ioc_value}</td></tr>
         <tr><td>Tipo</td><td>${row.ioc_type}</td></tr>
-        <tr><td>Analista</td><td>${row.analyst||"—"}</td></tr>
+        <tr><td>Analista</td><td>${row.analyst||"-"}</td></tr>
         <tr><td>Fecha</td><td>${ts}</td></tr>
       </table></div>
       ${sourceRows ? `<div class="section"><h3>Fuentes</h3><table><tr><th>Fuente</th><th>Resultado</th><th>Detalle</th></tr>${sourceRows}</table></div>` : ""}`;
@@ -1992,11 +1992,11 @@ th{color:#8b949e;font-weight:600;font-size:11px;text-transform:uppercase}.mono{f
         <tr><th>Campo</th><th>Valor</th></tr>
         <tr><td>Nombre</td><td>${row.filename}</td></tr>
         <tr><td>Tipo</td><td>${row.file_type}</td></tr>
-        <tr><td>Tamaño</td><td>${row.file_size ? (row.file_size/1024).toFixed(1)+" KB" : "—"}</td></tr>
-        <tr><td>MD5</td><td class="mono">${row.md5||"—"}</td></tr>
-        <tr><td>SHA1</td><td class="mono">${row.sha1||"—"}</td></tr>
-        <tr><td>SHA256</td><td class="mono">${row.sha256||"—"}</td></tr>
-        <tr><td>Analista</td><td>${row.analyst||"—"}</td></tr>
+        <tr><td>Tamaño</td><td>${row.file_size ? (row.file_size/1024).toFixed(1)+" KB" : "-"}</td></tr>
+        <tr><td>MD5</td><td class="mono">${row.md5||"-"}</td></tr>
+        <tr><td>SHA1</td><td class="mono">${row.sha1||"-"}</td></tr>
+        <tr><td>SHA256</td><td class="mono">${row.sha256||"-"}</td></tr>
+        <tr><td>Analista</td><td>${row.analyst||"-"}</td></tr>
         <tr><td>Fecha</td><td>${ts}</td></tr>
       </table></div>
       ${detRows ? `<div class="section"><h3>Detecciones</h3><ul>${detRows}</ul></div>` : ""}`;
@@ -2004,19 +2004,19 @@ th{color:#8b949e;font-weight:600;font-size:11px;text-transform:uppercase}.mono{f
     body = `
       <div class="section"><h3>Email</h3><table>
         <tr><th>Campo</th><th>Valor</th></tr>
-        <tr><td>Asunto</td><td>${row.subject||"—"}</td></tr>
-        <tr><td>Remitente</td><td>${row.email_from||"—"}</td></tr>
-        <tr><td>Destinatario</td><td>${row.email_to||"—"}</td></tr>
+        <tr><td>Asunto</td><td>${row.subject||"-"}</td></tr>
+        <tr><td>Remitente</td><td>${row.email_from||"-"}</td></tr>
+        <tr><td>Destinatario</td><td>${row.email_to||"-"}</td></tr>
         <tr><td>Phishing</td><td style="color:${row.is_phishing?"#f85149":"#3fb950"}">${row.is_phishing?"SÍ":"NO"}</td></tr>
         <tr><td>BEC</td><td style="color:${row.is_bec?"#f85149":"#3fb950"}">${row.is_bec?"SÍ":"NO"}</td></tr>
-        <tr><td>Analista</td><td>${row.analyst||"—"}</td></tr>
+        <tr><td>Analista</td><td>${row.analyst||"-"}</td></tr>
         <tr><td>Fecha</td><td>${ts}</td></tr>
       </table></div>`;
   }
 
   return `<!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8">
-<title>Gjallarhorn — ${typeLabel}</title>
+<title>Gjallarhorn - ${typeLabel}</title>
 <style>
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1117;color:#e6edf3;margin:0;padding:32px;font-size:14px}
 .logo{font-size:22px;font-weight:800;color:#58a6ff;letter-spacing:.04em}
@@ -2035,7 +2035,7 @@ ul{margin:0;padding-left:18px;line-height:1.8;font-size:13px}
 .footer{margin-top:28px;padding-top:14px;border-top:1px solid #30363d;font-size:11px;color:#6e7681;text-align:center}
 </style></head><body>
 <div class="logo">Gjallarhorn</div>
-<div class="sub">Blue Team Platform — ${typeLabel}<br>Generado: ${new Date().toLocaleString("es-AR")}</div>
+<div class="sub">Blue Team Platform - ${typeLabel}<br>Generado: ${new Date().toLocaleString("es-AR")}</div>
 <div class="verdict">${row.verdict}</div>
 <div class="bar"><div class="fill"></div></div>
 <div style="color:#8b949e;font-size:12px;margin-bottom:20px">Score: ${score}/100 · ${ts}</div>
@@ -2060,7 +2060,7 @@ function buildMitreLayer(type, row) {
   const score = row.threat_score || 0;
   const techniques = [];
   if (type === "ioc" && score >= 40) {
-    techniques.push({ techniqueID: "T1071", score, comment: `IOC: ${row.ioc_value} — ${row.verdict}` });
+    techniques.push({ techniqueID: "T1071", score, comment: `IOC: ${row.ioc_value} - ${row.verdict}` });
     if (row.ioc_type === "ipv4")   techniques.push({ techniqueID: "T1071.001", score, comment: "C2 via HTTP/S" });
     if (row.ioc_type === "url")    techniques.push({ techniqueID: "T1566.002", score, comment: "URL maliciosa" });
     if (row.ioc_type === "domain") techniques.push({ techniqueID: "T1568",     score, comment: "Dominio sospechoso" });
@@ -2073,8 +2073,8 @@ function buildMitreLayer(type, row) {
       techniques.push({ techniqueID: "T1566.002", score, comment: "Spearphishing link" });
     }
     if (row.is_bec) {
-      techniques.push({ techniqueID: "T1534", score, comment: "BEC — Internal Spearphishing" });
-      techniques.push({ techniqueID: "T1078", score, comment: "BEC — Valid Account impersonation" });
+      techniques.push({ techniqueID: "T1534", score, comment: "BEC - Internal Spearphishing" });
+      techniques.push({ techniqueID: "T1078", score, comment: "BEC - Valid Account impersonation" });
     }
   }
   if (type === "file" && score >= 40) {
@@ -2094,10 +2094,10 @@ function buildMitreLayer(type, row) {
   }
 
   return {
-    name: `Gjallarhorn — ${type.toUpperCase()} Analysis`,
+    name: `Gjallarhorn - ${type.toUpperCase()} Analysis`,
     versions: { attack: "14", navigator: "4.9", layer: "4.5" },
     domain: "enterprise-attack",
-    description: `Técnicas detectadas — ${new Date().toISOString()}`,
+    description: `Técnicas detectadas - ${new Date().toISOString()}`,
     filters: { platforms: ["Windows","Linux","macOS"] },
     sorting: 3,
     layout: { layout: "side", aggregateFunction: "max", showID: false, showName: true },

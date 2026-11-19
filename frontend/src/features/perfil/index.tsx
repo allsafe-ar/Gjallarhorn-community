@@ -105,7 +105,7 @@ export function PerfilView() {
         {t('perfil.title')}
       </h1>
       <p className='text-sm text-muted-foreground mb-8'>
-        {user?.nombre} — <span className='font-mono'>{user?.username}</span> — {ROLE_LABELS[user?.role || ''] || user?.role}
+        {user?.nombre} - <span className='font-mono'>{user?.username}</span> - {ROLE_LABELS[user?.role || ''] || user?.role}
       </p>
 
       {/* Cambiar contraseña */}

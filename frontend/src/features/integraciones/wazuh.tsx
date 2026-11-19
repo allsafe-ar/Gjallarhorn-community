@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { localeActivo } from '@/lib/locale'
 
 function fmtDate(val: string | number | undefined) {
-  if (!val) return '—'
+  if (!val) return '-'
   const d = new Date(typeof val === 'number' ? val : val)
   return isNaN(d.getTime()) ? String(val) : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
@@ -62,7 +62,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
             <tr key={row[keyField] ?? i} className='border-b last:border-0 hover:bg-muted/20 transition-colors'>
               {cols.map(c => (
                 <td key={c.key} className={cn('px-3 py-2.5', c.muted && 'text-muted-foreground text-xs')}>
-                  {c.render ? c.render(row) : row[c.key] ?? '—'}
+                  {c.render ? c.render(row) : row[c.key] ?? '-'}
                 </td>
               ))}
             </tr>
@@ -110,9 +110,9 @@ export function WazuhView() {
 
   const agentCols: ColDef<Agent>[] = [
     { key: 'name',          label: t('soc.wazuh.col.name'),        render: r => <span className='font-medium'>{r.name}</span> },
-    { key: 'ip',            label: t('soc.wazuh.col.ip'),          muted: true, render: r => r.ip || (typeof r.lastKeepAlive === 'object' ? r.lastKeepAlive?.ip : undefined) || '—' },
-    { key: 'os',            label: t('soc.wazuh.col.os'),          muted: true, render: r => r.os?.name || r.os?.platform || '—' },
-    { key: 'version',       label: t('soc.wazuh.col.version'),     muted: true, render: r => r.version || '—' },
+    { key: 'ip',            label: t('soc.wazuh.col.ip'),          muted: true, render: r => r.ip || (typeof r.lastKeepAlive === 'object' ? r.lastKeepAlive?.ip : undefined) || '-' },
+    { key: 'os',            label: t('soc.wazuh.col.os'),          muted: true, render: r => r.os?.name || r.os?.platform || '-' },
+    { key: 'version',       label: t('soc.wazuh.col.version'),     muted: true, render: r => r.version || '-' },
     { key: 'status',        label: t('soc.wazuh.col.status'),      render: r => (
       <Badge variant={r.status === 'active' ? 'default' : 'destructive'} className='text-xs'>{r.status}</Badge>
     )},
@@ -122,9 +122,9 @@ export function WazuhView() {
   const alertCols: ColDef<Alert>[] = [
     { key: 'ts',    label: t('soc.wazuh.col.date'),   muted: true, render: r => fmtDate(r['@timestamp'] || r.timestamp) },
     { key: 'level', label: t('soc.wazuh.col.level'),               render: r => <LevelBadge level={r.rule?.level ?? r['rule.level'] ?? 0} /> },
-    { key: 'desc',  label: t('soc.wazuh.col.desc'),                render: r => <span className='max-w-xs truncate block'>{r.rule?.description || r['rule.description'] || '—'}</span> },
-    { key: 'agent', label: t('soc.wazuh.col.agent'),  muted: true, render: r => r.agent?.name || r['agent.name'] || '—' },
-    { key: 'srcip', label: t('soc.wazuh.col.srcip'),  muted: true, render: r => r.data?.srcip || r['data.srcip'] || '—' },
+    { key: 'desc',  label: t('soc.wazuh.col.desc'),                render: r => <span className='max-w-xs truncate block'>{r.rule?.description || r['rule.description'] || '-'}</span> },
+    { key: 'agent', label: t('soc.wazuh.col.agent'),  muted: true, render: r => r.agent?.name || r['agent.name'] || '-' },
+    { key: 'srcip', label: t('soc.wazuh.col.srcip'),  muted: true, render: r => r.data?.srcip || r['data.srcip'] || '-' },
   ]
 
   return (
@@ -150,7 +150,7 @@ export function WazuhView() {
               <div key={s.label} className='relative border rounded-lg px-3 py-2 overflow-hidden bg-card'>
                 <Icon className='absolute right-2 top-2 pointer-events-none' style={{ width: 34, height: 34, color: s.color, opacity: 0.15 }} strokeWidth={1.4} />
                 <div className='relative z-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1 pr-8 leading-tight'>{s.label}</div>
-                <div className='relative z-10 text-xl font-black tabular-nums pr-8' style={{ color: s.color }}>{s.value ?? '—'}</div>
+                <div className='relative z-10 text-xl font-black tabular-nums pr-8' style={{ color: s.color }}>{s.value ?? '-'}</div>
                 <div className='absolute bottom-0 left-0 right-0 h-0.5' style={{ background: s.color, opacity: 0.6 }} />
               </div>
             )

@@ -8,6 +8,9 @@
   --popover-foreground: oklch(0.13 0.04 264);
   --primary: oklch(0.50 0.22 264);
   --primary-foreground: oklch(0.99 0 0);
+  /* Texto en el color del sistema (menú, nombre, enlaces) y segundo tono del menú: 4,5:1 o más */
+  --acento-texto: var(--primary);
+  --frente-2: oklch(0.538 0.121 264);
   --secondary: oklch(0.945 0.018 264);
   --secondary-foreground: oklch(0.50 0.22 264);
   --muted: oklch(0.945 0.018 264);
@@ -41,12 +44,15 @@
   --card-foreground: oklch(0.96 0.005 250);
   --popover: oklch(0.14 0.025 264);
   --popover-foreground: oklch(0.96 0.005 250);
-  --primary: oklch(0.62 0.19 264);
+  /* Fondo de botón: más profundo que el acento para que el texto blanco llegue a 4,5:1 */
+  --primary: oklch(0.557 0.19 264);
   --primary-foreground: oklch(0.98 0.003 0);
+  --acento-texto: oklch(0.623 0.19 264);
+  --frente-2: oklch(0.574 0.105 264);
   --secondary: oklch(0.19 0.028 264);
   --secondary-foreground: oklch(0.96 0.005 250);
   --muted: oklch(0.19 0.028 264);
-  --muted-foreground: oklch(0.58 0.035 260);
+  --muted-foreground: oklch(0.62 0.035 260);
   --accent: oklch(0.19 0.028 264);
   --accent-foreground: oklch(0.96 0.005 250);
   --destructive: oklch(0.535 0.233 22.3);
@@ -61,12 +67,12 @@
 
   --sidebar: oklch(0.112 0.022 264);
   --sidebar-foreground: oklch(0.96 0.005 250);
-  --sidebar-primary: oklch(0.62 0.19 264);
+  --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: oklch(0.98 0.003 0);
   --sidebar-accent: oklch(0.19 0.028 264);
   --sidebar-accent-foreground: oklch(0.96 0.005 250);
   --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.62 0.19 264);
+  --sidebar-ring: var(--ring);
 }
 
 @theme inline {
@@ -109,3 +115,6 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
+
+/* En oscuro, el texto con el color del sistema usa la versión legible del acento (el fondo de los botones va aparte). */
+.dark .text-primary { color: var(--acento-texto); }

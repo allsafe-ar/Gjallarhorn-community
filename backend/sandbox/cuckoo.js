@@ -2,7 +2,7 @@
 const { httpRequest, httpUpload, parseJSON } = require("../integrations/http");
 const cape = require("./cape");
 
-// Cuckoo — el sandbox del que CAPE es un fork. Se mantiene como adaptador propio
+// Cuckoo - el sandbox del que CAPE es un fork. Se mantiene como adaptador propio
 // porque su API vive en otras rutas (sin el /apiv2/ y sin la barra final), aunque
 // la forma del reporte es casi la misma, así que se reusa la normalización.
 //

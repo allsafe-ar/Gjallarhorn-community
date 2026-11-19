@@ -180,8 +180,8 @@ export function ApisView() {
                 <div className='grid grid-cols-2 md:grid-cols-4 gap-2 flex-1 min-w-0'>
                   {[
                     { label: t('ia.card.status'),    value: aiMeta.label,                                                                    color: aiMeta.color },
-                    { label: t('ia.card.provider'),  value: aiStatus?.provider === 'ollama' ? 'Ollama (local)' : aiStatus?.provider || '—',  color: undefined },
-                    { label: t('ia.card.model'),     value: aiStatus?.model || '—',                                                          mono: true, color: undefined },
+                    { label: t('ia.card.provider'),  value: aiStatus?.provider === 'ollama' ? 'Ollama (local)' : aiStatus?.provider || '-',  color: undefined },
+                    { label: t('ia.card.model'),     value: aiStatus?.model || '-',                                                          mono: true, color: undefined },
                     { label: t('ia.card.available'), value: String(aiStatus?.models?.length ?? 0),                                           color: undefined },
                   ].map(({ label, value, color, mono }) => (
                     <div key={label} className='rounded-lg border bg-muted/30 px-2.5 py-2'>

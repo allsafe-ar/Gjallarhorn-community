@@ -19,9 +19,9 @@ import { cn } from '@/lib/utils'
 import { localeActivo } from '@/lib/locale'
 
 function fmtTS(epochSeconds: number | undefined) {
-  if (!epochSeconds) return '—'
+  if (!epochSeconds) return '-'
   const d = new Date(epochSeconds * 1000)
-  return isNaN(d.getTime()) ? '—' : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
+  return isNaN(d.getTime()) ? '-' : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
 
 const isOnline = (ts: string | number | undefined) =>
@@ -67,7 +67,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
             <tr key={row[keyField] ?? i} className='border-b last:border-0 hover:bg-muted/20 transition-colors'>
               {cols.map(c => (
                 <td key={c.key} className={cn('px-3 py-2.5', c.muted && 'text-muted-foreground text-xs')}>
-                  {c.render ? c.render(row) : row[c.key] ?? '—'}
+                  {c.render ? c.render(row) : row[c.key] ?? '-'}
                 </td>
               ))}
             </tr>
@@ -127,8 +127,8 @@ export function VelociraptorView() {
 
   const clientCols: ColDef<VClient>[] = [
     { key: 'client_id', label: t('soc.velociraptor.col.clientId'),    muted: true, render: r => <span className='font-mono text-xs'>{(r.client_id || '').slice(0, 16)}</span> },
-    { key: 'hostname',  label: t('soc.velociraptor.col.hostname'),                  render: r => <span className='font-medium'>{r.os_info?.fqdn || r.os_info?.hostname || '—'}</span> },
-    { key: 'os',        label: t('soc.velociraptor.col.os'),           muted: true, render: r => r.os_info?.system || '—' },
+    { key: 'hostname',  label: t('soc.velociraptor.col.hostname'),                  render: r => <span className='font-medium'>{r.os_info?.fqdn || r.os_info?.hostname || '-'}</span> },
+    { key: 'os',        label: t('soc.velociraptor.col.os'),           muted: true, render: r => r.os_info?.system || '-' },
     { key: 'last_seen', label: t('soc.velociraptor.col.lastContact'),  muted: true, render: r => fmtTS(Number(r.last_seen_at) / 1000) },
     { key: 'status',    label: t('soc.velociraptor.col.status'),                    render: r => (
       <Badge variant={isOnline(r.last_seen_at) ? 'default' : 'secondary'} className='text-xs'>
@@ -144,10 +144,10 @@ export function VelociraptorView() {
 
   const huntCols: ColDef<VHunt>[] = [
     { key: 'hunt_id',                  label: t('soc.velociraptor.col.huntId'),     muted: true, render: r => <span className='font-mono text-xs'>{(r.hunt_id || '').slice(0, 18)}</span> },
-    { key: 'hunt_description',         label: t('soc.velociraptor.col.desc'),                    render: r => r.hunt_description || '—' },
+    { key: 'hunt_description',         label: t('soc.velociraptor.col.desc'),                    render: r => r.hunt_description || '-' },
     { key: 'state',                    label: t('soc.velociraptor.col.huntStatus'),              render: r => (
       <Badge variant={r.state === 'RUNNING' ? 'default' : r.state === 'PAUSED' ? 'secondary' : 'outline'} className='text-xs'>
-        {r.state || '—'}
+        {r.state || '-'}
       </Badge>
     )},
     { key: 'total_clients_scheduled',  label: t('soc.velociraptor.col.clients'),   muted: true },
@@ -155,11 +155,11 @@ export function VelociraptorView() {
   ]
 
   const flowCols: ColDef<VFlow>[] = [
-    { key: 'FlowId',    label: t('soc.velociraptor.col.flowId'),    muted: true, render: r => <span className='font-mono text-xs'>{r.FlowId || '—'}</span> },
-    { key: 'Artifacts', label: t('soc.velociraptor.col.artifacts'),              render: r => (Array.isArray(r.Artifacts) ? r.Artifacts : [r.Artifacts]).filter(Boolean).join(', ') || '—' },
+    { key: 'FlowId',    label: t('soc.velociraptor.col.flowId'),    muted: true, render: r => <span className='font-mono text-xs'>{r.FlowId || '-'}</span> },
+    { key: 'Artifacts', label: t('soc.velociraptor.col.artifacts'),              render: r => (Array.isArray(r.Artifacts) ? r.Artifacts : [r.Artifacts]).filter(Boolean).join(', ') || '-' },
     { key: 'State',     label: t('soc.velociraptor.col.huntStatus'),             render: r => (
       <Badge variant={r.State === 'FINISHED' ? 'default' : r.State === 'RUNNING' ? 'secondary' : 'outline'} className='text-xs'>
-        {r.State || '—'}
+        {r.State || '-'}
       </Badge>
     )},
     { key: 'Rows',      label: t('soc.velociraptor.col.rows'),      muted: true },
@@ -205,7 +205,7 @@ export function VelociraptorView() {
               {t('soc.velociraptor.tab.hunts')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{hunts.length}</span>
             </TabsTrigger>
             <TabsTrigger value='flows'>
-              {t('soc.velociraptor.tab.flows')}{selClient ? ` — ${selClient.slice(0, 12)}` : ''} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{flows.length}</span>
+              {t('soc.velociraptor.tab.flows')}{selClient ? ` - ${selClient.slice(0, 12)}` : ''} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{flows.length}</span>
             </TabsTrigger>
           </TabsList>
 

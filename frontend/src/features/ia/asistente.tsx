@@ -56,8 +56,8 @@ export function AsistenteView() {
           <div className='grid grid-cols-2 md:grid-cols-4 gap-3 mb-6'>
             {[
               { label: t('ia.card.status'), value: STATUS_LABELS[status?.status || 'error'], color: STATUS_COLORS[status?.status || 'error'] },
-              { label: t('ia.card.provider'), value: status?.provider === 'ollama' ? 'Ollama (local)' : status?.provider || '—', color: undefined },
-              { label: t('ia.card.model'), value: status?.model || '—', mono: true, color: undefined },
+              { label: t('ia.card.provider'), value: status?.provider === 'ollama' ? 'Ollama (local)' : status?.provider || '-', color: undefined },
+              { label: t('ia.card.model'), value: status?.model || '-', mono: true, color: undefined },
               { label: t('ia.card.available'), value: String(status?.models?.length ?? 0), color: undefined },
             ].map(({ label, value, color, mono }) => (
               <div key={label} className='rounded-lg border bg-card px-4 py-3'>

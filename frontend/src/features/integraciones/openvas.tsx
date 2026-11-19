@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { localeActivo } from '@/lib/locale'
 
 function fmtDate(val: string | undefined) {
-  if (!val) return '—'
+  if (!val) return '-'
   const d = new Date(val)
   return isNaN(d.getTime()) ? val : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
@@ -63,7 +63,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
             <tr key={row[keyField] ?? i} className='border-b last:border-0 hover:bg-muted/20 transition-colors'>
               {cols.map(c => (
                 <td key={c.key} className={cn('px-3 py-2.5', c.muted && 'text-muted-foreground text-xs')}>
-                  {c.render ? c.render(row) : row[c.key] ?? '—'}
+                  {c.render ? c.render(row) : row[c.key] ?? '-'}
                 </td>
               ))}
             </tr>
@@ -103,13 +103,13 @@ export function OpenVASView() {
   }
 
   const taskCols: ColDef<OVTask>[] = [
-    { key: 'name',     label: t('soc.openvas.col.name'),     render: r => <span className='font-medium'>{r.name || '—'}</span> },
+    { key: 'name',     label: t('soc.openvas.col.name'),     render: r => <span className='font-medium'>{r.name || '-'}</span> },
     { key: 'status',   label: t('soc.openvas.col.status'),   render: r => {
       const st = r.status || ''
-      return <Badge variant={st === 'Done' ? 'default' : st === 'Running' ? 'secondary' : 'outline'} className='text-xs'>{st || '—'}</Badge>
+      return <Badge variant={st === 'Done' ? 'default' : st === 'Running' ? 'secondary' : 'outline'} className='text-xs'>{st || '-'}</Badge>
     }},
-    { key: 'progress', label: t('soc.openvas.col.progress'), muted: true, render: r => r.progress != null ? `${r.progress}%` : '—' },
-    { key: 'hosts',    label: t('soc.openvas.col.target'),   muted: true, render: r => r.target?.name || r.hosts || '—' },
+    { key: 'progress', label: t('soc.openvas.col.progress'), muted: true, render: r => r.progress != null ? `${r.progress}%` : '-' },
+    { key: 'hosts',    label: t('soc.openvas.col.target'),   muted: true, render: r => r.target?.name || r.hosts || '-' },
     { key: 'date',     label: t('soc.openvas.col.lastScan'), muted: true, render: r => fmtDate(r.last_report?.timestamp || r.modification_time) },
     { key: 'actions',  label: '', render: r => (
       <Button variant='ghost' size='sm' className='text-xs h-6 px-2' onClick={() => { setSelTask(r.id); loadResults(r.id) }}>
@@ -119,11 +119,11 @@ export function OpenVASView() {
   ]
 
   const resultCols: ColDef<OVResult>[] = [
-    { key: 'host',     label: t('soc.openvas.col.host'),  muted: true, render: r => (typeof r.host === 'object' ? r.host?.ip : r.host) || '—' },
-    { key: 'name',     label: t('soc.openvas.col.vuln'),               render: r => <span className='font-medium'>{r.name || r.nvt?.name || '—'}</span> },
+    { key: 'host',     label: t('soc.openvas.col.host'),  muted: true, render: r => (typeof r.host === 'object' ? r.host?.ip : r.host) || '-' },
+    { key: 'name',     label: t('soc.openvas.col.vuln'),               render: r => <span className='font-medium'>{r.name || r.nvt?.name || '-'}</span> },
     { key: 'severity', label: t('soc.openvas.col.cvss'),               render: r => <SevBadge score={parseFloat(String(r.severity || 0))} /> },
-    { key: 'cve',      label: t('soc.openvas.col.cve'),   muted: true, render: r => r.nvt?.refs?.ref?.find(x => x.type === 'cve')?.id || r.cve || '—' },
-    { key: 'port',     label: t('soc.openvas.col.port'),  muted: true, render: r => r.port || '—' },
+    { key: 'cve',      label: t('soc.openvas.col.cve'),   muted: true, render: r => r.nvt?.refs?.ref?.find(x => x.type === 'cve')?.id || r.cve || '-' },
+    { key: 'port',     label: t('soc.openvas.col.port'),  muted: true, render: r => r.port || '-' },
   ]
 
   return (

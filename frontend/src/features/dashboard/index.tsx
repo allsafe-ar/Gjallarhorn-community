@@ -6,6 +6,8 @@ import {
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { apiFetch } from '@/lib/api'
+import { cn } from '@/lib/utils'
+import { TONO_CIFRA, TONO_TEXTO, claseCifra, siHay, type TonoCifra } from '@/lib/tono-cifra'
 import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -95,24 +97,20 @@ function StatusIcon({ status }: { status: string }) {
   return <HelpCircle className='size-3 text-muted-foreground' />
 }
 
-function KpiCard({ label, value, color, sub, loading, icon: Icon }: {
-  label: string; value?: number | null; color: string; sub?: string; loading?: boolean; icon?: LucideIcon
+// El color de la cifra dice algo (rojo crítico, ámbar atención, verde bien); sin tono va neutra.
+function KpiCard({ label, value, tono, sub, loading, icon: Icon }: {
+  label: string; value?: number | null; tono?: TonoCifra; sub?: string; loading?: boolean; icon?: LucideIcon
 }) {
   return (
-    <div className='relative border rounded-lg px-3 py-2 flex-1 min-w-[80px] overflow-hidden bg-card'>
-      {Icon && (
-        <Icon
-          className='absolute right-2 top-2 pointer-events-none'
-          style={{ width: 34, height: 34, color, opacity: 0.15 }}
-          strokeWidth={1.4}
-        />
-      )}
-      <div className='relative z-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1 pr-8 leading-tight'>{label}</div>
-      <div className='relative z-10 text-xl font-black tabular-nums pr-8' style={{ color }}>
-        {loading ? <Loader2 className='size-5 animate-spin' style={{ color }} /> : (value != null ? value : '—')}
+    <div className='border rounded-lg px-3 py-2 flex-1 min-w-[80px] bg-card'>
+      <div className='flex items-start justify-between gap-2 mb-1'>
+        <div className='text-xs font-semibold uppercase tracking-wider text-muted-foreground leading-tight'>{label}</div>
+        {Icon && <Icon className={cn('size-4 shrink-0', tono ? TONO_CIFRA[tono] : 'text-muted-foreground')} strokeWidth={1.6} aria-hidden />}
       </div>
-      {sub && <div className='relative z-10 text-xs mt-0.5' style={{ color }}>{sub}</div>}
-      <div className='absolute bottom-0 left-0 right-0 h-0.5' style={{ background: color, opacity: 0.6 }} />
+      <div className={cn('text-xl font-black tabular-nums', claseCifra(tono))}>
+        {loading ? <Loader2 className='size-5 animate-spin text-muted-foreground' /> : (value != null ? value : '-')}
+      </div>
+      {sub && <div className='text-xs mt-0.5 text-muted-foreground'>{sub}</div>}
     </div>
   )
 }
@@ -202,11 +200,11 @@ export function Dashboard() {
   const localCases = summary?.localCases ?? {}
 
   const statCards = [
-    { label: t('dashboard.kpi.openCases'),     value: summary?.thehive?.openCases,                                                     color: '#f59e0b', sub: 'TheHive',        key: 'thehive',      icon: Ticket },
-    { label: t('dashboard.kpi.activeAgents'),  value: summary?.wazuh?.active,                                                          color: '#3b82f6', sub: 'Wazuh',          key: 'wazuh',        icon: Activity },
-    { label: t('dashboard.kpi.alerts24h'),     value: summary?.wazuh?.alertsLast24h,                                                   color: '#60a5fa', sub: 'Wazuh',          key: 'wazuh',        icon: Bell },
-    { label: t('dashboard.kpi.activeHunts'),   value: summary?.velociraptor?.runningHunts,                                             color: '#8b5cf6', sub: 'Velociraptor',   key: 'velociraptor', icon: Search },
-    { label: t('dashboard.kpi.criticalVulns'), value: (summary?.openvas?.criticalVulns ?? 0) + (summary?.nessus?.criticalVulns ?? 0),  color: '#ef4444', sub: 'OpenVAS+Nessus', key: 'vuln',         icon: Bug },
+    { label: t('dashboard.kpi.openCases'),     value: summary?.thehive?.openCases,                                                     tono: siHay(summary?.thehive?.openCases, 'atencion'), sub: 'TheHive',        key: 'thehive',      icon: Ticket },
+    { label: t('dashboard.kpi.activeAgents'),  value: summary?.wazuh?.active,                                                          tono: undefined, sub: 'Wazuh',          key: 'wazuh',        icon: Activity },
+    { label: t('dashboard.kpi.alerts24h'),     value: summary?.wazuh?.alertsLast24h,                                                   tono: undefined, sub: 'Wazuh',          key: 'wazuh',        icon: Bell },
+    { label: t('dashboard.kpi.activeHunts'),   value: summary?.velociraptor?.runningHunts,                                             tono: undefined, sub: 'Velociraptor',   key: 'velociraptor', icon: Search },
+    { label: t('dashboard.kpi.criticalVulns'), value: (summary?.openvas?.criticalVulns ?? 0) + (summary?.nessus?.criticalVulns ?? 0),  tono: siHay((summary?.openvas?.criticalVulns ?? 0) + (summary?.nessus?.criticalVulns ?? 0), 'critico'), sub: 'OpenVAS+Nessus', key: 'vuln',         icon: Bug },
   ].filter(s => s.key === 'vuln'
     ? (platformMap['openvas']?.enabled || platformMap['nessus']?.enabled)
     : platformMap[s.key]?.enabled
@@ -266,7 +264,7 @@ export function Dashboard() {
         {statCards.length > 0 && (
           <div className='flex-none flex gap-2 flex-wrap'>
             {statCards.map(s => (
-              <KpiCard key={s.label} label={s.label} value={s.value} color={s.color} sub={s.sub} loading={loading} icon={s.icon} />
+              <KpiCard key={s.label} label={s.label} value={s.value} tono={s.tono as TonoCifra | undefined} sub={s.sub} loading={loading} icon={s.icon} />
             ))}
           </div>
         )}
@@ -281,11 +279,11 @@ export function Dashboard() {
             )}
           </h2>
           <div className='flex gap-2 flex-wrap'>
-            <KpiCard label={t('dashboard.cases.total')}      value={localCases.total}      color='#e8192c' loading={loading} icon={FolderOpen} />
-            <KpiCard label={t('dashboard.cases.open')}       value={localCases.open}       color='#f59e0b' loading={loading} icon={AlertCircle} />
-            <KpiCard label={t('dashboard.cases.inProgress')} value={localCases.inProgress} color='#3b82f6' loading={loading} icon={Clock} />
-            <KpiCard label={t('dashboard.cases.resolved')}   value={localCases.resolved}   color='#22c55e' loading={loading} icon={CheckCheck} />
-            <KpiCard label={t('dashboard.cases.closed')}     value={localCases.closed}     color='#6b7280' loading={loading} icon={Archive} />
+            <KpiCard label={t('dashboard.cases.total')}      value={localCases.total} loading={loading} icon={FolderOpen} />
+            <KpiCard label={t('dashboard.cases.open')}       value={localCases.open}       tono={siHay(localCases.open, 'atencion')} loading={loading} icon={AlertCircle} />
+            <KpiCard label={t('dashboard.cases.inProgress')} value={localCases.inProgress} loading={loading} icon={Clock} />
+            <KpiCard label={t('dashboard.cases.resolved')}   value={localCases.resolved}   tono={siHay(localCases.resolved, 'ok')} loading={loading} icon={CheckCheck} />
+            <KpiCard label={t('dashboard.cases.closed')}     value={localCases.closed} loading={loading} icon={Archive} />
           </div>
         </div>
 
@@ -298,26 +296,22 @@ export function Dashboard() {
               if (!cfg.enabled) {
                 return (
                   <div key={p} className='flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 opacity-40'>
-                    <span className='text-xs font-bold rounded px-1 py-0.5' style={{ background: meta.color + '15', color: meta.color + '99' }}>{meta.abbr}</span>
+                    <span className='text-xs font-bold rounded px-1 py-0.5 bg-muted text-muted-foreground'>{meta.abbr}</span>
                     <span className='text-xs font-medium text-muted-foreground truncate'>{meta.name}</span>
                   </div>
                 )
               }
               const st = cfg.last_status ?? 'unknown'
               return (
-                <div key={p} className='relative rounded-lg border bg-card px-3 pb-2 pt-3 overflow-hidden'>
-                  <div className='absolute top-0 left-0 right-0 h-0.5' style={{ background: meta.color }} />
-                  <span
-                    className='absolute top-2 right-2 text-xs font-black rounded px-1 py-0.5 tracking-wide'
-                    style={{ background: meta.color + '22', color: meta.color }}
-                  >{meta.abbr}</span>
+                <div key={p} className='relative rounded-lg border bg-card px-3 pb-2 pt-3'>
+                  <span className='absolute top-2 right-2 text-xs font-black rounded px-1 py-0.5 tracking-wide bg-muted text-muted-foreground'>{meta.abbr}</span>
                   <span className='text-xs font-semibold pr-7 block truncate'>{meta.name}</span>
                   <div className='flex items-center gap-1 mt-1'>
                     {testing === p
                       ? <Loader2 className='size-3 animate-spin text-muted-foreground' />
                       : <StatusIcon status={st} />
                     }
-                    <span className='text-xs' style={{ color: st === 'connected' ? '#22c55e' : st === 'error' ? '#ef4444' : '#6b7280' }}>
+                    <span className={cn('text-xs', st === 'connected' ? TONO_TEXTO.ok : st === 'error' ? TONO_TEXTO.critico : 'text-muted-foreground')}>
                       {testing === p ? t('dashboard.verifying') : statusLabel(st)}
                     </span>
                   </div>

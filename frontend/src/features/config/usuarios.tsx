@@ -36,7 +36,7 @@ type UserForm = { username: string; password: string; role: Role; nombre: string
 const EMPTY_FORM: UserForm = { username: '', password: '', role: 'analyst', nombre: '' }
 
 function fmtDate(d: string) {
-  if (!d) return '—'
+  if (!d) return '-'
   return new Date(d).toLocaleDateString(localeActivo(), { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
@@ -161,7 +161,7 @@ export function UsuariosView() {
               {users.map(u => (
                 <tr key={u.id} className='border-b last:border-0 hover:bg-muted/30 transition-colors'>
                   <td className='px-4 py-2.5 font-medium'>{u.username}</td>
-                  <td className='px-4 py-2.5 text-muted-foreground'>{u.nombre || '—'}</td>
+                  <td className='px-4 py-2.5 text-muted-foreground'>{u.nombre || '-'}</td>
                   <td className='px-4 py-2.5'>
                     <Badge variant={u.role === 'admin' ? 'destructive' : 'secondary'} className='text-xs'>
                       {ROLE_LABELS[u.role] || u.role}

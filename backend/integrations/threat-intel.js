@@ -171,7 +171,7 @@ async function queryIPQualityScore(ip, apiKey) {
 }
 
 // ── Abuse.ch URLhaus ──────────────────────────────────────────────────────────
-// Auth-Key header required since 2025 — same key used for all abuse.ch APIs
+// Auth-Key header required since 2025 - same key used for all abuse.ch APIs
 async function queryURLhaus(ioc, iocType, authKey = "") {
   if (!["url", "md5", "sha256"].includes(iocType)) return { source: "URLhaus", skipped: true };
   if (!authKey) return { source: "URLhaus", skipped: true };
@@ -228,7 +228,7 @@ async function queryThreatFox(ioc, authKey = "") {
     });
     if (r.status !== 200) return { source: "ThreatFox", skipped: false, error: `HTTP ${r.status}` };
     const d = parseJSON(r.data);
-    // Filter to exact matches only — ThreatFox does substring search internally
+    // Filter to exact matches only - ThreatFox does substring search internally
     const exactMatches = Array.isArray(d?.data)
       ? d.data.filter(item => { const v = item?.ioc?.toLowerCase() || ""; return v === ioc.toLowerCase() || v.startsWith(ioc.toLowerCase() + ":"); })
       : [];
@@ -240,7 +240,7 @@ async function queryThreatFox(ioc, authKey = "") {
   }
 }
 
-// ── Abuse.ch FeodoTracker (C2 botnet IPs — cached 1h) ────────────────────────
+// ── Abuse.ch FeodoTracker (C2 botnet IPs - cached 1h) ────────────────────────
 let feodoCache = null, feodoCacheTs = 0;
 async function queryFeodoTracker(ip) {
   try {
@@ -280,7 +280,7 @@ async function queryTorExitNodes(ip) {
   }
 }
 
-// ── OpenPhish (phishing URLs — cached 1h) ────────────────────────────────────
+// ── OpenPhish (phishing URLs - cached 1h) ────────────────────────────────────
 let openPhishCache = null, openPhishCacheTs = 0;
 async function queryOpenPhish(url) {
   try {
@@ -296,7 +296,7 @@ async function queryOpenPhish(url) {
   }
 }
 
-// ── C2 feeds (C2IntelFeeds en GitHub, últimos 30 días, IPs y dominios — cached 1h) ─────
+// ── C2 feeds (C2IntelFeeds en GitHub, últimos 30 días, IPs y dominios - cached 1h) ─────
 // montysecurity/C2-Tracker quedó archivado en 2026 y sus archivos dan 404.
 const C2_FEED_URLS = [
   "https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s-30day.csv",

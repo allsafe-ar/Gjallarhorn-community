@@ -3,6 +3,15 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.7.1] - 2026-11-19
+
+### Changed
+- Menu group titles in two tones of the system color that read in light and dark mode (4.5:1 or more). The second tone is no longer a transparency of the first.
+- Dark mode: text in the system color uses a readable version of the accent, separate from the button background, and secondary text goes up to 5:1.
+- Dark mode buttons use a deeper blue: white text reaches 4.6:1 (was 3.5:1).
+- Dashboard: figures are neutral unless the color means something (critical vulnerabilities in red, open cases in amber, resolved cases in green, when there are any). Integrations without a color stripe; connected and error states keep their color.
+- Timeline: the source label (CORRELACION) no longer overlaps the event.
+
 ## [1.7.0] - 2026-11-03
 
 ### Changed

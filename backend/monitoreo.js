@@ -237,7 +237,7 @@ function textoEvento(activo, chequeo, estado, resultado, umbral, antes = null) {
   const lat = resultado.latencia != null ? `, ${resultado.latencia} ms` : "";
   if (estado === "ok") {
     return antes === "desconocido" || antes == null
-      ? `${donde} responde (${via}${lat}) — primera medición`
+      ? `${donde} responde (${via}${lat}) - primera medición`
       : `${donde} volvió a responder (${via}${lat})`;
   }
   if (estado === "caido") return `${donde} no responde por ${via} tras ${umbral} intentos: ${resultado.error || "sin detalle"}`;

@@ -37,8 +37,8 @@ import {
 
 // Títulos de grupo en dos tonos del color de acento del sistema, según el frente.
 const COLOR_FRENTE = {
-  1: 'font-semibold text-primary',
-  2: 'font-semibold text-primary/70',
+  1: 'font-semibold text-[var(--acento-texto)]',
+  2: 'font-semibold text-[var(--frente-2)]',
 } as const
 
 export function NavGroup({ title, items, adminOnly, roles, frente }: NavGroupProps) {

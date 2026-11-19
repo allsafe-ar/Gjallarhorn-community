@@ -391,10 +391,10 @@ function generateRules(analysis) {
   const subj = (analysis.subject || "").replace(/"/g, "'");
   const safeKey = fromDomain.replace(/[^a-zA-Z0-9]/g, "_");
 
-  const m365 = `# Microsoft 365 / Exchange Online — Transport Rule
+  const m365 = `# Microsoft 365 / Exchange Online - Transport Rule
 # Generado por Gjallar Email Forensics
 
-# PowerShell — Exchange Online Management
+# PowerShell - Exchange Online Management
 New-TransportRule -Name "Gjallar_Block_${safeKey}" \`
   -FromAddressContainsWords "${fromDomain}" \`
   -SetSCL 9 \`
@@ -409,7 +409,7 @@ New-TenantAllowBlockListItems -ListType Sender -Block -Entries "${fromDomain}" -
 # Si el email fue recibido (para quarantine policy)
 New-QuarantinePolicy -Name "Gjallar_Phishing_Quarantine" -EndUserQuarantinePermissionsValue 0`;
 
-  const fortimail = `# FortiMail — Política de Contenido
+  const fortimail = `# FortiMail - Política de Contenido
 # Generado por Gjallar Email Forensics
 
 config antispam black-white-list
@@ -435,7 +435,7 @@ config antispam profile
   next
 end`;
 
-  const proofpoint = `# Proofpoint — Política de filtrado
+  const proofpoint = `# Proofpoint - Política de filtrado
 # Generado por Gjallar Email Forensics
 
 {
@@ -451,7 +451,7 @@ end`;
   ]
 }`;
 
-  const mimecast = `# Mimecast — Política de Examen de Contenido
+  const mimecast = `# Mimecast - Política de Examen de Contenido
 # Generado por Gjallar Email Forensics
 
 Ruta: Administración → Políticas de Gateway → Políticas de Examen de Contenido → Nueva Política
@@ -461,7 +461,7 @@ Dirección:    Entrante (Inbound)
 Remitente:    Dominio = ${fromDomain}
 Acción:       Rechazar
 Notificación: Administrador notificado por cada coincidencia
-Descripción:  Detectado por Gjallar — Phishing / BEC
+Descripción:  Detectado por Gjallar - Phishing / BEC
 
 # Bloqueo de URL en Managed URL:
 Agregar URL: *://${fromDomain}/* → Acción: Block → Notificar al usuario`;

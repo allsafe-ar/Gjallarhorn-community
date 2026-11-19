@@ -445,7 +445,7 @@ async function analyzeFile(buf, filename) {
   } else {
     // Generic analysis for any file type
     analysis.ransomware   = detectRansomware(strings, buf);
-    // CS beacon XOR scan only makes sense on opaque binaries — not on document/archive types
+    // CS beacon XOR scan only makes sense on opaque binaries - not on document/archive types
     // whose internal ZIP/XML content produces accidental false XOR-MZ matches
     const EXECUTABLE_TYPES = ["binary", "elf"];
     if (EXECUTABLE_TYPES.includes(fileType)) {

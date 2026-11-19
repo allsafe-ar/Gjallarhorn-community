@@ -10,9 +10,9 @@ import { cn } from '@/lib/utils'
 import { localeActivo } from '@/lib/locale'
 
 function fmtTS(epochSeconds: number | undefined) {
-  if (!epochSeconds) return '—'
+  if (!epochSeconds) return '-'
   const d = new Date(epochSeconds * 1000)
-  return isNaN(d.getTime()) ? '—' : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
+  return isNaN(d.getTime()) ? '-' : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
 
 const SEV_META: Record<number, { label: string; color: string }> = {
@@ -66,7 +66,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, loading
             <tr key={row[keyField] ?? i} className='border-b last:border-0 hover:bg-muted/20 transition-colors'>
               {cols.map(c => (
                 <td key={c.key} className={cn('px-3 py-2.5', c.muted && 'text-muted-foreground text-xs')}>
-                  {c.render ? c.render(row) : row[c.key] ?? '—'}
+                  {c.render ? c.render(row) : row[c.key] ?? '-'}
                 </td>
               ))}
             </tr>
@@ -156,7 +156,7 @@ export function NessusView() {
               {t('soc.nessus.tab.scans')} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{scans.length}</span>
             </TabsTrigger>
             <TabsTrigger value='vulns'>
-              {t('soc.nessus.tab.vulns')}{selScan ? ` — ${selScan}` : ''} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{vulns.length}</span>
+              {t('soc.nessus.tab.vulns')}{selScan ? ` - ${selScan}` : ''} <span className='ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full'>{vulns.length}</span>
             </TabsTrigger>
           </TabsList>
 

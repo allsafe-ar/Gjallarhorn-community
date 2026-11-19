@@ -17,7 +17,7 @@ export function ProfileDropdown() {
   const [open, setOpen] = useDialogState()
   const { auth } = useAuthStore()
   const user = auth.user
-  const displayName = user?.nombre || user?.username || '—'
+  const displayName = user?.nombre || user?.username || '-'
   const initials = displayName.slice(0, 2).toUpperCase()
   const role = user?.role?.toUpperCase() ?? ''
 

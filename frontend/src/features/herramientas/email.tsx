@@ -125,8 +125,8 @@ export function EmailView() {
     }
   }
 
-  const fromStr = (v: any) => typeof v === 'string' ? v : v?.address || v?.name || '—'
-  const toStr = (v: any) => Array.isArray(v) ? v.map((r: any) => r.address || r.name || r).filter(Boolean).join(', ') : (v || '—')
+  const fromStr = (v: any) => typeof v === 'string' ? v : v?.address || v?.name || '-'
+  const toStr = (v: any) => Array.isArray(v) ? v.map((r: any) => r.address || r.name || r).filter(Boolean).join(', ') : (v || '-')
 
   return (
     <div className='p-8'>
@@ -252,7 +252,7 @@ export function EmailView() {
                           <div key={i} className={cn('rounded-lg border px-4 py-2.5 text-xs',
                             ind.severity === 'critical' || ind.severity === 'high' ? 'border-destructive/40 bg-destructive/5' : 'border-amber-400/30 bg-amber-400/5')}>
                             <span className='font-semibold'>{ind.check}</span>
-                            {ind.detail && <span className='text-muted-foreground ml-2'>— {ind.detail}</span>}
+                            {ind.detail && <span className='text-muted-foreground ml-2'>- {ind.detail}</span>}
                           </div>
                         ))}
                       </div>
@@ -275,7 +275,7 @@ export function EmailView() {
                           <div key={i} className={cn('rounded-lg border px-4 py-2.5 text-xs',
                             ind.severity === 'critical' || ind.severity === 'high' ? 'border-destructive/40 bg-destructive/5' : 'border-amber-400/30 bg-amber-400/5')}>
                             <span className='font-semibold'>{ind.check}</span>
-                            {ind.detail && <span className='text-muted-foreground ml-2'>— {ind.detail}</span>}
+                            {ind.detail && <span className='text-muted-foreground ml-2'>- {ind.detail}</span>}
                           </div>
                         ))}
                       </div>
@@ -315,7 +315,7 @@ export function EmailView() {
                     {result.attachments.map((a: any, i: number) => (
                       <div key={i} className='rounded-lg border px-3 py-2 text-sm'>
                         <div className='font-medium'>{a.filename || a.name || t('tools.email.noName')}</div>
-                        <div className='text-xs text-muted-foreground mt-0.5'>{a.contentType || a.type || '—'} · {a.size ? `${(a.size / 1024).toFixed(1)} KB` : '—'}</div>
+                        <div className='text-xs text-muted-foreground mt-0.5'>{a.contentType || a.type || '-'} · {a.size ? `${(a.size / 1024).toFixed(1)} KB` : '-'}</div>
                       </div>
                     ))}
                   </div>
@@ -368,8 +368,8 @@ export function EmailView() {
                     {pageRows.map(h => (
                       <tr key={h.id} className='border-b last:border-0 hover:bg-muted/20 cursor-pointer' onClick={() => loadFromHistory(h.id)}>
                         <td className='px-3 py-2 text-muted-foreground whitespace-nowrap'>{new Date(h.ts).toLocaleString(localeActivo(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
-                        <td className='px-3 py-2 max-w-[200px] truncate'>{h.subject || '—'}</td>
-                        <td className='px-3 py-2 max-w-[160px] truncate text-muted-foreground'>{h.email_from || '—'}</td>
+                        <td className='px-3 py-2 max-w-[200px] truncate'>{h.subject || '-'}</td>
+                        <td className='px-3 py-2 max-w-[160px] truncate text-muted-foreground'>{h.email_from || '-'}</td>
                         <td className='px-3 py-2 font-bold tabular-nums' style={{ color: scoreColor(h.threat_score) }}>{h.threat_score}</td>
                         <td className='px-3 py-2'><span className={cn('text-xs font-bold', h.verdict === 'MALICIOUS' ? 'text-destructive' : h.verdict === 'SUSPICIOUS' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-500')}>{h.verdict}</span></td>
                         <td className='px-3 py-2'><span className='text-primary text-xs'>{t('tools.ioc.view')}</span></td>

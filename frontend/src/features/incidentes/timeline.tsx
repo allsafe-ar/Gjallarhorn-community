@@ -24,7 +24,7 @@ const SEV_COLORS: Record<string, string> = {
 }
 
 function fmtDate(d: string) {
-  if (!d) return '—'
+  if (!d) return '-'
   return new Date(d).toLocaleString(localeActivo(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
@@ -111,8 +111,9 @@ export function TimelineView() {
               return (
                 <div key={ev.id} className={cn('flex gap-3 items-start px-4 py-3', i < paged.length - 1 && 'border-b')}>
                   <div className='w-0.5 self-stretch rounded mt-1 shrink-0' style={{ background: sevColor }} />
-                  <div className='w-14 shrink-0'>
-                    <span className='text-xs font-black rounded px-1.5 py-0.5' style={{ background: srcColor + '22', color: srcColor }}>
+                  {/* Ancho para la fuente más larga (CORRELACION): con w-14 la etiqueta se montaba sobre el evento. */}
+                  <div className='w-28 shrink-0'>
+                    <span className='inline-block whitespace-nowrap text-xs font-black rounded px-1.5 py-0.5' style={{ background: srcColor + '22', color: srcColor }}>
                       {ev.source?.toUpperCase()}
                     </span>
                   </div>

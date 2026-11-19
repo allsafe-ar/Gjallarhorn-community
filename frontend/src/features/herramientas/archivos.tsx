@@ -215,7 +215,7 @@ export function ArchivosView() {
                 <div className='font-mono text-sm mb-1 truncate'>{result.filename}</div>
                 <div className='text-xs text-muted-foreground flex gap-4 flex-wrap'>
                   <span>{fmtSize(result.fileSize)}</span>
-                  <span>{t('tools.files.info.entropy')}: <span className={cn(analysis.entropy && analysis.entropy >= 7 ? 'text-destructive' : analysis.entropy && analysis.entropy >= 5 ? 'text-amber-700 dark:text-amber-400' : '')}>{analysis.entropy ?? '—'}</span></span>
+                  <span>{t('tools.files.info.entropy')}: <span className={cn(analysis.entropy && analysis.entropy >= 7 ? 'text-destructive' : analysis.entropy && analysis.entropy >= 5 ? 'text-amber-700 dark:text-amber-400' : '')}>{analysis.entropy ?? '-'}</span></span>
                   {analysis.peInfo?.arch && <span>Arch: {analysis.peInfo.arch}</span>}
                 </div>
               </div>
@@ -238,7 +238,7 @@ export function ArchivosView() {
             {[['MD5', result.hashes?.md5], ['SHA-1', result.hashes?.sha1], ['SHA-256', result.hashes?.sha256]].map(([label, val]) => (
               <div key={label} className='flex items-center gap-3 mb-1.5'>
                 <span className='text-xs text-muted-foreground w-12 shrink-0'>{label}</span>
-                <span className='font-mono text-xs flex-1 break-all'>{val || '—'}</span>
+                <span className='font-mono text-xs flex-1 break-all'>{val || '-'}</span>
                 {val && (
                   <button className='text-xs text-muted-foreground hover:text-foreground px-1' onClick={() => navigator.clipboard.writeText(val)}>
                     <Copy className='h-3 w-3' />

@@ -237,7 +237,7 @@ export function ResultadoSandbox({ resultado, destino }: { resultado: Resultado;
       <div className='rounded-lg border p-4 flex flex-wrap items-center gap-4'>
         <div>
           <div className='text-3xl font-bold' style={{ color: resultado.verdicto === 'UNANALYZED' ? '#9ca3af' : colorPuntaje(resultado.puntaje) }}>
-            {resultado.verdicto === 'UNANALYZED' ? '—' : (resultado.puntaje ?? 0)}
+            {resultado.verdicto === 'UNANALYZED' ? '-' : (resultado.puntaje ?? 0)}
           </div>
           <div className='text-xs text-muted-foreground'>{t('tools.sandbox.score')}</div>
         </div>

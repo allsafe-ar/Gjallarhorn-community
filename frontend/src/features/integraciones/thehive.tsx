@@ -30,7 +30,7 @@ const SEV_COLORS: Record<number, string> = { 1: '#22c55e', 2: '#f59e0b', 3: '#ef
 const SEV_LABELS: Record<number, string> = { 1: 'Low', 2: 'Medium', 3: 'High', 4: 'Critical' }
 
 function fmtDate(val: string | number | undefined) {
-  if (!val) return '—'
+  if (!val) return '-'
   const d = new Date(typeof val === 'number' ? val : val)
   return isNaN(d.getTime()) ? String(val) : d.toLocaleString(localeActivo(), { dateStyle: 'short', timeStyle: 'short' })
 }
@@ -87,7 +87,7 @@ function SocTable<T extends Record<string, any>>({ cols, rows, keyField, emptyMs
             <tr key={row[keyField] ?? i} className={cn('border-b last:border-0 hover:bg-muted/20 transition-colors')}>
               {cols.map(c => (
                 <td key={c.key} className={cn('px-3 py-2.5', c.muted && 'text-muted-foreground text-xs')}>
-                  {c.render ? c.render(row) : row[c.key] ?? '—'}
+                  {c.render ? c.render(row) : row[c.key] ?? '-'}
                 </td>
               ))}
             </tr>
@@ -186,11 +186,11 @@ export function TheHiveView() {
           <TabsContent value='cases'>
             <SocTable
               cols={[
-                { key: 'id', label: t('soc.thehive.col.id'), render: r => r.caseId || r._id?.slice(-6) || '—' },
-                { key: 'title', label: t('soc.thehive.col.title'), render: r => <span className='font-medium'>{r.title || '—'}</span> },
+                { key: 'id', label: t('soc.thehive.col.id'), render: r => r.caseId || r._id?.slice(-6) || '-' },
+                { key: 'title', label: t('soc.thehive.col.title'), render: r => <span className='font-medium'>{r.title || '-'}</span> },
                 { key: 'severity', label: t('soc.thehive.col.severity'), render: r => <SevBadge value={r.severity} text={SEV_LABELS[r.severity] || String(r.severity)} /> },
-                { key: 'status', label: t('soc.thehive.col.status'), render: r => <StatusBadge status={r.status || '—'} /> },
-                { key: 'owner', label: t('soc.thehive.col.assigned'), muted: true, render: r => r.owner || r.assignee || '—' },
+                { key: 'status', label: t('soc.thehive.col.status'), render: r => <StatusBadge status={r.status || '-'} /> },
+                { key: 'owner', label: t('soc.thehive.col.assigned'), muted: true, render: r => r.owner || r.assignee || '-' },
                 { key: 'date', label: t('soc.thehive.col.created'), muted: true, render: r => fmtDate(r._createdAt || r.createdAt) },
               ]}
               rows={cases}
@@ -202,11 +202,11 @@ export function TheHiveView() {
           <TabsContent value='alerts'>
             <SocTable
               cols={[
-                { key: 'type', label: t('soc.thehive.col.type'), render: r => r.type || '—' },
-                { key: 'title', label: t('soc.thehive.col.title'), render: r => <span className='font-medium'>{r.title || '—'}</span> },
-                { key: 'severity', label: t('soc.thehive.col.severity'), render: r => <SevBadge value={r.severity} text={SEV_LABELS[r.severity] || '—'} /> },
-                { key: 'status', label: t('soc.thehive.col.status'), render: r => <StatusBadge status={r.status || '—'} /> },
-                { key: 'source', label: t('soc.thehive.col.source'), muted: true, render: r => r.source || '—' },
+                { key: 'type', label: t('soc.thehive.col.type'), render: r => r.type || '-' },
+                { key: 'title', label: t('soc.thehive.col.title'), render: r => <span className='font-medium'>{r.title || '-'}</span> },
+                { key: 'severity', label: t('soc.thehive.col.severity'), render: r => <SevBadge value={r.severity} text={SEV_LABELS[r.severity] || '-'} /> },
+                { key: 'status', label: t('soc.thehive.col.status'), render: r => <StatusBadge status={r.status || '-'} /> },
+                { key: 'source', label: t('soc.thehive.col.source'), muted: true, render: r => r.source || '-' },
                 { key: 'date', label: t('soc.thehive.col.date'), muted: true, render: r => fmtDate(r._createdAt || r.createdAt) },
               ]}
               rows={alerts}

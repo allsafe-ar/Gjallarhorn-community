@@ -1,7 +1,7 @@
 "use strict";
 const { httpRequest, httpUpload, parseJSON } = require("../integrations/http");
 
-// Triage (tria.ge) — sandbox en la nube, con API pública y detonación de archivos
+// Triage (tria.ge) - sandbox en la nube, con API pública y detonación de archivos
 // y de URLs. Se eligió como motor de nube de referencia porque tiene una API
 // comunitaria utilizable para desarrollo y prueba.
 //

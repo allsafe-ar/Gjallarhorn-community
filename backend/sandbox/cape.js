@@ -1,7 +1,7 @@
 "use strict";
 const { httpRequest, httpUpload, parseJSON } = require("../integrations/http");
 
-// CAPEv2 — sandbox de detonación autohospedado, heredero de Cuckoo.
+// CAPEv2 - sandbox de detonación autohospedado, heredero de Cuckoo.
 // cfg.url = http://<cape>:8000  ·  cfg.api_key = token (opcional según instalación)
 //
 // La muestra NUNCA sale de la red del cliente: por eso es el motor que corresponde
