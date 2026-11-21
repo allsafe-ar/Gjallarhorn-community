@@ -900,11 +900,36 @@ app.get("/api/soc/velociraptor/hunts", auth, analystOrAdmin, async (req, res) =>
 app.post("/api/soc/velociraptor/hunts", auth, analystOrAdmin, async (req, res) => {
   const cfg = await getPlatformCfg("velociraptor");
   if (!cfg) return res.status(503).json({ error: "Velociraptor no configurado" });
-  const result = await velociraptorInt.createHunt(cfg, req.body);
+  const { artifact, description, iniciar, sistema, etiquetas, dias } = req.body || {};
+  const result = await velociraptorInt.createHunt(cfg, { artifact, description, iniciar: iniciar === true, sistema, etiquetas, dias });
   if (result.ok) {
     socCache.delete("velociraptor:hunts");
-    await auditLog("VR_HUNT_CREATE", `Hunt creado: ${req.body.artifact}`, req.user.username, req.user.role, "internal", "ok");
+    const destino = [sistema || "todos los sistemas", ...(Array.isArray(etiquetas) && etiquetas.length ? [`etiquetas ${etiquetas.join(", ")}`] : [])].join(", ");
+    await auditLog("VR_HUNT_CREATE", `Hunt ${result.huntId || ""} ${result.estado === "RUNNING" ? "iniciado" : "en borrador"}: ${artifact} (${destino}, ${Number(dias) || 7} días)`, req.user.username, req.user.role, "internal", "ok");
   }
+  res.json(result);
+});
+
+// Arrancar, pausar o detener un hunt (un borrador se revisa y recién después se inicia).
+app.post("/api/soc/velociraptor/hunts/:huntId/estado", auth, analystOrAdmin, async (req, res) => {
+  const cfg = await getPlatformCfg("velociraptor");
+  if (!cfg) return res.status(503).json({ error: "Velociraptor no configurado" });
+  const estado = String(req.body?.estado || "");
+  const result = await velociraptorInt.setHuntState(cfg, req.params.huntId, estado);
+  if (result.ok) {
+    socCache.delete("velociraptor:hunts");
+    await auditLog("VR_HUNT_STATE", `Hunt ${req.params.huntId}: ${estado}`, req.user.username, req.user.role, "internal", "ok");
+  }
+  res.json(result);
+});
+
+// Recolectar un artefacto en un solo equipo.
+app.post("/api/soc/velociraptor/collect", auth, analystOrAdmin, async (req, res) => {
+  const cfg = await getPlatformCfg("velociraptor");
+  if (!cfg) return res.status(503).json({ error: "Velociraptor no configurado" });
+  const { clientId, artifact } = req.body || {};
+  const result = await velociraptorInt.collectOnClient(cfg, clientId, artifact);
+  if (result.ok) await auditLog("VR_COLLECT", `Recolección ${result.flowId || ""}: ${artifact} en ${clientId}`, req.user.username, req.user.role, "internal", "ok");
   res.json(result);
 });
 

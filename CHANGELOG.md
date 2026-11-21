@@ -3,6 +3,11 @@
 All notable changes to Gjallarhorn Community are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.7.2] - 2026-11-21
+
+### Fixed
+- **Velociraptor "New hunt"**: it did not send the CSRF token Velociraptor requires (it failed with 403), and the description went where Velociraptor does not read it, so a hunt ended up paused, on every endpoint and expiring in a week. You now choose the target (all endpoints, an operating system or labels), the days, and whether it starts or stays as a draft. Hunts can be started and stopped from the list, and "Collect" runs an artifact on a single endpoint. Dates on the screen came in microseconds and showed the year 58.
+
 ## [1.7.1] - 2026-11-19
 
 ### Changed

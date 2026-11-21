@@ -768,7 +768,7 @@
   "soc.velociraptor.noHunts": "No hay hunts",
   "soc.velociraptor.selectClient": "Seleccioná un cliente en la pestaña Clientes",
   "soc.velociraptor.dialog.title": "Nuevo hunt",
-  "soc.velociraptor.dialog.artifact": "Artifact",
+  "soc.velociraptor.dialog.artifact": "Artefacto",
   "soc.velociraptor.dialog.desc": "Descripción",
   "soc.velociraptor.dialog.descPlaceholder": "Descripción del hunt…",
   "soc.velociraptor.dialog.cancel": "Cancelar",
@@ -1118,5 +1118,22 @@
       "k2": "Volver a importar de Zabbix actualiza el nombre, la dirección y el grupo, y conserva la criticidad y las notas cargadas acá",
       "k3": "El monitoreo propio requiere que el servidor alcance la red del activo. La importación desde Zabbix funciona también en instalaciones alojadas"
     }
-  }
+  },
+  "soc.velociraptor.collectStarted": "Recolección iniciada en el equipo",
+  "soc.velociraptor.huntStarted": "Hunt iniciado",
+  "soc.velociraptor.huntDraft": "Hunt creado en borrador: revisalo e inicialo desde la lista",
+  "soc.velociraptor.huntStopped": "Hunt detenido",
+  "soc.velociraptor.collect": "Recolectar",
+  "soc.velociraptor.start": "Iniciar",
+  "soc.velociraptor.stop": "Detener",
+  "soc.velociraptor.dialog.collectTitle": "Recolectar en {{host}}",
+  "soc.velociraptor.dialog.target": "Equipos",
+  "soc.velociraptor.dialog.targetAll": "Todos los equipos",
+  "soc.velociraptor.dialog.targetOs": "Por sistema operativo",
+  "soc.velociraptor.dialog.targetLabels": "Por etiqueta de Velociraptor",
+  "soc.velociraptor.dialog.labelsPlaceholder": "servidores, sede-centro (separadas por coma)",
+  "soc.velociraptor.dialog.days": "Días",
+  "soc.velociraptor.dialog.startNow": "Iniciar ahora",
+  "soc.velociraptor.dialog.startNowHint": "Se ejecuta enseguida en los equipos elegidos.",
+  "soc.velociraptor.dialog.draftHint": "Queda en borrador: revisalo en la lista y tocá Iniciar."
 }

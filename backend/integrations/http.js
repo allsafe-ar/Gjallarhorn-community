@@ -22,7 +22,7 @@ function httpRequest(urlStr, { method = "GET", headers = {}, body = null, timeou
     const req = mod.request(opts, (res) => {
       let data = "";
       res.on("data", c => { data += c; });
-      res.on("end", () => resolve({ status: res.statusCode, data }));
+      res.on("end", () => resolve({ status: res.statusCode, data, headers: res.headers }));
     });
 
     req.setTimeout(timeout, () => { req.destroy(); reject(new Error("Timeout")); });

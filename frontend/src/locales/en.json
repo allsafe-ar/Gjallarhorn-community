@@ -1118,5 +1118,22 @@
       "k2": "Re-importing from Zabbix updates name, address and group, and preserves the criticality and notes entered here",
       "k3": "Local monitoring requires the server to reach the asset's network. Importing from Zabbix also works on hosted installations"
     }
-  }
+  },
+  "soc.velociraptor.collectStarted": "Collection started on the endpoint",
+  "soc.velociraptor.huntStarted": "Hunt started",
+  "soc.velociraptor.huntDraft": "Hunt created as a draft: review it and start it from the list",
+  "soc.velociraptor.huntStopped": "Hunt stopped",
+  "soc.velociraptor.collect": "Collect",
+  "soc.velociraptor.start": "Start",
+  "soc.velociraptor.stop": "Stop",
+  "soc.velociraptor.dialog.collectTitle": "Collect on {{host}}",
+  "soc.velociraptor.dialog.target": "Endpoints",
+  "soc.velociraptor.dialog.targetAll": "All endpoints",
+  "soc.velociraptor.dialog.targetOs": "By operating system",
+  "soc.velociraptor.dialog.targetLabels": "By Velociraptor label",
+  "soc.velociraptor.dialog.labelsPlaceholder": "servers, main-office (comma separated)",
+  "soc.velociraptor.dialog.days": "Days",
+  "soc.velociraptor.dialog.startNow": "Start now",
+  "soc.velociraptor.dialog.startNowHint": "Runs right away on the selected endpoints.",
+  "soc.velociraptor.dialog.draftHint": "Stays as a draft: review it in the list and press Start."
 }
