@@ -91,7 +91,7 @@ Gjallarhorn Community incluye:
 | Plataforma | Funcionalidad |
 |---|---|
 | Wazuh | Agentes, alertas (via indexer OpenSearch en :9200) |
-| Velociraptor | Clientes, hunts, flujos de artifacts |
+| Velociraptor | Clientes, hunts (por sistema operativo o etiqueta, en borrador o iniciado, con duración), iniciar y detener, recolección en un equipo, flujos de artifacts |
 | OpenVAS / GVM | Scans y vulnerabilidades (via proxy GMP en :9391) |
 
 ### Análisis de Archivos
@@ -160,7 +160,7 @@ Algunas capacidades están en la base y se **profundizan** en Pro. El ejemplo m�
 | Integraciones TheHive · Nessus | ❌ | ✅ |
 | **Circuito activo de correlación y respuesta** (de visor a respuesta) | ❌ | ✅ |
 | **Respuestas nativas automáticas** (aviso por mail + feed de bloqueo de IPs) | ❌ | ✅ |
-| **Reporting ejecutivo** (PDF, heatmap de phishing, cobertura MITRE, scheduler) | ❌ | ✅ |
+| **Reporting ejecutivo** (PDF, cobertura MITRE, scheduler) | ❌ | ✅ |
 | **Métricas del SOC** (SLA de casos, métricas por analista) | ❌ | ✅ |
 | **Re-chequeo programado de IOCs** · tuning de ruido del timeline | ❌ | ✅ |
 | Módulo de IA (experimental) | ❌ | ✅ |
@@ -254,7 +254,6 @@ Credenciales iniciales (primer arranque): usuario `admin`. No hay contraseña po
 | Criminal IP | [docs/api-keys/criminalip.md](docs/api-keys/criminalip.md) |
 | IPQualityScore | [docs/api-keys/ipqualityscore.md](docs/api-keys/ipqualityscore.md) |
 | Abuse.ch (ThreatFox / MalwareBazaar / URLhaus) | [docs/api-keys/abusech.md](docs/api-keys/abusech.md) |
-| Hybrid Analysis | [docs/api-keys/hybrid-analysis.md](docs/api-keys/hybrid-analysis.md) |
 
 ### Configuración de Integraciones SOC
 | Plataforma | Documentación |

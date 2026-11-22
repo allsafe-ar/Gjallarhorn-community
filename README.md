@@ -91,7 +91,7 @@ Gjallarhorn Community includes:
 | Platform | Functionality |
 |---|---|
 | Wazuh | Agents, alerts (via OpenSearch indexer at :9200) |
-| Velociraptor | Clients, hunts, artifact flows |
+| Velociraptor | Clients, hunts (target by OS or label, draft or start, duration), start/stop, single-endpoint collection, artifact flows |
 | OpenVAS / GVM | Scans and vulnerabilities (via GMP proxy at :9391) |
 
 ### File Analysis
@@ -160,7 +160,7 @@ Some capabilities are shared at the base and **deepened** in Pro. The clearest e
 | TheHive · Nessus integrations | ❌ | ✅ |
 | **Active correlation & response circuit** (sensor → response) | ❌ | ✅ |
 | **Automatic native responses** (email alert + IP block feed) | ❌ | ✅ |
-| **Executive reporting** (PDF, phishing heatmap, MITRE coverage, scheduler) | ❌ | ✅ |
+| **Executive reporting** (PDF, MITRE coverage, scheduler) | ❌ | ✅ |
 | **SOC metrics** (case SLA, per-analyst metrics) | ❌ | ✅ |
 | **Scheduled IOC re-check** · timeline noise tuning | ❌ | ✅ |
 | AI module (experimental) | ❌ | ✅ |
@@ -254,7 +254,6 @@ Initial credentials (first run): user `admin`. There is no default password: it 
 | Criminal IP | [docs/api-keys/criminalip.md](docs/api-keys/criminalip.md) |
 | IPQualityScore | [docs/api-keys/ipqualityscore.md](docs/api-keys/ipqualityscore.md) |
 | Abuse.ch (ThreatFox / MalwareBazaar / URLhaus) | [docs/api-keys/abusech.md](docs/api-keys/abusech.md) |
-| Hybrid Analysis | [docs/api-keys/hybrid-analysis.md](docs/api-keys/hybrid-analysis.md) |
 
 ### SOC Integration Configuration
 | Platform | Documentation |
